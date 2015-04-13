@@ -7,15 +7,15 @@
 
 #include <string>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <math.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <limits.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cerrno>
+#include <cmath>
+#include <cctype>
+#include <cstdarg>
+#include <climits>
+#include <ctime>
 
 #include "fib.h"
 
