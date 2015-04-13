@@ -1,6 +1,7 @@
 #include "struct.h"
 
 #include <algorithm>
+#include <bitset>
 #include <vector>
 #include <set>
 #include <memory>
@@ -10,10 +11,11 @@
 
 #include "edge_list.h"
 
+
 class qubic {
   /* global data */
   std::vector<std::vector<continuous>> arr;
-  std::vector<std::vector<discrete>> arr_c;
+  DiscreteArrayList arr_c;
   std::vector<discrete> symbols;
   std::vector<std::string> genes;
   std::vector<std::string> conds;
@@ -109,7 +111,7 @@ class qubic {
   }
 
   static void discretize(const char* stream_nm, const std::vector<std::vector<continuous>> &arr, 
-    discrete *bb, std::vector<discrete>& symbols, const double& f, std::vector<std::vector<discrete>> &arr_c, const discrete divided,
+    discrete *bb, std::vector<discrete>& symbols, const double& f, DiscreteArrayList &arr_c, const discrete divided,
     const std::vector<std::string>& genes) {
     size_t row, col;
     std::vector<continuous> rowdata(arr[0].size());
@@ -190,7 +192,7 @@ class qubic {
           sublist[j] = true;
   }
 
-  void seed_update(const std::vector<discrete> & s) {
+  void seed_update(const DiscreteArray& s) {
     for (int i = 0; i < cols; i++)
       profile[i][s[i]]++;
   }
@@ -273,7 +275,7 @@ class qubic {
     fputc('\n', fw);*/
   }
 
-  void update_colcand(std::vector<bool> & colcand, const std::vector<discrete> & g1, const std::vector<discrete> & g2) {
+  void update_colcand(std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
     int i;
     for (i = 0; i < cols; i++)
       if (colcand[i] && (g1[i] != g2[i]))
@@ -281,7 +283,7 @@ class qubic {
   }
 
   /*calculate the weight of the edge with two vertices g1 and g2*/
-  int intersect_row(const std::vector<bool> & colcand, const std::vector<discrete> & g1, const std::vector<discrete> & g2) {
+  int intersect_row(const std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
     int i;
     int cnt = 0;
     for (i = 0; i < cols; i++)
@@ -291,7 +293,7 @@ class qubic {
   }
 
   /*calculate the negative correlation between g1 and g2*/
-  int reverse_row(const std::vector<bool> & colcand, const std::vector<discrete> & g1, const std::vector<discrete> & g2) {
+  int reverse_row(const std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
     int i;
     int cnt = 0;
     for (i = 0; i < cols; i++) {
@@ -303,7 +305,7 @@ class qubic {
   /* calculate the coverage of any row to the current consensus
   * cnt = # of valid consensus columns
   */
-  int seed_current_modify(const std::vector<discrete> & s, std::vector<bool> & colcand, const int & components) {
+  int seed_current_modify(const DiscreteArray& s, std::vector<bool> &colcand, const int &components) {
     int i, k, flag, n;
     int threshold = static_cast <int> (ceil(components * po.TOLERANCE));
     discrete ss;
@@ -395,7 +397,7 @@ class qubic {
     std::vector<int> arr_rows(rows), arr_rows_b(rows);
     std::vector<bool> colcand(cols);
     std::fill(colcand.begin(), colcand.end(), false);
-    std::vector<discrete> g1, g2;
+    DiscreteArray g1, g2;
 
     g1 = arr_c[genes[0]];
     g2 = arr_c[genes[1]];
@@ -694,7 +696,7 @@ class qubic {
     }
   }
   
-  void make_graph(const char *fn, const std::vector<std::vector<discrete>> &arr_c, int &COL_WIDTH) {
+  void make_graph(const char *fn, const DiscreteArrayList &arr_c, int &COL_WIDTH) {
     EdgeList EdgeList(arr_c, COL_WIDTH);
 
     FILE *fw = mustOpen(fn, "w");
@@ -711,7 +713,7 @@ class qubic {
   }
 
   /* expand subroutine prototypes */
-  std::vector<std::vector<discrete>> another_arr_c;
+  DiscreteArrayList another_arr_c;
   std::vector<std::string> another_genes;
   std::vector<std::string> another_conds;
   int another_rows;
@@ -765,7 +767,7 @@ class qubic {
   int run_qubic(const std::string &tfile, const double & rq, const double & rc, const double & rf, const int & rk, const discrete & rr, const int & ro, const int & rd) {
     int i = 0, j = 0;
 
-    arr_c.resize(rows, std::vector<discrete>(cols));
+    arr_c.resize(rows, DiscreteArray(cols));
 
     printf("\nQUBIC %.1f: greedy biclustering\n\n", VER);
     /* get the program options defined in get_options.c */

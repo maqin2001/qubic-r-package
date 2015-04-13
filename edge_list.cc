@@ -11,7 +11,7 @@
 /*we can reduce the HEAP_SIZE when the data contain so many genes so that memory is not enough*/
 #define HEAP_SIZE 20000000
 
-int str_intersect_r(const std::vector<discrete> &s1, const std::vector<discrete> &s2) {
+int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
   assert(s1.size() == s2.size());
   int common_cnt = 0;
   /* s1 and s2 of equal length, so we check s1 only */
@@ -66,7 +66,7 @@ struct CompEventByPtr {
 };
 
 const std::vector<Edge *>& EdgeList::get_edge_list() const { return edge_list; }
-EdgeList::EdgeList(const std::vector<std::vector<discrete>>& arr_c, int& COL_WIDTH) {
+EdgeList::EdgeList(const DiscreteArrayList& arr_c, int& COL_WIDTH) {
   if (COL_WIDTH == 2) COL_WIDTH = MAX(arr_c[0].size() / 20, 2);
 #if 1
   Edge * edge;
