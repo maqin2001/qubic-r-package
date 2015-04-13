@@ -57,46 +57,7 @@ static void fh_dump(fibheap *h, std::vector<Edge *> &data_array) {
 
 int EdgeList::get_key(const Edge* s) { return s->score - col_width; }
 
-class MyIterator : public std::iterator < std::bidirectional_iterator_tag, const discrete >
-{
-  const std::vector<std::vector<discrete>> &p;
-  size_t x;
-  size_t y;
-public:
-  MyIterator(const std::vector<std::vector<discrete>> &p, size_t x = 0, size_t y = 0) :p(p), x(x), y(y) {}
-  MyIterator(const MyIterator& mit) : p(mit.p), x(mit.x), y(mit.y) {}
-  MyIterator& operator++() { if (x == p.size()) y++; x++; return *this; }
-  MyIterator operator++(int) { MyIterator tmp(*this); operator++(); return tmp; }
-  bool operator==(const MyIterator& rhs) const { return p == rhs.p; }
-  bool operator!=(const MyIterator& rhs) const { return p != rhs.p; }
-  const discrete& operator*() const { return p[x][y]; }
-};
-
 int get_key1(const Edge& s) { return s.score; }
-class MyIterator1 : public std::iterator<std::bidirectional_iterator_tag, const Edge> {
-  const std::vector<std::vector<discrete>> &p;
-  size_t x;
-  size_t y;
-  size_t size;
-public:
-  MyIterator1(const std::vector<std::vector<discrete>> &p, size_t x = 0, size_t y = 1) :p(p), x(x), y(y), size(p[0].size()*(p[0].size()+1)/2) {}
-  MyIterator1(const MyIterator1& mit) : MyIterator1(mit.p, mit.x, mit.y) {}
-  MyIterator1& operator++() { if (y == p.size() - 1) { x++; y = x + 1; } else y++; return *this; }
-  MyIterator1& operator--() { if (y == x + 1){ x--; y = p.size() - 1; } else y--; return *this; }
-  MyIterator1 operator++(int) { MyIterator1 tmp(*this); operator++(); return tmp; }
-  MyIterator1 operator--(int) { MyIterator1 tmp(*this); operator--(); return tmp; }
-  bool operator==(const MyIterator1& rhs) const { return (p == rhs.p) && (x == rhs.x) && (y == rhs.y); }
-  bool operator!=(const MyIterator1& rhs) const { return (p != rhs.p) || (x != rhs.x) || (y != rhs.y); }
-  Edge& operator*() const {
-    Edge edge;
-    edge.gene_one = x;
-    edge.gene_two = y;
-    edge.score = p[0].size() - str_intersect_r(p[x], p[y]) - 1;
-    return edge;
-  }
-  MyIterator1 begin() const { return MyIterator1(p, 0, 1); }
-  MyIterator1 end() const { return MyIterator1(p, p.size() - 1, p.size()); }
-};
 
 struct CompEventByPtr {
   bool operator()(const Edge* pEvent1, const Edge* pEvent2) const {
