@@ -1,6 +1,7 @@
 #ifndef QUBIC_H
 #define QUBIC_H 
 
+#include <string>
 #include <vector>
 
 int r_main(const std::vector<std::vector<float>> & data, const std::vector<std::string > & row_names, const std::vector<std::string > & col_names);
