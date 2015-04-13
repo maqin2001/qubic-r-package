@@ -1,8 +1,11 @@
 #include "struct.h"
+
 #include <algorithm>
 #include <vector>
 #include <set>
 #include <memory>
+#include <string>
+
 #include <assert.h>
 
 #include "edge_list.h"
@@ -764,7 +767,7 @@ class qubic {
 
     arr_c.resize(rows, std::vector<discrete>(cols));
 
-    printf("\nQUBIC %.1f: greedy biclustering (compiled "__DATE__" "__TIME__")\n\n", VER);
+    printf("\nQUBIC %.1f: greedy biclustering\n\n", VER);
     /* get the program options defined in get_options.c */
     /*set memory for the point which is declared in struct.h*/
     //AllocVar(po);
