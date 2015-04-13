@@ -2,6 +2,8 @@
 
 #include <cassert> 
 
+#include <cstring>
+
 #include "matrix.h"
 
 #define MAX_LINE 100000
