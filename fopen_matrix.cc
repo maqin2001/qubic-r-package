@@ -10,7 +10,9 @@
 #define LABEL_LEN 64 
 
 Matrix FopenMatrix::load_matrix(const char* file_name, size_t reserved_count) {
-  Matrix matrix(reserved_count);
+
+  Matrix matrix(reserved_count); // RVO
+
   FILE *fp = fopen(file_name, "r");
   if (NULL == fp) {
     printf("Failed to open 'input.txt'");

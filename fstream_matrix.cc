@@ -6,7 +6,8 @@
 #include <cassert> 
 
 Matrix FstreamMatrix::load_matrix(const char* file_name, size_t reserved_count) {
-  Matrix matrix(reserved_count);
+
+  Matrix matrix(reserved_count); // RVO
 
   std::ifstream infile(file_name);
   std::string line;
