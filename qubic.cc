@@ -896,10 +896,10 @@ class qubic {
   }
 
   public:
-  std::vector<std::vector<int> > init_qubic(const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const int & rd = 'F') {
+  void init_qubic(const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const int & rd = 'F') {
     run_qubic(tfile, rq, rc, rf, rk, rr, ro, rd);
 
-    std::vector<std::vector<int> > data;
+    //std::vector<std::vector<int> > data;
     //data.resize(rows, std::vector<int>(cols));
 
     /* formatted file */
@@ -907,7 +907,6 @@ class qubic {
     //for (int i = 0; i < rows; i++)
     //  for (int j = 0; j < cols; j++)
     //    data[i][j] = (int)symbols[arr_c[i][j]];
-    return data;
   }
 
   qubic(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
@@ -935,6 +934,6 @@ class qubic {
 
 int r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
   qubic qubic(data, row_names, col_names);
-  auto result = qubic.init_qubic();
+  qubic.init_qubic();
   return 1;
 }
