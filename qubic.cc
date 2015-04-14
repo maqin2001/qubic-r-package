@@ -241,20 +241,20 @@ class qubic {
     fprintf(fw, "BC%03d\tS=%d\tPvalue:%LG \n", num, block_rows * block_cols, b.pvalue);
     /* fprintf(fw, "BC%03d\tS=%d\tPvalue:%lf \n", num, block_rows * block_cols, (double)b.pvalue); */
     fprintf(fw, " Genes [%d]: ", block_rows);
-    for (auto it = b.genes_order.begin(); it != b.genes_order.end(); ++it)
+    for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it)
       fprintf(fw, "%s ", genes[*it].c_str());
-    for (auto it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it)
+    for (std::set<int>::iterator it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it)
       fprintf(fw, "%s ", genes[*it].c_str());
     fprintf(fw, "\n");
 
     fprintf(fw, " Conds [%d]: ", block_cols);
-    for (auto it = b.conds.begin(); it != b.conds.end(); ++it)
+    for (std::set<int>::iterator it = b.conds.begin(); it != b.conds.end(); ++it)
       fprintf(fw, "%s ", conds[*it].c_str());
     fprintf(fw, "\n");
     /* the complete block data output */
-    for (auto it = b.genes_order.begin(); it != b.genes_order.end(); ++it) {
+    for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it) {
       fprintf(fw, "%10s:", genes[*it].c_str());
-      for (auto jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
+      for (std::set<int>::iterator jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
         fprintf(fw, "\t%d", symbols[arr_c[*it][*jt]]);
         if (it == b.genes_order.begin()) {
           if (symbols[arr_c[*it][*jt]] == 1) num_1++;
@@ -264,9 +264,9 @@ class qubic {
       fputc('\n', fw);
     }
     fputc('\n', fw);
-    for (auto it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it) {
+    for (std::set<int>::iterator it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it) {
       fprintf(fw, "%10s:", genes[*it].c_str());
-      for (auto jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
+      for (std::set<int>::iterator jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
         fprintf(fw, "\t%d", symbols[arr_c[*it][*jt]]);
       }
       fputc('\n', fw);
@@ -358,13 +358,13 @@ class qubic {
     if ((b1 == -1) || (b2 == -1))
       return true;
     else {
-      for (auto it = bb[b1].genes_order.begin(); it != bb[b1].genes_order.end(); ++it)
+      for (std::set<int>::iterator it = bb[b1].genes_order.begin(); it != bb[b1].genes_order.end(); ++it)
         profiles[*it]++;
-      for (auto it = bb[b1].genes_reverse.begin(); it != bb[b1].genes_reverse.end(); ++it)
+      for (std::set<int>::iterator it = bb[b1].genes_reverse.begin(); it != bb[b1].genes_reverse.end(); ++it)
         profiles[*it]++;
-      for (auto it = bb[b2].genes_order.begin(); it != bb[b2].genes_order.end(); ++it)
+      for (std::set<int>::iterator it = bb[b2].genes_order.begin(); it != bb[b2].genes_order.end(); ++it)
         profiles[*it]++;
-      for (auto it = bb[b2].genes_reverse.begin(); it != bb[b2].genes_reverse.end(); ++it)
+      for (std::set<int>::iterator it = bb[b2].genes_reverse.begin(); it != bb[b2].genes_reverse.end(); ++it)
         profiles[*it]++;
 
       for (i = 0; i < rows; i++)
@@ -549,7 +549,7 @@ class qubic {
 
     std::set<int> allincluster;
 
-    for (auto it = el.begin(); it != el.end(); ++it) {
+    for (std::vector<Edge *>::const_iterator it = el.begin(); it != el.end(); ++it) {
       const Edge *e = *it;
       /* check if both genes already enumerated in previous blocks */
       bool flag = true;
@@ -663,13 +663,13 @@ class qubic {
       if (po.IS_pvalue) b.score = -(100 * log(b.pvalue));
       else b.score = components * b.block_cols();
 
-      for (auto it = genes_order.begin(); it != genes_order.end(); ++it) {
+      for (std::vector<int>::iterator it = genes_order.begin(); it != genes_order.end(); ++it) {
         bool result = b.genes_order.insert(*it).second;
         assert(result);
         allincluster.insert(*it);
       }
 
-      for (auto it = genes_reverse.begin(); it != genes_reverse.end(); ++it) {
+      for (std::vector<int>::iterator it = genes_reverse.begin(); it != genes_reverse.end(); ++it) {
         bool result = b.genes_reverse.insert(*it).second;
         assert(result);
         allincluster.insert(*it);
