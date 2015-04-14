@@ -32,7 +32,7 @@ const char USAGE[] =
 "     gene2       -1        2        0\n"
 "     -------------------------------------\n";
 
-void run_qubic(const std::vector<std::vector<float>> &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
+void run_qubic(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
   r_main(data, row_names, col_names);
 }
 
