@@ -3,11 +3,9 @@
 
 #include "matrix.h"
 
-class FopenMatrix : public Matrix {
+static class FopenMatrix {
 public:
-  static FopenMatrix load_matrix(const char* file_name, size_t reserved_count = 4096);
-private:
-  FopenMatrix(size_t reserved_count);
+  static Matrix load_matrix(const char* file_name, size_t reserved_count = 4096);
 };
 
 #endif

@@ -3,11 +3,9 @@
 
 #include "matrix.h"
 
-class FstreamMatrix : public Matrix {
+static class FstreamMatrix {
 public:
-  static FstreamMatrix load_matrix(const char* file_name, size_t reserved_count = 4096);
-private:
-  FstreamMatrix(size_t reserved_count);
+  static Matrix load_matrix(const char* file_name, size_t reserved_count = 4096);
 };
 
 #endif

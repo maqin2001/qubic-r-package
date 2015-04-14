@@ -5,8 +5,8 @@
 
 #include <cassert> 
 
-FstreamMatrix FstreamMatrix::load_matrix(const char* file_name, size_t reserved_count) {
-  FstreamMatrix matrix(reserved_count);
+Matrix FstreamMatrix::load_matrix(const char* file_name, size_t reserved_count) {
+  Matrix matrix(reserved_count);
 
   std::ifstream infile(file_name);
   std::string line;
@@ -39,7 +39,5 @@ FstreamMatrix FstreamMatrix::load_matrix(const char* file_name, size_t reserved_
     matrix.data.push_back(line_data);
   }
   assert(matrix.row_names.size() == matrix.data.size());
-  return std::move(matrix);
+  return matrix; // RVO
 }
-
-FstreamMatrix::FstreamMatrix(size_t reserved_count) : Matrix(reserved_count) { }

@@ -5,6 +5,8 @@
 #include <string>
 
 class Matrix {
+  friend class FopenMatrix; // TODO: fix me
+  friend class FstreamMatrix; // TODO: fix me
 public:
   const std::vector<std::vector<float> >& get_data_const() const { return data; }
   const std::vector<std::string>& get_row_names() const { return row_names; }

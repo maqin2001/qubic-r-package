@@ -1,7 +1,7 @@
 #include "fopen_matrix.h"
 
 #include <cassert> 
-
+#include <cstdio>
 #include <cstring>
 
 #include "matrix.h"
@@ -9,8 +9,8 @@
 #define MAX_LINE 100000
 #define LABEL_LEN 64 
 
-FopenMatrix FopenMatrix::load_matrix(const char* file_name, size_t reserved_count) {
-  FopenMatrix matrix(reserved_count);
+Matrix FopenMatrix::load_matrix(const char* file_name, size_t reserved_count) {
+  Matrix matrix(reserved_count);
   FILE *fp = fopen(file_name, "r");
   if (NULL == fp) {
     printf("Failed to open 'input.txt'");
@@ -47,8 +47,6 @@ FopenMatrix FopenMatrix::load_matrix(const char* file_name, size_t reserved_coun
   }
 
   assert(matrix.row_names.size() == matrix.data.size());
-
-  return std::move(matrix);
+  
+  return matrix; // RVO
 }
-
-FopenMatrix::FopenMatrix(size_t reserved_count) : Matrix(reserved_count) { }
