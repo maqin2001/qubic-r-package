@@ -31,11 +31,11 @@ class qubic {
   std::vector<std::vector<bits16> > profile;
   int col_width;
   char *SY_GETLINE = NULL;
-  double VER = 1.9;
+  const double VER = 1.9;
   char *atom = NULL;
-  std::string delims = "\t\r\n";
+  const std::string delims = "\t\r\n";
 #define MAXC 100000
-  std::string USAGE =
+  const std::string USAGE =
     "\n===================================================================\n"
     "[Usage]\n"
     "qubic(data, [argument list]);\n"
