@@ -30,55 +30,50 @@ class qubic {
   /* must be defined */
   std::vector<std::vector<bits16> > profile;
   int col_width;
-  char *SY_GETLINE = NULL;
-  const double VER = 1.9;
-  char *atom = NULL;
-  const std::string delims = "\t\r\n";
 #define MAXC 100000
-  const std::string USAGE =
-    "\n===================================================================\n"
-    "[Usage]\n"
-    "qubic(data, [argument list]);\n"
-    "like :\n"
-    "qubic(data, file = 'rQUBIC', q = 0.06, c = 0.95, f = 1, k = 2, r = 1, o = 100, d = 'F')\n"
-    "===================================================================\n"
-    "[Input]\n"
-    "-file : input file must be one of two tab-delimited formats\n"
-    "  A) continuous data (default, use pre-set discretization (see -q and -r))\n"
-    "     -------------------------------------\n"
-    "     o        cond1    cond2    cond3\n"
-    "     gene1      2.4      3.5     -2.4\n"
-    "     gene2     -2.1      0.0      1.2\n"
-    "     -------------------------------------\n"
-    "  B) discrete data with arbitrary classes (turn on -d)\n"
-    "     use '0' for missing or insignificant data\n"
-    "     -------------------------------------\n"
-    "     o        cond1    cond2    cond3\n"
-    "     gene1        1        2        2\n"
-    "     gene2       -1        2        0\n"
-    "     -------------------------------------\n"
-    "-q : use quantile discretization for continuous data\n"
-    "     default: 0.06 (see details in Method section in paper)\n"
-    "-r : the number of ranks as which we treat the up(down)-regulated value\n"
-    "     when discretization\n"
-    "     default: 1\n"
-    "-d : discrete data, where user should send their processed data\n"
-    "     to different value classes, see above\n"
-    "-C : the flag using the lower bound of condition number (5 percents of the gene number)\n"
-    "===================================================================\n"
-    "[Output]\n"
-    "-o : number of blocks to report, default: 100\n"
-    "-f : filtering overlapping blocks,\n"
-    "     default: 1 (do not remove any blocks)\n"
-    "-k : minimum column width of the block,\n"
-    "     default: 5% of columns, minimum 2 columns\n"
-    "-c : consistency level of the block (0.5-1.0], the minimum ratio between the\n"
-    "     number of identical valid symbols in a column and the total number \n"
-    "     of rows in the output\n"
-    "     default: 0.95\n"
-    "===================================================================\n";
+  
   int r_puts() {
-    puts(USAGE.c_str());
+    puts("\n===================================================================\n"
+      "[Usage]\n"
+      "qubic(data, [argument list]);\n"
+      "like :\n"
+      "qubic(data, file = 'rQUBIC', q = 0.06, c = 0.95, f = 1, k = 2, r = 1, o = 100, d = 'F')\n"
+      "===================================================================\n"
+      "[Input]\n"
+      "-file : input file must be one of two tab-delimited formats\n"
+      "  A) continuous data (default, use pre-set discretization (see -q and -r))\n"
+      "     -------------------------------------\n"
+      "     o        cond1    cond2    cond3\n"
+      "     gene1      2.4      3.5     -2.4\n"
+      "     gene2     -2.1      0.0      1.2\n"
+      "     -------------------------------------\n"
+      "  B) discrete data with arbitrary classes (turn on -d)\n"
+      "     use '0' for missing or insignificant data\n"
+      "     -------------------------------------\n"
+      "     o        cond1    cond2    cond3\n"
+      "     gene1        1        2        2\n"
+      "     gene2       -1        2        0\n"
+      "     -------------------------------------\n"
+      "-q : use quantile discretization for continuous data\n"
+      "     default: 0.06 (see details in Method section in paper)\n"
+      "-r : the number of ranks as which we treat the up(down)-regulated value\n"
+      "     when discretization\n"
+      "     default: 1\n"
+      "-d : discrete data, where user should send their processed data\n"
+      "     to different value classes, see above\n"
+      "-C : the flag using the lower bound of condition number (5 percents of the gene number)\n"
+      "===================================================================\n"
+      "[Output]\n"
+      "-o : number of blocks to report, default: 100\n"
+      "-f : filtering overlapping blocks,\n"
+      "     default: 1 (do not remove any blocks)\n"
+      "-k : minimum column width of the block,\n"
+      "     default: 5% of columns, minimum 2 columns\n"
+      "-c : consistency level of the block (0.5-1.0], the minimum ratio between the\n"
+      "     number of identical valid symbols in a column and the total number \n"
+      "     of rows in the output\n"
+      "     default: 0.95\n"
+      "===================================================================\n");
     return 1;
   }
 
@@ -174,11 +169,12 @@ class qubic {
   }
 
   void read_list(FILE* fp) {
+#define delims "\t\r\n"
     int i = 0, j = 0;
     sub_genes_row = 0;
     char line[MAXC];
     while (fgets(line, MAXC, fp) != NULL) {
-      atom = strtok(line, delims.c_str());
+      char *atom = strtok(line, delims);
       sub_genes[sub_genes_row] = atom;
       sub_genes_row++;
     }
@@ -471,7 +467,7 @@ class qubic {
     std::string filedesc = "continuous";
     if (po.IS_DISCRETE)
       filedesc = "discrete";
-    fprintf(fw, "# QUBIC version %.1f output\n", VER);
+    fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
     fprintf(fw, "# Datafile %s: %s type\n", po.FN.c_str(), filedesc.c_str());
     fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
       po.COL_WIDTH, po.FILTER, po.TOLERANCE, po.RPT_BLOCK);
@@ -769,7 +765,7 @@ class qubic {
 
     arr_c.resize(rows, DiscreteArray(cols));
 
-    printf("\nQUBIC %.1f: greedy biclustering\n\n", VER);
+    printf("\nQUBIC %.1f: greedy biclustering\n\n", 1.9);
     /* get the program options defined in get_options.c */
     /*set memory for the point which is declared in struct.h*/
     //AllocVar(po);
