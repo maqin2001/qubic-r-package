@@ -10,7 +10,7 @@
 #include <assert.h>
 
 #include "edge_list.h"
-
+#include "version.h"
 
 class qubic {
   /* global data */
@@ -765,7 +765,7 @@ class qubic {
 
     arr_c.resize(rows, DiscreteArray(cols));
 
-    printf("\nQUBIC %.1f: greedy biclustering\n\n", 1.9);
+    printf("\nQUBIC %s: greedy biclustering\n\n", VER);
     /* get the program options defined in get_options.c */
     /*set memory for the point which is declared in struct.h*/
     //AllocVar(po);
