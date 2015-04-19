@@ -32,27 +32,32 @@ static int edge_cmpr(void * a, void * b)
   return 1;
 }
 
-static void fh_insert_fixed(fibheap *h, Edge *data, const Edge *cur_min)
-{
+static int fh_insert_fixed(fibheap *h, Edge *data, int cur_min) {
   if (h->fh_n < HEAP_SIZE) {
     fh_insert(h, data);
   }
   else {
-    if (edge_cmpr(&cur_min, data) < 0) {
+    if (data->score > cur_min) {
       /* Remove least value and renew */
       fh_extractmin(h);
       fh_insert(h, data);
       /* Keep a memory of the current min */
-      cur_min = (Edge *)fh_min(h);
+      cur_min = ((Edge *)fh_min(h))->score;
     }
   }
+  return cur_min;
 }
 
-static void fh_dump(fibheap *h, std::vector<Edge *> &data_array) {  
+static void fh_dump(fibheap *h, std::vector<Edge *> &data_array, int min_score) {
   int i;
   int n = h->fh_n;
-  data_array.resize(n);
-  for (i = n - 1; i >= 0; i--)
+  for (i = n - 1; i >= 0; i--) {
+    Edge *t = (Edge *)fh_min(h);
+    if (t->score > min_score) break;
+    (Edge *)fh_extractmin(h);
+  }
+  data_array.resize(i + 1);
+  for (; i >= 0; i--)
     data_array[i] = (Edge *)fh_extractmin(h);
 }
 
@@ -80,25 +85,23 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, int& COL_WIDTH) {
 
   /* Generating seed list and push into heap */
   progress("Generating seed list (minimum weight %d)", COL_WIDTH);
-  Edge __cur_min = { 0, 0, COL_WIDTH };
-  Edge *_cur_min = &__cur_min;
-  Edge **cur_min = &_cur_min;
+  int min_score = COL_WIDTH;
   /* iterate over all genes to retrieve all edges */
   for (size_t i = 0; i < arr_c.size(); i++)
     for (size_t j = i + 1; j < arr_c.size(); j++) {
       cnt = str_intersect_r(arr_c[i], arr_c[j]);
-      if (cnt < _cur_min->score) continue;
+      if (cnt <= min_score) continue;
       edge = new Edge();
       edge->gene_one = i;
       edge->gene_two = j;
       edge->score = cnt;
-      fh_insert_fixed(heap, edge, *cur_min);
+      min_score = fh_insert_fixed(heap, edge, min_score);
     }
   if (heap->fh_n == 0)
     errAbort("Not enough overlap between genes");
   /* sort the seeds */
   printf("%d seeds generated\n", heap->fh_n);
-  fh_dump(heap, edge_list);
+  fh_dump(heap, edge_list, min_score);
   printf("%d seeds dumped\n", edge_list.size());
 #else
   Edge * edge;
