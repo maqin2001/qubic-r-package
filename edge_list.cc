@@ -48,9 +48,10 @@ static void fh_insert_fixed(fibheap *h, Edge *data, const Edge *cur_min)
   }
 }
 
-static void fh_dump(fibheap *h, std::vector<Edge *> &data_array) {
+static void fh_dump(fibheap *h, std::vector<Edge *> &data_array) {  
   int i;
   int n = h->fh_n;
+  data_array.resize(n);
   for (i = n - 1; i >= 0; i--)
     data_array[i] = (Edge *)fh_extractmin(h);
 }
@@ -93,12 +94,10 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, int& COL_WIDTH) {
       edge->score = cnt;
       fh_insert_fixed(heap, edge, *cur_min);
     }
-  rec_num = heap->fh_n;
-  if (rec_num == 0)
+  if (heap->fh_n == 0)
     errAbort("Not enough overlap between genes");
   /* sort the seeds */
-  printf("%d seeds generated\n", rec_num);
-  edge_list.resize(rec_num);
+  printf("%d seeds generated\n", heap->fh_n);
   fh_dump(heap, edge_list);
   printf("%d seeds dumped\n", edge_list.size());
 #else
