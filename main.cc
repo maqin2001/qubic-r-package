@@ -8,6 +8,7 @@
 
 #include "fopen_matrix.h"
 #include "edge_list.h"
+#include "config.h"
 
 const char USAGE[] =
 "\n===================================================================\n"
@@ -55,8 +56,6 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option) {
 }
 
 int main(int argc, char *argv[]) {
-  char default_file_name[] = "example";// arabidopsis - leaf";// ecoli_466_4297"; example";// 
-
   if (cmdOptionExists(argv, argv + argc, "-h")) {
     printf(USAGE);
   }
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
   char * file_name = getCmdOption(argv, argv + argc, "-file");
 
   if (!file_name) {
-    file_name = default_file_name;
+    file_name = DEFAULT_FILENAME;
   }
   
   Matrix matrix = FopenMatrix::load_matrix(file_name);
