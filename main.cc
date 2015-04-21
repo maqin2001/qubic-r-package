@@ -33,12 +33,12 @@ const char USAGE[] =
 "     gene2       -1        2        0\n"
 "     -------------------------------------\n";
 
-void run_qubic(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
-  r_main(data, row_names, col_names);
+void run_qubic(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const short & rr = 1, const int & ro = 100, const int & rd = 'F') {
+  r_main(data, row_names, col_names, tfile, rq, rc, rf, rk, rr, ro, rd);
 }
 
-void run_qubic(const Matrix &matrix) {
-  run_qubic(matrix.get_data_const(), matrix.get_row_names(), matrix.get_col_names());
+void run_qubic(const Matrix &matrix, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const short & rr = 1, const int & ro = 100, const int & rd = 'F') {
+  run_qubic(matrix.get_data_const(), matrix.get_row_names(), matrix.get_col_names(), tfile, rq, rc, rf, rk, rr, ro, rd);
 }
 
 struct S { double d; int i; };
@@ -60,16 +60,19 @@ int main(int argc, char *argv[]) {
     printf(USAGE);
   }
 
-  char * file_name = getCmdOption(argv, argv + argc, "-file");
+  char *file_name = cmdOptionExists(argv, argv + argc, "-file") ? getCmdOption(argv, argv + argc, "-file") : DEFAULT_FILENAME;
+  double q = cmdOptionExists(argv, argv + argc, "-q") ? std::atof(getCmdOption(argv, argv + argc, "-q")) : 0.06;
+  double c = cmdOptionExists(argv, argv + argc, "-c") ? std::atof(getCmdOption(argv, argv + argc, "-c")) : 0.95;
+  double f = cmdOptionExists(argv, argv + argc, "-f") ? std::atof(getCmdOption(argv, argv + argc, "-f")) : 1.0;
+  int k = cmdOptionExists(argv, argv + argc, "-k") ? std::atoi(getCmdOption(argv, argv + argc, "-k")) : 2;
+  short r = cmdOptionExists(argv, argv + argc, "-r") ? std::atoi(getCmdOption(argv, argv + argc, "-r")) : 1;
+  int o = cmdOptionExists(argv, argv + argc, "-o") ? std::atoi(getCmdOption(argv, argv + argc, "-o")) : 100;
+  char d = cmdOptionExists(argv, argv + argc, "-d") ? getCmdOption(argv, argv + argc, "-d")[0] : 'F';
 
-  if (!file_name) {
-    file_name = DEFAULT_FILENAME;
-  }
-  
   Matrix matrix = FopenMatrix::load_matrix(file_name);
   //printf("Size of matrix: %d", matrix.get_data_const().size());
 #ifndef LOAD_FILE_ONLY
-  run_qubic(matrix);
+  run_qubic(matrix, file_name, q, c, f, k, r, o, d);
 #endif
   return 0;
 }
