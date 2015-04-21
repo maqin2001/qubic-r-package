@@ -7,9 +7,7 @@
 
 #include "struct.h"
 #include "edge_list.h"
-
-/*we can reduce the HEAP_SIZE when the data contain so many genes so that memory is not enough*/
-#define HEAP_SIZE 20000000
+#include "config.h"
 
 int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
   assert(s1.size() == s2.size());
