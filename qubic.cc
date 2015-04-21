@@ -928,8 +928,8 @@ class qubic {
   //}
 };
 
-int r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
+int r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const int & rd = 'F') {
   qubic qubic(data, row_names, col_names);
-  qubic.init_qubic();
+  qubic.init_qubic(tfile, rq, rc, rf, rk, rr, ro, rd);
   return 1;
 }
