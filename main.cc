@@ -11,14 +11,12 @@
 #include "config.h"
 
 const char USAGE[] =
-"\n===================================================================\n"
+"===================================================================\n"
 "[Usage]\n"
-"qubic(data, [argument list]);\n"
-"like :\n"
-"qubic(data, file = 'rQUBIC', q = 0.06, c = 0.95, f = 1, k = 2, r = 1, o = 100, d = 'F')\n"
+"$ ./qubic -i filename [argument list]\n"
 "===================================================================\n"
 "[Input]\n"
-"-file : input file must be one of two tab-delimited formats\n"
+"-i : input file must be one of two tab-delimited formats\n"
 "  A) continuous data (default, use pre-set discretization (see -q and -r))\n"
 "     -------------------------------------\n"
 "     o        cond1    cond2    cond3\n"
@@ -31,7 +29,34 @@ const char USAGE[] =
 "     o        cond1    cond2    cond3\n"
 "     gene1        1        2        2\n"
 "     gene2       -1        2        0\n"
-"     -------------------------------------\n";
+"     -------------------------------------\n"
+"-q : use quantile discretization for continuous data\n"
+"     default: 0.06 (see details in Method section in paper)\n"
+"-r : the number of ranks as which we treat the up(down)-regulated value\n"
+"     when discretization\n"
+"     default: 1\n"
+//"-d : discrete data, where user should send their processed data\n"
+//"     to different value classes, see above\n"
+//"-b : the file to expand in specific environment\n"
+//"-T : to-be-searched TF name, just consider the seeds containing current TF\n"
+//"     default format: B1234\n"
+//"-P : the flag to enlarge current biclsuter by the pvalue constrain\n"
+//"-S : the flag using area as the value of bicluster to determine when stop\n"
+//"-C : the flag using the lower bound of condition number (5 percents of the gene number)\n"
+//"-l : the list of genes out of the input file on which we do bicluster\n"
+"===================================================================\n"
+"[Output]\n"
+"-o : number of blocks to report, default: 100\n"
+"-f : filtering overlapping blocks,\n"
+"     default: 1 (do not remove any blocks)\n"
+"-k : minimum column width of the block,\n"
+"     default: 5% of columns, minimum 2 columns\n"
+"-c : consistency level of the block (0.5-1.0], the minimum ratio between the\n"
+"     number of identical valid symbols in a column and the total number \n"
+"     of rows in the output\n"
+"     default: 0.95\n"
+//"-s : expansion flag\n"
+"===================================================================\n";
 
 void run_qubic(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const short & rr = 1, const int & ro = 100, const int & rd = 'F') {
   r_main(data, row_names, col_names, tfile, rq, rc, rf, rk, rr, ro, rd);
@@ -60,14 +85,14 @@ int main(int argc, char *argv[]) {
     printf(USAGE);
   }
 
-  char *file_name = cmdOptionExists(argv, argv + argc, "-file") ? getCmdOption(argv, argv + argc, "-file") : DEFAULT_FILENAME;
+  char *file_name = cmdOptionExists(argv, argv + argc, "-i") ? getCmdOption(argv, argv + argc, "-i") : DEFAULT_FILENAME;
   double q = cmdOptionExists(argv, argv + argc, "-q") ? std::atof(getCmdOption(argv, argv + argc, "-q")) : 0.06;
   double c = cmdOptionExists(argv, argv + argc, "-c") ? std::atof(getCmdOption(argv, argv + argc, "-c")) : 0.95;
   double f = cmdOptionExists(argv, argv + argc, "-f") ? std::atof(getCmdOption(argv, argv + argc, "-f")) : 1.0;
   int k = cmdOptionExists(argv, argv + argc, "-k") ? std::atoi(getCmdOption(argv, argv + argc, "-k")) : 2;
   short r = cmdOptionExists(argv, argv + argc, "-r") ? std::atoi(getCmdOption(argv, argv + argc, "-r")) : 1;
   int o = cmdOptionExists(argv, argv + argc, "-o") ? std::atoi(getCmdOption(argv, argv + argc, "-o")) : 100;
-  char d = cmdOptionExists(argv, argv + argc, "-d") ? getCmdOption(argv, argv + argc, "-d")[0] : 'F';
+  char d = cmdOptionExists(argv, argv + argc, "-d") ? 'T' : 'F';
 
   Matrix matrix = FopenMatrix::load_matrix(file_name);
   //printf("Size of matrix: %d", matrix.get_data_const().size());
