@@ -70,12 +70,11 @@ struct CompEventByPtr {
 };
 
 const std::vector<Edge *>& EdgeList::get_edge_list() const { return edge_list; }
-EdgeList::EdgeList(const DiscreteArrayList& arr_c, int& COL_WIDTH) {
+EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
   if (COL_WIDTH == 2) COL_WIDTH = MAX(arr_c[0].size() / 20, 2);
 #if 1
   Edge * edge;
   int cnt;
-  int rec_num = 0;
 
   /* Allocating heap structure */
   fibheap *heap = fh_makeheap();
@@ -83,7 +82,7 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, int& COL_WIDTH) {
 
   /* Generating seed list and push into heap */
   progress("Generating seed list (minimum weight %d)", COL_WIDTH);
-  int min_score = COL_WIDTH - 1;
+  int min_score = static_cast<int>(COL_WIDTH) - 1;
   /* iterate over all genes to retrieve all edges */
   for (size_t i = 0; i < arr_c.size(); i++)
     for (size_t j = i + 1; j < arr_c.size(); j++) {

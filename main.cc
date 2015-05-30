@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 
+#include "matrix_float.h"
 #include "fopen_matrix.h"
 #include "edge_list.h"
 #include "config.h"
@@ -62,7 +63,7 @@ void run_qubic(const std::vector<std::vector<float> > &data, const std::vector<s
   r_main(data, row_names, col_names, tfile, rq, rc, rf, rk, rr, ro, rd);
 }
 
-void run_qubic(const Matrix &matrix, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const short & rr = 1, const int & ro = 100, const int & rd = 'F') {
+void run_qubic(const MatrixFloat &matrix, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const short & rr = 1, const int & ro = 100, const int & rd = 'F') {
   run_qubic(matrix.get_data_const(), matrix.get_row_names(), matrix.get_col_names(), tfile, rq, rc, rf, rk, rr, ro, rd);
 }
 
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
   int o = cmdOptionExists(argv, argv + argc, "-o") ? std::atoi(getCmdOption(argv, argv + argc, "-o")) : 100;
   char d = cmdOptionExists(argv, argv + argc, "-d") ? 'T' : 'F';
 
-  Matrix matrix = FopenMatrix::load_matrix(file_name);
+  MatrixFloat matrix = FopenMatrix::load_matrix<float>(file_name);
   //printf("Size of matrix: %d", matrix.get_data_const().size());
 #ifndef LOAD_FILE_ONLY
   run_qubic(matrix, file_name, q, c, f, k, r, o, d);

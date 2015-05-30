@@ -72,8 +72,8 @@ typedef short discrete;
 
 /* edge between two genes */
 typedef struct Edge{
-	int gene_one;
-	int gene_two;
+  size_t gene_one;
+  size_t gene_two;
 	int score;
 } Edge;
 
@@ -103,7 +103,7 @@ typedef struct Prog_options{
 	bool IS_area;
 	bool IS_cond;
 	bool IS_list;
-	int COL_WIDTH;
+  size_t COL_WIDTH;
 	discrete DIVIDED;
 	int SCH_BLOCK;
 	int RPT_BLOCK;

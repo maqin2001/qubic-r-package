@@ -692,7 +692,7 @@ class qubic {
     }
   }
   
-  void make_graph(const char *fn, const DiscreteArrayList &arr_c, int &COL_WIDTH) {
+  void make_graph(const char *fn, const DiscreteArrayList &arr_c, size_t &COL_WIDTH) {
     EdgeList EdgeList(arr_c, COL_WIDTH);
 
     FILE *fw = mustOpen(fn, "w");
