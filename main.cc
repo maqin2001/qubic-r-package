@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     printf(USAGE);
   }
 
-  char *file_name = cmdOptionExists(argv, argv + argc, "-i") ? getCmdOption(argv, argv + argc, "-i") : DEFAULT_FILENAME;
+  const char *file_name = cmdOptionExists(argv, argv + argc, "-i") ? getCmdOption(argv, argv + argc, "-i") : DEFAULT_FILENAME;
   double q = cmdOptionExists(argv, argv + argc, "-q") ? std::atof(getCmdOption(argv, argv + argc, "-q")) : 0.06;
   double c = cmdOptionExists(argv, argv + argc, "-c") ? std::atof(getCmdOption(argv, argv + argc, "-c")) : 0.95;
   double f = cmdOptionExists(argv, argv + argc, "-f") ? std::atof(getCmdOption(argv, argv + argc, "-f")) : 1.0;

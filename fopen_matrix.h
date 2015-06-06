@@ -3,14 +3,12 @@
 
 #include "matrix.h"
 
-namespace FopenMatrix {
-  template<typename T>
-  Matrix<T> load_matrix(const char* file_name, size_t reserved_count = 4096);
-
-  namespace internal {
 #include <cassert> 
 #include <cstdio>
 #include <cstring>
+
+namespace FopenMatrix {
+  namespace internal {
 
 #define MAX_LINE 100000
 #define LABEL_LEN 64 
@@ -52,8 +50,7 @@ namespace FopenMatrix {
     }
   }
 
-  template<typename T>
-  Matrix<T> FopenMatrix::load_matrix(const char* file_name, size_t reserved_count) {
+  template<typename T> Matrix<T> load_matrix(const char* file_name, size_t reserved_count) {
     FILE *fp = fopen(file_name, "r");
     if (NULL == fp) {
       printf("Failed to open 'input.txt'");
@@ -62,6 +59,10 @@ namespace FopenMatrix {
     Matrix<T> matrix = internal::load_matrix_from_file<float>(fp, reserved_count); // RVO
     fclose(fp);
     return matrix; // RVO
+  }
+
+  template<typename T> Matrix<T> load_matrix(const char* file_name) {
+    return load_matrix<T>(file_name, 4096); // RVO
   }
 }
 #endif
