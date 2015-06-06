@@ -3,7 +3,7 @@
 /**************************************************************************/
 /* helper functions for error msgs for allocating memory */
 
-void progress(char *format, ...)
+void progress(const char *format, ...)
 /* Print progress message */
 {
 	va_list args;
@@ -20,7 +20,7 @@ void verboseDot()
 	fflush(stdout);
 }
 
-void errAbort(char *format, ...)
+void errAbort(const char *format, ...)
 /* Print error message and exit */
 {
 	va_list args;
@@ -53,7 +53,7 @@ int count_intersect(const std::set<int> & ds1, const std::set<int> & ds2)
 /**************************************************************************/
 /* file-related operations */
 
-FILE *mustOpen(const char *fileName, char *mode)
+FILE *mustOpen(const char *fileName, const char *mode)
 /* Open a file or die */
 {
     FILE *f;
@@ -62,7 +62,7 @@ FILE *mustOpen(const char *fileName, char *mode)
     if (sameString(fileName, "stdout")) return stdout;
     if ((f = fopen(fileName, mode)) == NULL)
     {
-        char *modeName = "";
+        const char *modeName = "";
         if (mode)
         {
             if (mode[0] == 'r') modeName = " to read";

@@ -120,14 +120,14 @@ typedef unsigned short int bits16;
 
 /***** Helper functions *****/
 
-void progress(char *format, ...)
+void progress(const char *format, ...)
 /* Print progress message */
      __attribute__((format(printf, 1, 2)));
 
 void verboseDot();
 /* Print "i-am-alive" dot */
 
-void errAbort(char *format, ...)
+void errAbort(const char *format, ...)
 /* Print error message to stderr and exit */
      __attribute__((noreturn, format(printf, 1, 2)));
 
@@ -148,7 +148,7 @@ int count_intersect(const std::set<int> & ds1, const std::set<int> & ds2);
 
 /* File-related operations */
 
-FILE *mustOpen(const char *fileName, char *mode);
+FILE *mustOpen(const char *fileName, const char *mode);
 /* Open a file or die */
 
 #endif
