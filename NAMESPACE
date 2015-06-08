@@ -1,0 +1,3 @@
+useDynLib(Qubic)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)

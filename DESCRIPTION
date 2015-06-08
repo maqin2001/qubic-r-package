@@ -1,0 +1,13 @@
+Package: Qubic
+Type: Package
+Title: What the package does (short line)
+Version: 1.0
+Date: 2015-06-08
+Author: Who wrote it
+Maintainer: If something goes wrong, please send your complains to Yu Zhang <zy26@jlu.edu.cn>
+Depends: biclust
+Description: More about what it does (maybe more than one line)
+License: What Licence is it under? All right reserved.
+Imports: Rcpp (>= 0.11.0)
+LinkingTo: Rcpp
+SystemRequirements: C++11

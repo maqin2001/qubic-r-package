@@ -1,0 +1,36 @@
+# RStudio project files
+^.*\.Rproj$
+
+# idea files. 
+^.idea/
+
+# data files. 
+^data/
+# tests files. 
+^tests/
+
+# Make files
+(^|.*)\.sln$
+(^|.*)\.vcxproj$
+(^|.*)\.vcxproj.filters$
+
+# User-specific files
+(^|.*)\.suo$
+(^|.*)\.user$
+(^|.*)\.userosscache$
+(^|.*)\.sln.docstates$
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# main file of this project
+main.cc
