@@ -1,5 +1,8 @@
 #include "struct.h"
 
+#include <cstdlib> // exit
+#include <cstring> // strcmp
+
 /**************************************************************************/
 /* helper functions for error msgs for allocating memory */
 
@@ -49,6 +52,14 @@ int count_intersect(const std::set<int> & ds1, const std::set<int> & ds2)
   }
   return cnt;
 }
+
+/* Strings */
+/* strcmp: a zero value indicates that both strings are equal.
+* a value greater than zero indicates that the first character that does not match has a greater value in str1 than in str2;
+* And a value less than zero indicates the opposite.
+*/
+#define sameString(a, b) (strcmp((a), (b))==0)
+/* Returns TRUE if two strings are same */
 
 /**************************************************************************/
 /* file-related operations */

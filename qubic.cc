@@ -1,37 +1,41 @@
-#include "struct.h"
+#include "qubic.h"
 
+#include <cassert>
+#include <cmath> // floor
+#include <cstring> // memset
 #include <algorithm>
-#include <bitset>
-#include <vector>
-#include <set>
-#include <memory>
-#include <string>
-
-#include <assert.h>
 
 #include "edge_list.h"
 #include "version.h"
 
+struct rule{
+  float lower;
+  float upper;
+  size_t cntl;
+  size_t cntu;
+};
+
 class qubic {
   /* global data */
   std::vector<std::vector<continuous> > arr;
+public:
   DiscreteArrayList arr_c;
   std::vector<discrete> symbols;
-  std::vector<std::string> genes;
-  std::vector<std::string> conds;
-  std::vector<std::string> sub_genes;
-  std::vector<bool> sublist;
+  size_t COL_WIDTH;
+  std::vector<rule> genes_rules;
+private:
+  bool IS_DISCRETE;
+  double FILTER;
+  double TOLERANCE;
+  int RPT_BLOCK;
+  double QUANTILE;
+  discrete DIVIDED;
   size_t rows, cols;
-  int TFindex;
-  int sub_genes_row;
-
   Prog_options po;
 
   /* must be defined */
   std::vector<std::vector<bits16> > profile;
-  int col_width;
-#define MAXC 100000
-  
+
   int r_puts() {
     puts("\n===================================================================\n"
       "[Usage]\n"
@@ -105,15 +109,13 @@ class qubic {
     return 0;
   }
 
-  static void discretize(const char* stream_nm, const std::vector<std::vector<continuous> > &arr, 
-    discrete *bb, std::vector<discrete>& symbols, const double& f, DiscreteArrayList &arr_c, const discrete divided,
-    const std::vector<std::string>& genes) {
+  void discretize(const std::vector<std::vector<continuous> > &arr,
+    discrete *bb, std::vector<discrete>& symbols, const double& f, DiscreteArrayList &arr_c, const discrete divided) {
     size_t row, col;
     std::vector<continuous> rowdata(arr[0].size());
     std::vector<continuous> big(arr[0].size()), small(arr[0].size());
     size_t i, cntu, cntl;
     float f1, f2, f3, upper, lower;
-    FILE *fw = mustOpen(stream_nm, "w");
     for (row = 0; row < arr.size(); row++)
     {
       for (col = 0; col < arr[0].size(); col++)
@@ -144,48 +146,17 @@ class qubic {
       }
       for (col = 0; col < arr[0].size(); col++)
         arr_c[row][col] = charset_add(symbols, dis_value(arr[row][col], divided, small, cntl, big, cntu), bb);
-      fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", genes[row].c_str(), lower, upper, cntl, cntu);
-    }
-    progress("Discretization rules are written to %s", stream_nm);
-    fclose(fw);
-  }
 
-  void write_imported(const char* stream_nm) {
-    int row, col;
-    FILE *fw;
-    fw = mustOpen(stream_nm, "w");
-    fprintf(fw, "o");
-    for (col = 0; col < cols; col++)
-      fprintf(fw, "\t%s", conds[col].c_str());
-    fputc('\n', fw);
-    for (row = 0; row < rows; row++) {
-      fprintf(fw, "%s", genes[row].c_str());
-      for (col = 0; col < cols; col++)
-        fprintf(fw, "\t%d", symbols[arr_c[row][col]]);
-      fputc('\n', fw);
-    }
-    progress("Formatted data are written to %s", stream_nm);
-    fclose(fw);
-  }
+      rule rule;
+      rule.lower = lower;
+      rule.upper = upper;
+      rule.cntl = cntl;
+      rule.cntu = cntu;
 
-  void read_list(FILE* fp) {
-#define delims "\t\r\n"
-    int i = 0, j = 0;
-    sub_genes_row = 0;
-    char line[MAXC];
-    while (fgets(line, MAXC, fp) != NULL) {
-      char *atom = strtok(line, delims);
-      sub_genes[sub_genes_row] = atom;
-      sub_genes_row++;
+      genes_rules.push_back(rule);
     }
 
-    /*update the sub_list*/
-    sublist.resize(rows);
-    for (i = 0; i < rows; i++) sublist[i] = false;
-    for (i = 0; i < sub_genes_row; i++)
-      for (j = 0; j < rows; j++)
-        if (strcmp(sub_genes[i].c_str(), genes[j].c_str()) == 0)
-          sublist[j] = true;
+
   }
 
   void seed_update(const DiscreteArray& s) {
@@ -208,7 +179,7 @@ class qubic {
     for (j = 0; j < cur_rows; j++)
       seed_update(arr_c[gene_set[j]]);
 
-    int btolerance = static_cast<int>(ceil(po.TOLERANCE* block_rows));
+    int btolerance = static_cast<int>(ceil(TOLERANCE* block_rows));
     for (j = 0; j < cols; j++) {
       /* See if this column satisfies tolerance */
       /* here i start from 1 because symbols[0]=0 */
@@ -221,55 +192,9 @@ class qubic {
       }
     }
   }
-
   /*************************************************************************/
 
-  /* Identified clusters are backtraced to the original data, by
-   * putting the clustered vectors together, identify common column
-   */
-  void print_bc(FILE* fw, const Block & b, const int & num) {
-    int block_rows, block_cols;
-    int num_1 = 0, num_2 = 0;
-    /* block height (genes) */
-    block_rows = b.block_rows();
-    /* block_width (conditions) */
-    block_cols = b.block_cols();
-    fprintf(fw, "BC%03d\tS=%d\tPvalue:%LG \n", num, block_rows * block_cols, b.pvalue);
-    /* fprintf(fw, "BC%03d\tS=%d\tPvalue:%lf \n", num, block_rows * block_cols, (double)b.pvalue); */
-    fprintf(fw, " Genes [%d]: ", block_rows);
-    for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it)
-      fprintf(fw, "%s ", genes[*it].c_str());
-    for (std::set<int>::iterator it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it)
-      fprintf(fw, "%s ", genes[*it].c_str());
-    fprintf(fw, "\n");
 
-    fprintf(fw, " Conds [%d]: ", block_cols);
-    for (std::set<int>::iterator it = b.conds.begin(); it != b.conds.end(); ++it)
-      fprintf(fw, "%s ", conds[*it].c_str());
-    fprintf(fw, "\n");
-    /* the complete block data output */
-    for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it) {
-      fprintf(fw, "%10s:", genes[*it].c_str());
-      for (std::set<int>::iterator jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
-        fprintf(fw, "\t%d", symbols[arr_c[*it][*jt]]);
-        if (it == b.genes_order.begin()) {
-          if (symbols[arr_c[*it][*jt]] == 1) num_1++;
-          if (symbols[arr_c[*it][*jt]] == -1) num_2++;
-        }
-      }
-      fputc('\n', fw);
-    }
-    fputc('\n', fw);
-    for (std::set<int>::iterator it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it) {
-      fprintf(fw, "%10s:", genes[*it].c_str());
-      for (std::set<int>::iterator jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
-        fprintf(fw, "\t%d", symbols[arr_c[*it][*jt]]);
-      }
-      fputc('\n', fw);
-    }
-    /*printf ("BC%03d: #of 1 and -1 are:\t%d\t%d\n",num,num_1,num_2);
-    fputc('\n', fw);*/
-  }
 
   void update_colcand(std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
     int i;
@@ -303,7 +228,7 @@ class qubic {
   */
   int seed_current_modify(const DiscreteArray& s, std::vector<bool> &colcand, const int &components) {
     int i, k, flag, n;
-    int threshold = static_cast <int> (ceil(components * po.TOLERANCE));
+    int threshold = static_cast <int> (ceil(components * TOLERANCE));
     discrete ss;
     int cnt = 0;
     for (i = 0; i < cols; i++) {
@@ -375,7 +300,7 @@ class qubic {
     long double one = 1, pvalue = 0;
     long double poisson = one / exp(a);
     for (i = 0; i < b + 300; i++) {
-      if (i > (b - 1)) pvalue = pvalue + poisson;
+      if (i >(b - 1)) pvalue = pvalue + poisson;
       else poisson = poisson * a / (i + 1);
     }
     return pvalue;
@@ -431,7 +356,6 @@ class qubic {
       for (i = 0; i < rows; i++)
       {
         if (!candidates[i]) continue;
-        if (po.IS_list && !sublist[i]) continue;
         cnt = intersect_row(colcand, arr_c[genes[0]], arr_c[i]);
         cnt_all += cnt;
         if (cnt < cand_threshold)
@@ -445,10 +369,10 @@ class qubic {
       cnt_ave = cnt_all / row_all;
       pvalue = get_pvalue(cnt_ave, max_cnt);
       if (po.IS_cond) {
-        if (max_cnt < po.COL_WIDTH || max_i < 0 || max_cnt < b.cond_low_bound) break;
+        if (max_cnt < COL_WIDTH || max_i < 0 || max_cnt < b.cond_low_bound) break;
       }
       else {
-        if (max_cnt < po.COL_WIDTH || max_i < 0) break;
+        if (max_cnt < COL_WIDTH || max_i < 0) break;
       }
       if (po.IS_area)	score = components * max_cnt;
       else score = MIN(components, max_cnt);
@@ -463,38 +387,24 @@ class qubic {
     /*be sure to free a pointer when you finish using it*/
   }
 
-  void print_params(FILE *fw) {
-    std::string filedesc = "continuous";
-    if (po.IS_DISCRETE)
-      filedesc = "discrete";
-    fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
-    fprintf(fw, "# Datafile %s: %s type\n", po.FN.c_str(), filedesc.c_str());
-    fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
-      po.COL_WIDTH, po.FILTER, po.TOLERANCE, po.RPT_BLOCK);
-    if (!po.IS_DISCRETE)
-      fprintf(fw, " -q %.2f -r %d", po.QUANTILE, po.DIVIDED);
-    fprintf(fw, "\n\n");
-  }
-
   /* compare function for qsort, descending by score */
   static bool block_cmpr(const Block & a, const Block & b) {
     return a.score > b.score;
   }
 
   /************************************************************************/
-  int report_blocks(FILE* fw, std::vector<Block> bb) {
-    int num = bb.size();
 
-    print_params(fw);
+  std::vector<Block> report_blocks(std::vector<Block> bb) {
+    std::vector<Block> output;
+
+    int num = bb.size();
 
     std::sort(bb.begin(), bb.end(), block_cmpr);
 
     int i, j, k;
     /*MIN MAX et al functions can be accessed in struct.h*/
-    int n = MIN(num, po.RPT_BLOCK);
+    int n = MIN(num, RPT_BLOCK);
     bool flag;
-
-    std::vector<Block> output;
 
     double cur_rows, cur_cols;
     double inter_rows, inter_cols;
@@ -516,7 +426,7 @@ class qubic {
           count_intersect(output[k].genes_reverse, b_ptr.genes_reverse);
         inter_cols = count_intersect(output[k].conds, b_ptr.conds);
 
-        if (inter_rows * inter_cols > po.FILTER*cur_rows*cur_cols) {
+        if (inter_rows * inter_cols > FILTER*cur_rows*cur_cols) {
           flag = false;
           break;
         }
@@ -524,16 +434,16 @@ class qubic {
       }
       i++;
       if (flag) {
-        print_bc(fw, b_ptr, j++);
         output.push_back(b_ptr);
       }
     }
-    return j;
+    return output;
   }
 
   /************************************************************************/
 
-  int cluster(FILE *fw, const std::vector<Edge *> & el) {
+
+  std::vector<Block> cluster(const std::vector<Edge *> & el) {
     std::vector<Block> bb;
 
     int j, k, components;
@@ -552,12 +462,9 @@ class qubic {
       /* speed up the program if the rows bigger than 200 */
       if (rows > 250) {
         if (allincluster.find(e->gene_one) != allincluster.end() && allincluster.find(e->gene_two) != allincluster.end()) flag = false;
-        else if ((po.IS_TFname) && (e->gene_one != TFindex) && (e->gene_two != TFindex)) flag = false;
-        else if ((po.IS_list) && (!sublist[e->gene_one] || !sublist[e->gene_two])) flag = false;
-      } else {
+      }
+      else {
         flag = check_seed(e, bb);
-        if ((po.IS_TFname) && (e->gene_one != TFindex) && (e->gene_two != TFindex)) flag = false;
-        if ((po.IS_list) && (!sublist[e->gene_one] || !sublist[e->gene_two])) flag = false;
       }
       if (!flag) continue;
 
@@ -573,8 +480,6 @@ class qubic {
       b.pvalue = 1;
 
       /* initialize the stacks genes and scores */
-      int ii;
-
       std::vector<int> genes_order, genes_reverse, scores;
 
       genes_order.reserve(rows);
@@ -586,14 +491,8 @@ class qubic {
       scores.push_back(1);
       scores.push_back(b.score);
 
-      //for (ii = 2; ii < rows; ii++)
-      //{
-      //  dsPush(genes, -1);
-      //  dsPush(scores, -1);
-      //}
-
       /* branch-and-cut condition for seed expansion */
-      int cand_threshold = static_cast<int>(floor(po.COL_WIDTH * po.TOLERANCE));
+      int cand_threshold = static_cast<int>(floor(COL_WIDTH * TOLERANCE));
       if (cand_threshold < 2)
         cand_threshold = 2;
 
@@ -609,7 +508,7 @@ class qubic {
       /* track back to find the genes by which we get the best score*/
       for (k = 0; k < components; k++) {
         if (po.IS_pvalue)
-          if ((pvalues[k] == b.pvalue) && (k >= 2) && (dsItem(scores, k) != dsItem(scores, k + 1))) break;
+          if ((pvalues[k] == b.pvalue) && (k >= 2) && (scores[k] != scores[k + 1])) break;
         if ((scores[k] == b.score) && ((k + 1 == scores.size()) || (scores[k + 1] != b.score))) break;
       }
       components = k + 1;
@@ -631,9 +530,8 @@ class qubic {
       /* add some new possible genes */
       int m_cnt;
       for (int ki = 0; ki < rows; ki++) {
-        if (po.IS_list && !sublist[ki]) continue;
         m_cnt = intersect_row(colcand, arr_c[genes_order[0]], arr_c[ki]);
-        if (candidates[ki] && (m_cnt >= floor(cnt* po.TOLERANCE))) {
+        if (candidates[ki] && (m_cnt >= floor(cnt* TOLERANCE))) {
           genes_order.push_back(ki);
           components++;
           candidates[ki] = false;
@@ -642,9 +540,8 @@ class qubic {
 
       /* add genes that negative regulated to the consensus */
       for (int ki = 0; ki < rows; ki++) {
-        if (po.IS_list && !sublist[ki]) continue;
         m_cnt = reverse_row(colcand, arr_c[genes_order[0]], arr_c[ki]);
-        if (candidates[ki] && (m_cnt >= floor(cnt * po.TOLERANCE))) {
+        if (candidates[ki] && (m_cnt >= floor(cnt * TOLERANCE))) {
           genes_reverse.push_back(ki);
           components++;
           candidates[ki] = false;
@@ -680,7 +577,7 @@ class qubic {
     /* writes character to the current position in the standard output (stdout) and advances the internal file position indicator to the next position.
      * It is equivalent to putc(character,stdout).*/
     putchar('\n');
-    return report_blocks(fw, bb);
+    return report_blocks(bb);
   }
 
   /*make_graph subroutine prototypes */
@@ -691,29 +588,14 @@ class qubic {
       profile[i][s[i]]--;
     }
   }
-  
-  void make_graph(const char *fn, const DiscreteArrayList &arr_c, size_t &COL_WIDTH) {
+
+  std::vector<Block> make_graph(const DiscreteArrayList &arr_c, size_t &COL_WIDTH) {
     EdgeList EdgeList(arr_c, COL_WIDTH);
 
-    FILE *fw = mustOpen(fn, "w");
     /* bi-clustering */
     progress("Clustering started");
-    int n_blocks = 0;
-#ifndef MAKE_GRAPH_ONLY
-    n_blocks = cluster(fw, EdgeList.get_edge_list());
-#endif
-    printf("%d", EdgeList.get_edge_list().size());
-    printf("%d clusters are written to %s\n", n_blocks, fn);
-    /* clean up */
-    fclose(fw);
+    return cluster(EdgeList.get_edge_list());
   }
-
-  /* expand subroutine prototypes */
-  DiscreteArrayList another_arr_c;
-  std::vector<std::string> another_genes;
-  std::vector<std::string> another_conds;
-  int another_rows;
-  int another_cols;
 
   static int intersect_rowE(const std::vector<bool> & colcand, std::vector<discrete> & g1, std::vector<discrete> & g2, const int & cols) {
     int i, cnt = 0;
@@ -731,19 +613,11 @@ class qubic {
     return cnt;
   }
 
-  void init_expand() {
-    another_genes = genes;
-    another_conds = conds;
-    another_arr_c = arr_c;
-    another_rows = rows;
-    another_cols = cols;
-  }
-
-  void make_charsets(const std::string &tfile, std::vector<discrete> &symbols) {
+  void make_charsets(std::vector<discrete> &symbols) {
     discrete bb[USHRT_MAX];
     memset(bb, -1, USHRT_MAX*sizeof(*bb));
     charset_add(symbols, 0, bb);
-    if (po.IS_DISCRETE) {
+    if (IS_DISCRETE) {
       for (size_t i = 0; i < arr.size(); i++)
         for (size_t j = 0; j < arr[0].size(); j++) {
           arr_c[i][j] = charset_add(symbols, (discrete)arr[i][j], bb);
@@ -756,11 +630,11 @@ class qubic {
       for (size_t i = 0; i < arr.size(); i++)
         for (size_t j = 0; j < arr[0].size(); j++)
           arr_c[i][j] = 0;
-      discretize((tfile + ".rules").c_str(), arr, bb, symbols, po.QUANTILE, arr_c, po.DIVIDED, genes);
+      discretize(arr, bb, symbols, QUANTILE, arr_c, DIVIDED);
     }
   }
 
-  int run_qubic(const std::string &tfile, const double & rq, const double & rc, const double & rf, const int & rk, const discrete & rr, const int & ro, const int & rd) {
+  std::vector<Block> run_qubic(const double & rq, const double & rc, const double & rf, const int & rk, const discrete & rr, const int & ro, const bool &rd) {
     int i = 0, j = 0;
 
     arr_c.resize(rows, DiscreteArray(cols));
@@ -770,166 +644,163 @@ class qubic {
     /*set memory for the point which is declared in struct.h*/
     //AllocVar(po);
     /*Initialize the point*/
-    po.FN = tfile;
-    po.BN = " ";
-    po.LN = " ";
-    /* case 'l': strcpy(po.LN, optarg); po.IS_list =true; */
-    po.TFname = " ";
-    /* case 'T': strcpy(po.TFname, optarg); po.IS_TFname = true; */
-    if (rd == 1) po.IS_DISCRETE = true;
-    else po.IS_DISCRETE = false;
-    // po.IS_DISCRETE = true;
-    po.IS_TFname = false;
+    IS_DISCRETE = rd;
     po.IS_pvalue = false;
     /* case 'P': po.IS_pvalue = true; */
-    po.COL_WIDTH = rk;
-    po.DIVIDED = rr;
-    po.QUANTILE = rq;
-    po.TOLERANCE = rc;
-    po.FP = NULL;
-    po.FB = NULL;
-    po.RPT_BLOCK = ro;
-    po.SCH_BLOCK = 2 * po.RPT_BLOCK;
+    COL_WIDTH = rk;
+    DIVIDED = rr;
+    QUANTILE = rq;
+    TOLERANCE = rc;
+    RPT_BLOCK = ro;
+    po.SCH_BLOCK = 2 * RPT_BLOCK;
     /* ensure enough searching space */
     /*if (po.SCH_BLOCK < 1000) po.SCH_BLOCK = 1000;*/
-    po.FILTER = rf;
+    FILTER = rf;
     /* case 's': po.IS_SWITCH = true; */
     po.IS_area = false;
     /* case 'S': po.IS_area = true; */
     po.IS_cond = false;
     /* case 'C': po.IS_cond = true; */
-    po.IS_list = false;
 
-    if (po.IS_list)
-      po.FL = mustOpen(po.LN.c_str(), "r");
+    make_charsets(symbols);
 
-    /* check if there exist a gene name equals to TFname by -T */
-    for (int i = 0; i < genes.size(); i++)
-      if (strcmp(genes[i].c_str(), po.TFname.c_str()) == 0)
-        printf("%d\n", i);
-
-    make_charsets(tfile, symbols);
-    /*read in the sub-gene list*/
-    if (po.IS_list) {
-      sub_genes.resize(rows);
-      read_list(po.FL);
-    }
-    /*we can do expansion by activate po.IS_SWITCH*/
-  {
     /* the file that stores all blocks */
-    if (po.IS_list)
-      make_graph((tfile + ".block").c_str(), arr_c, po.COL_WIDTH);
-    else
-      make_graph((tfile + ".blocks").c_str(), arr_c, po.COL_WIDTH);
+    return make_graph(arr_c, COL_WIDTH);
   }
 
-  return 1;
+public:
+  std::vector<Block> init_qubic(const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const bool & rd = false) {
+    return run_qubic(rq, rc, rf, rk, rr, ro, rd);
   }
 
-  int cgetbc(double *rbc, int *ro, char **filer, char **filew) {
-    FILE *fpr = fopen(filer[0], "r");
-    FILE *fpw = fopen((std::string(filew[0]) + ".bc").c_str(), "w");
-    int i = 0, n = *ro, num = 0, ntemp = 0, nbc = 0;
-    char temp[1000];
-    char czero = '0', tempnum[20];
-    while (fscanf(fpr, "%s", temp) != EOF) {
-      if (strcmp(temp, "Genes") == 0) {
-        fprintf(fpw, "BC%d\n", nbc);
-        fscanf(fpr, "%s", tempnum);
-        num = 0;
-        for (i = 0; i < 20; i++) {
-          if (tempnum[i] == ']')  break;
-          else if (tempnum[i] == ':')  break;
-          else if (tempnum[i] == '[')  continue;
-          else {
-            num *= 10;
-            ntemp = tempnum[i] - czero;
-            num += ntemp;
-          }
-        }
-        /* fprintf(fpw, "%d\n", num); */
-        for (i = 0; i < num; i++) {
-          fscanf(fpr, "%s", temp);
-          fprintf(fpw, "%s\t", temp);
-        }
-        fprintf(fpw, "\n");
-        rbc[nbc + n] = num;
-        fscanf(fpr, "%s", temp);
-        if (strcmp(temp, "Conds") == 0) {
-          /* fprintf(fpw, "%s\t", temp); */
-          fscanf(fpr, "%s", tempnum);
-          num = 0;
-          for (i = 0; i < 20; i++) {
-            if (tempnum[i] == ']')  break;
-            else if (tempnum[i] == ':')  break;
-            else if (tempnum[i] == '[')  continue;
-            else {
-              num *= 10;
-              ntemp = tempnum[i] - czero;
-              num += ntemp;
-            }
-          }
-          /* fprintf(fpw, "%d\n", num); */
-          for (i = 0; i < num; i++) {
-            fscanf(fpr, "%s", temp);
-            fprintf(fpw, "%s\t", temp);
-          }
-          fprintf(fpw, "\n");
-          rbc[nbc + 2 * n] = num;
-          rbc[nbc] = nbc;
-          nbc++;
-        }
-      }
-    }
-    if (nbc < n) {
-      nbc = n - nbc;
-      for (i = 0; i < nbc; i++)
-        rbc[nbc] = -1;
-    }
-    fclose(fpw);
-    fclose(fpr);
-    return 1;
-  }
+  qubic(const std::vector<std::vector<float> > &data) {
+    if (data.size() == 0) throw - 1;
+    rows = data.size();
+    cols = data[0].size();
 
-  public:
-  void init_qubic(const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const int & rd = 'F') {
-    run_qubic(tfile, rq, rc, rf, rk, rr, ro, rd);
-
-    //std::vector<std::vector<int> > data;
-    //data.resize(rows, std::vector<int>(cols));
-
-    /* formatted file */
-    write_imported((tfile + ".chars").c_str());
-    //for (int i = 0; i < rows; i++)
-    //  for (int j = 0; j < cols; j++)
-    //    data[i][j] = (int)symbols[arr_c[i][j]];
-  }
-
-  qubic(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names) {
-    rows = row_names.size();
-    cols = col_names.size();
-    
     arr = data;
-  
-    genes = row_names;
-    conds = col_names;
   }
-
-  //qubic(float *r_data, const std::vector<std::string> & r_rowsnames, const std::vector<std::string> & r_colsnames, const int & r_rows, const int & r_cols) {
-  //  cols = r_cols;
-  //  rows = r_rows;
-  //  arr.resize(rows, std::vector<continuous>(cols));
-  //  for (size_t i = 0; i < rows; i++) {
-  //    for (size_t j = 0; j < cols; j++)
-  //      arr[i][j] = r_data[i + j*rows];
-  //  }
-  //  genes = r_rowsnames;
-  //  conds = r_colsnames;
-  //}
 };
 
-int r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const int & rd = 'F') {
-  qubic qubic(data, row_names, col_names);
-  qubic.init_qubic(tfile, rq, rc, rf, rk, rr, ro, rd);
-  return 1;
+static void write_imported(const char* stream_nm, const DiscreteArrayList & arr_c, const std::vector<std::string> &genes, const std::vector<std::string> &conds, const std::vector<discrete> &symbols) {
+  int row, col;
+  FILE *fw;
+  fw = mustOpen(stream_nm, "w");
+  fprintf(fw, "o");
+  for (col = 0; col < conds.size(); col++)
+    fprintf(fw, "\t%s", conds[col].c_str());
+  fputc('\n', fw);
+  for (row = 0; row < genes.size(); row++) {
+    fprintf(fw, "%s", genes[row].c_str());
+    for (col = 0; col < conds.size(); col++)
+      fprintf(fw, "\t%d", symbols[arr_c[row][col]]);
+    fputc('\n', fw);
+  }
+  progress("Formatted data are written to %s", stream_nm);
+  fclose(fw);
+}
+
+/* Identified clusters are backtraced to the original data, by
+* putting the clustered vectors together, identify common column
+*/
+static void print_bc(FILE* fw, const Block & b, const int & num,
+  const DiscreteArrayList & arr_c, const std::vector<std::string> &genes, const std::vector<std::string> &conds, const std::vector<discrete> &symbols) {
+  int block_rows, block_cols;
+  int num_1 = 0, num_2 = 0;
+  /* block height (genes) */
+  block_rows = b.block_rows();
+  /* block_width (conditions) */
+  block_cols = b.block_cols();
+  fprintf(fw, "BC%03d\tS=%d\tPvalue:%LG \n", num, block_rows * block_cols, b.pvalue);
+  /* fprintf(fw, "BC%03d\tS=%d\tPvalue:%lf \n", num, block_rows * block_cols, (double)b.pvalue); */
+  fprintf(fw, " Genes [%d]: ", block_rows);
+  for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it)
+    fprintf(fw, "%s ", genes[*it].c_str());
+  for (std::set<int>::iterator it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it)
+    fprintf(fw, "%s ", genes[*it].c_str());
+  fprintf(fw, "\n");
+
+  fprintf(fw, " Conds [%d]: ", block_cols);
+  for (std::set<int>::iterator it = b.conds.begin(); it != b.conds.end(); ++it)
+    fprintf(fw, "%s ", conds[*it].c_str());
+  fprintf(fw, "\n");
+  /* the complete block data output */
+  for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it) {
+    fprintf(fw, "%10s:", genes[*it].c_str());
+    for (std::set<int>::iterator jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
+      fprintf(fw, "\t%d", symbols[arr_c[*it][*jt]]);
+      if (it == b.genes_order.begin()) {
+        if (symbols[arr_c[*it][*jt]] == 1) num_1++;
+        if (symbols[arr_c[*it][*jt]] == -1) num_2++;
+      }
+    }
+    fputc('\n', fw);
+  }
+  fputc('\n', fw);
+  for (std::set<int>::iterator it = b.genes_reverse.begin(); it != b.genes_reverse.end(); ++it) {
+    fprintf(fw, "%10s:", genes[*it].c_str());
+    for (std::set<int>::iterator jt = b.conds.begin(); jt != b.conds.end(); ++jt) {
+      fprintf(fw, "\t%d", symbols[arr_c[*it][*jt]]);
+    }
+    fputc('\n', fw);
+  }
+  /*printf ("BC%03d: #of 1 and -1 are:\t%d\t%d\n",num,num_1,num_2);
+  fputc('\n', fw);*/
+}
+
+void print_params(FILE *fw, bool IS_DISCRETE, const std::string &FN, const size_t COL_WIDTH, double FILTER, double TOLERANCE,
+  int RPT_BLOCK,
+  double QUANTILE,
+  discrete DIVIDED) {
+  std::string filedesc = "continuous";
+  if (IS_DISCRETE)
+    filedesc = "discrete";
+  fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
+  fprintf(fw, "# Datafile %s: %s type\n", FN.c_str(), filedesc.c_str());
+  fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
+    COL_WIDTH, FILTER, TOLERANCE, RPT_BLOCK);
+  if (!IS_DISCRETE)
+    fprintf(fw, " -q %.2f -r %d", QUANTILE, DIVIDED);
+  fprintf(fw, "\n\n");
+}
+
+std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const bool &rd = false) {
+  qubic qubic(data);
+  std::vector<Block> output = qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
+
+  printf("%d", output.size());
+
+  {
+    FILE *fw = mustOpen((tfile + ".rules").c_str(), "w");
+    for (int row = 0; row < row_names.size(); row++)
+    {
+      fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", row_names[row].c_str(), qubic.genes_rules[row].lower, qubic.genes_rules[row].upper, qubic.genes_rules[row].cntl, qubic.genes_rules[row].cntu);
+    }
+    progress("Discretization rules are written to %s", (tfile + ".rules").c_str());
+    fclose(fw);
+  }
+
+  write_imported((tfile + ".chars").c_str(), qubic.arr_c, row_names, col_names, qubic.symbols);
+
+  {
+    FILE *fw = mustOpen((tfile + ".blocks").c_str(), "w");
+    print_params(fw, rd, tfile, qubic.COL_WIDTH, rf, rc, ro, rq, rr);
+    for (int i = 0; i < output.size(); i++) {
+      print_bc(fw, output[i], i, qubic.arr_c, row_names, col_names, qubic.symbols);
+    }
+    /* clean up */
+    fclose(fw);
+  }
+  printf("%d clusters are written to %s\n", output.size(), (tfile + ".blocks").c_str());
+  return output;
+}
+
+std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::string & tfile, const double & rq, const double & rc, const double & rf, const int & rk, const short & rr, const int & ro, const bool &rd) {
+  qubic qubic(data);
+  return qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
+}
+
+std::vector<Block> r_main(const std::vector<std::vector<float> > &data) {
+  qubic qubic(data);
+  return qubic.init_qubic();
 }

@@ -36,12 +36,9 @@ namespace FopenMatrix {
         std::vector<T> line_data(matrix.col_names.size());
 
         for (size_t i = 0; i < matrix.col_names.size(); i++) {
-          if (std::is_floating_point<T>::value)
-            fscanf(fp, "%f", &line_data[i]);
-          else if (std::is_integral<T>::value)
-            fscanf(fp, "%d", &line_data[i]);
-          else
-            throw - 1;
+          if (std::is_floating_point<T>::value) fscanf(fp, "%f", &line_data[i]);
+          else if (std::is_integral<T>::value) fscanf(fp, "%d", &line_data[i]);
+          else throw - 1;
         }
         matrix.data.push_back(line_data);
       }

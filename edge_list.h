@@ -1,7 +1,6 @@
 #ifndef EDGE_LIST_H
 #define EDGE_LIST_H
 
-#include <bitset>
 #include <vector>
 
 #include "struct.h"

@@ -1,12 +1,8 @@
-#include <iostream>
-#include <fstream>
+#include "edge_list.h"
 
-#include <queue>
-#include <vector>
 #include <cassert>
 
-#include "struct.h"
-#include "edge_list.h"
+#include "fib.h"
 #include "config.h"
 
 int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
