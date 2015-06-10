@@ -24,7 +24,7 @@ NumericMatrix from_vector(const std::vector<std::vector<T>>& result) {
     const std::vector<T>& result_j = result[j];
     if (result_j.size() != nr) stop("incompatible size");
     for (size_t i = 0; i < nr; i++) {
-      m(i,j) = result_j[i];
+      m(i, j) = result_j[i];
     }
   }
   return m;
@@ -37,7 +37,7 @@ std::vector<std::vector<T>> to_vector(const NumericMatrix& matrix) {
   std::vector<std::vector<T>> result(nc);
   for (int j = 0; j < nc; j++) {
     for (int i = 0; i < nr; i++) {
-      result[j].push_back(matrix(i,j));
+      result[j].push_back(matrix(i, j));
     }
   }
   return result;
@@ -51,19 +51,18 @@ List get_list() {
   return List::create();
 }
 
-extern "C" void my_function_to_handle_aborts(int signal_number)
-{
+extern "C" void my_function_to_handle_aborts(int signal_number) {
   /*Your code goes here. You can output debugging info.
   If you return from this function, and it was called
   because abort() was called, your program will exit or crash anyway
   (with a dialog box on Windows).
   */
-  throw -1.0;
+  stop("abort()");
 }
 
 // [[Rcpp::export]]
 List qubic(NumericMatrix matrix) {
-  signal(SIGABRT, &my_function_to_handle_aborts); // treat abort more friendly, see http://stackoverflow.com/a/3911102
+  signal(SIGABRT, &my_function_to_handle_aborts); // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   try {
     std::vector<Block> result = r_main(to_vector<float>(matrix));
 
@@ -89,12 +88,7 @@ List qubic(NumericMatrix matrix) {
       Named("NumberxCol") = y,
       Named("Number") = result.size(),
       Named("info") = get_list());
-  }
-  catch (double) {
-    return List::create(
-      Named("RowxNumber") = LogicalMatrix::create(),
-      Named("NumberxCol") = LogicalMatrix::create(),
-      Named("Number") = 0,
-      Named("info") = List::create("Error"));
+  } catch (double) {
+    stop("catch");
   }
 }
