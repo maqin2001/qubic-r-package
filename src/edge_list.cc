@@ -1,6 +1,8 @@
 #include "edge_list.h"
 
 #include <cassert>
+#include <cstdio>
+#include <algorithm>
 
 #include "fib.h"
 #include "config.h"
@@ -15,8 +17,7 @@ int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
   return common_cnt;
 }
 
-static int edge_cmpr(void * a, void * b)
-{
+static int edge_cmpr(void * a, void * b) {
   int score_a, score_b;
   score_a = ((Edge *)a)->score;
   score_b = ((Edge *)b)->score;
@@ -29,8 +30,7 @@ static int edge_cmpr(void * a, void * b)
 static int fh_insert_fixed(fibheap *h, Edge *data, int cur_min) {
   if (h->fh_n < HEAP_SIZE) {
     fh_insert(h, data);
-  }
-  else {
+  } else {
     if (data->score > cur_min) {
       /* Remove least value and renew */
       fh_extractmin(h);
@@ -67,7 +67,7 @@ struct CompEventByPtr {
 
 const std::vector<Edge *>& EdgeList::get_edge_list() const { return edge_list; }
 EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
-  if (COL_WIDTH == 2) COL_WIDTH = MAX(arr_c[0].size() / 20, 2);
+  if (COL_WIDTH == 2) COL_WIDTH = std::max(arr_c[0].size() / 20, static_cast<size_t>(2));
 #if 1
   Edge * edge;
   int cnt;
@@ -77,8 +77,8 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
   fh_setcmp(heap, edge_cmpr);
 
   /* Generating seed list and push into heap */
-  progress("Generating seed list (minimum weight %d)", COL_WIDTH);
-  int min_score = static_cast<int>(COL_WIDTH) - 1;
+  fprintf(stdout, "Generating seed list (minimum weight %d)", static_cast<unsigned int>(COL_WIDTH));
+  int min_score = COL_WIDTH - 1;
   /* iterate over all genes to retrieve all edges */
   for (size_t i = 0; i < arr_c.size(); i++)
     for (size_t j = i + 1; j < arr_c.size(); j++) {
@@ -90,12 +90,14 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
       edge->score = cnt;
       min_score = fh_insert_fixed(heap, edge, min_score);
     }
-  if (heap->fh_n == 0)
-    errAbort("Not enough overlap between genes");
+  if (heap->fh_n == 0) {
+    fprintf(stderr, "[Error] Not enough overlap between genes");
+    throw 1.0;
+  }
   /* sort the seeds */
-  printf("%d seeds generated\n", heap->fh_n);
+  fprintf(stdout, "%d seeds generated\n", heap->fh_n);
   fh_dump(heap, edge_list, min_score);
-  printf("%d seeds dumped\n", edge_list.size());
+  fprintf(stdout, "%d seeds dumped\n", static_cast<unsigned int>(edge_list.size()));
 #else
   Edge * edge;
   int cnt;
@@ -105,7 +107,7 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
   std::priority_queue<Edge *, std::vector<Edge *>, CompEventByPtr> q;
 
   /* Generating seed list and push into heap */
-  progress("Generating seed list (minimum weight %d)", COL_WIDTH);
+  fprintf(stdout, "Generating seed list (minimum weight %d)", COL_WIDTH);
   Edge __cur_min = { 0, 0, COL_WIDTH };
   Edge *_cur_min = &__cur_min;
   Edge **cur_min = &_cur_min;
@@ -133,10 +135,12 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
       }
     }
   rec_num = q.size();
-  if (rec_num == 0)
-    errAbort("Not enough overlap between genes");
+  if (rec_num == 0) {
+    fprintf(stderr, "[Error] Not enough overlap between genes");
+    throw - 1.0;
+  }
   /* sort the seeds */
-  printf("%d seeds generated\n", rec_num);
+  fprintf(stdout, "%d seeds generated\n", rec_num);
   edge_list.resize(rec_num);
 
   for (int i = rec_num - 1; i >= 0; i--) {

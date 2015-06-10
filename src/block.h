@@ -3,7 +3,7 @@
 
 #include <set>
 /* biclustering block */
-class Block{
+class Block {
 public:
   std::set<int> genes_order;
   std::set<int> genes_reverse;

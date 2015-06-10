@@ -8,7 +8,7 @@
 #include "edge_list.h"
 #include "version.h"
 
-struct rule{
+struct rule {
   float lower;
   float upper;
   size_t cntl;
@@ -85,7 +85,7 @@ private:
     /*A signed short can hold all the values between SHRT_MIN  and SHRT_MAX inclusive.SHRT_MIN is required to be -32767 or less,SHRT_MAX must be at least 32767*/
     int ps = s + SHRT_MAX;
     if (bb[ps] < 0) {
-      bb[ps] = ar.size();
+      bb[ps] = static_cast<discrete>(ar.size());
       ar.push_back(s);
     }
     return bb[ps];
@@ -94,7 +94,7 @@ private:
   static continuous quantile_from_sorted_data(const std::vector<continuous> & sorted_data, const size_t & n, const double & f) {
     /*floor function returns the largest integral value less than or equal to x*/
     int i = static_cast <int> (floor((n - 1) * f));
-    continuous delta = (n - 1) * f - i;
+    continuous delta = static_cast<continuous>((n - 1) * f - i);
     return (1 - delta)*sorted_data[i] + delta*sorted_data[i + 1];
   }
 
@@ -116,8 +116,7 @@ private:
     std::vector<continuous> big(arr[0].size()), small(arr[0].size());
     size_t i, cntu, cntl;
     float f1, f2, f3, upper, lower;
-    for (row = 0; row < arr.size(); row++)
-    {
+    for (row = 0; row < arr.size(); row++) {
       for (col = 0; col < arr[0].size(); col++)
         rowdata[col] = arr[row][col];
       std::sort(rowdata.begin(), rowdata.end());
@@ -128,8 +127,7 @@ private:
       if ((f1 - f3) >= (f3 - f2)) {
         upper = 2 * f3 - f2;
         lower = f2;
-      }
-      else {
+      } else {
         upper = f1;
         lower = 2 * f3 - f1;
       }
@@ -160,7 +158,7 @@ private:
   }
 
   void seed_update(const DiscreteArray& s) {
-    for (int i = 0; i < cols; i++)
+    for (size_t i = 0; i < cols; i++)
       profile[i][s[i]]++;
   }
 
@@ -168,11 +166,11 @@ private:
    * "fuzziness" of the block is controlled by TOLERANCE (-c)
    */
   void scan_block(const std::vector<int> & gene_set, Block & b) {
-    int i, j;
-    int block_rows, cur_rows;
+    size_t i, j;
+    size_t block_rows, cur_rows;
     block_rows = cur_rows = gene_set.size();
 
-    int k;
+    size_t k;
     for (j = 0; j < cols; j++)
       for (k = 0; k < symbols.size(); k++)
         profile[j][k] = 0;
@@ -183,7 +181,7 @@ private:
     for (j = 0; j < cols; j++) {
       /* See if this column satisfies tolerance */
       /* here i start from 1 because symbols[0]=0 */
-      for (i = 1; i < symbols.size(); i++)	{
+      for (i = 1; i < symbols.size(); i++) {
         if ((profile[j][i] >= btolerance)) {
           bool result = b.conds.insert(j).second;
           assert(result);
@@ -197,7 +195,7 @@ private:
 
 
   void update_colcand(std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
-    int i;
+    size_t i;
     for (i = 0; i < cols; i++)
       if (colcand[i] && (g1[i] != g2[i]))
         colcand[i] = false;
@@ -205,7 +203,7 @@ private:
 
   /*calculate the weight of the edge with two vertices g1 and g2*/
   int intersect_row(const std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
-    int i;
+    size_t i;
     int cnt = 0;
     for (i = 0; i < cols; i++)
       if (colcand[i] && (g1[i] == g2[i]) && (g1[i] != 0))
@@ -215,7 +213,7 @@ private:
 
   /*calculate the negative correlation between g1 and g2*/
   int reverse_row(const std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
-    int i;
+    size_t i;
     int cnt = 0;
     for (i = 0; i < cols; i++) {
       if (colcand[i] && (symbols[g1[i]] == -symbols[g2[i]])) cnt++;
@@ -227,7 +225,7 @@ private:
   * cnt = # of valid consensus columns
   */
   int seed_current_modify(const DiscreteArray& s, std::vector<bool> &colcand, const int &components) {
-    int i, k, flag, n;
+    size_t i, k, flag, n;
     int threshold = static_cast <int> (ceil(components * TOLERANCE));
     discrete ss;
     int cnt = 0;
@@ -290,7 +288,7 @@ private:
 
       for (i = 0; i < rows; i++)
         if (profiles[i] > 1) return false;
-      b3 = MAX(bb[b1].block_cols(), bb[b2].block_cols());
+      b3 = std::max(bb[b1].block_cols(), bb[b2].block_cols());
       return !(e->score < b3/* (bb[b1]->block_cols + bb[b2]->block_cols) / 2*/);
     }
   }
@@ -307,9 +305,9 @@ private:
   }
 
   void block_init(Block & b,
-    std::vector<int> & genes, std::vector<int> & scores,
-    std::vector<bool> & candidates, const int & cand_threshold,
-    int & components, std::vector<long double> & pvalues) {
+    std::vector<int> &genes, std::vector<int> &scores,
+    std::vector<bool> &candidates, const int &cand_threshold,
+    size_t &components, std::vector<long double> & pvalues) {
     int i, score, top;
     int cnt = 0, cnt_all = 0, pid = 0;
     continuous cnt_ave = 0, row_all = static_cast<continuous>(rows);
@@ -333,7 +331,7 @@ private:
     /*we just get the largest 100 rows when we initial a bicluster because we believe that
      * the 100 rows can characterize the structure of the bicluster
      * btw, it can reduce the time complexity*/
-    if (rows > 100)	{
+    if (rows > 100) {
       std::sort(arr_rows_b.begin(), arr_rows_b.end());
       top = arr_rows_b[rows - 100];
       for (i = 0; i < rows; i++)
@@ -353,15 +351,13 @@ private:
       /******************************************************/
       /*add a function of controlling the bicluster by pvalue*/
       /******************************************************/
-      for (i = 0; i < rows; i++)
-      {
+      for (i = 0; i < rows; i++) {
         if (!candidates[i]) continue;
         cnt = intersect_row(colcand, arr_c[genes[0]], arr_c[i]);
         cnt_all += cnt;
         if (cnt < cand_threshold)
           candidates[i] = false;
-        if (cnt > max_cnt)
-        {
+        if (cnt > max_cnt) {
           max_cnt = cnt;
           max_i = i;
         }
@@ -370,12 +366,11 @@ private:
       pvalue = get_pvalue(cnt_ave, max_cnt);
       if (po.IS_cond) {
         if (max_cnt < COL_WIDTH || max_i < 0 || max_cnt < b.cond_low_bound) break;
-      }
-      else {
+      } else {
         if (max_cnt < COL_WIDTH || max_i < 0) break;
       }
       if (po.IS_area)	score = components * max_cnt;
-      else score = MIN(components, max_cnt);
+      else score = std::min(static_cast<int>(components), max_cnt); // ggggggggg
       if (score > b.score) b.score = score;
       if (pvalue < b.pvalue) b.pvalue = pvalue;
       genes.push_back(max_i);
@@ -403,7 +398,7 @@ private:
 
     int i, j, k;
     /*MIN MAX et al functions can be accessed in struct.h*/
-    int n = MIN(num, RPT_BLOCK);
+    int n = std::min(num, RPT_BLOCK);
     bool flag;
 
     double cur_rows, cur_cols;
@@ -446,7 +441,7 @@ private:
   std::vector<Block> cluster(const std::vector<Edge *> & el) {
     std::vector<Block> bb;
 
-    int j, k, components;
+    size_t j, k, components;
 
     profile.resize(cols, std::vector<bits16>(symbols.size()));
 
@@ -462,8 +457,7 @@ private:
       /* speed up the program if the rows bigger than 200 */
       if (rows > 250) {
         if (allincluster.find(e->gene_one) != allincluster.end() && allincluster.find(e->gene_two) != allincluster.end()) flag = false;
-      }
-      else {
+      } else {
         flag = check_seed(e, bb);
       }
       if (!flag) continue;
@@ -475,7 +469,7 @@ private:
       /*you must allocate a struct if you want to use the pointers related to it*/
       Block b;
       /*initial the b->score*/
-      b.score = MIN(2, e->score);
+      b.score = std::min(2, e->score);
       /*initial the b->pvalue*/
       b.pvalue = 1;
 
@@ -529,7 +523,7 @@ private:
 
       /* add some new possible genes */
       int m_cnt;
-      for (int ki = 0; ki < rows; ki++) {
+      for (size_t ki = 0; ki < rows; ki++) {
         m_cnt = intersect_row(colcand, arr_c[genes_order[0]], arr_c[ki]);
         if (candidates[ki] && (m_cnt >= floor(cnt* TOLERANCE))) {
           genes_order.push_back(ki);
@@ -539,7 +533,7 @@ private:
       }
 
       /* add genes that negative regulated to the consensus */
-      for (int ki = 0; ki < rows; ki++) {
+      for (size_t ki = 0; ki < rows; ki++) {
         m_cnt = reverse_row(colcand, arr_c[genes_order[0]], arr_c[ki]);
         if (candidates[ki] && (m_cnt >= floor(cnt * TOLERANCE))) {
           genes_reverse.push_back(ki);
@@ -553,7 +547,7 @@ private:
       scan_block(genes_order, b);
       if (b.block_cols() == 0) continue;
       //b.block_rows = components;
-      if (po.IS_pvalue) b.score = -(100 * log(b.pvalue));
+      if (po.IS_pvalue) b.score = static_cast<int>(-(100 * log(b.pvalue)));
       else b.score = components * b.block_cols();
 
       for (std::vector<int>::iterator it = genes_order.begin(); it != genes_order.end(); ++it) {
@@ -572,11 +566,9 @@ private:
       bb.push_back(b);
       /* reaching the results number limit */
       if (bb.size() == po.SCH_BLOCK) break;
-      verboseDot();
+      fputc('.', stdout);
     }
-    /* writes character to the current position in the standard output (stdout) and advances the internal file position indicator to the next position.
-     * It is equivalent to putc(character,stdout).*/
-    putchar('\n');
+    fprintf(stdout, "\n");
     return report_blocks(bb);
   }
 
@@ -593,7 +585,7 @@ private:
     EdgeList EdgeList(arr_c, COL_WIDTH);
 
     /* bi-clustering */
-    progress("Clustering started");
+    fprintf(stdout, "Clustering started");
     return cluster(EdgeList.get_edge_list());
   }
 
@@ -622,11 +614,10 @@ private:
         for (size_t j = 0; j < arr[0].size(); j++) {
           arr_c[i][j] = charset_add(symbols, (discrete)arr[i][j], bb);
         }
-      printf("Discretized data contains %d classes with charset [ ", symbols.size());
-      for (discrete i = 0; i < symbols.size(); i++)
-        printf("%d ", symbols[i]);  printf("]\n");
-    }
-    else {
+      fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(symbols.size()));
+      for (size_t i = 0; i < symbols.size(); i++)
+        fprintf(stdout, "%d ", symbols[i]);  fprintf(stdout, "]\n");
+    } else {
       for (size_t i = 0; i < arr.size(); i++)
         for (size_t j = 0; j < arr[0].size(); j++)
           arr_c[i][j] = 0;
@@ -635,11 +626,9 @@ private:
   }
 
   std::vector<Block> run_qubic(const double & rq, const double & rc, const double & rf, const int & rk, const discrete & rr, const int & ro, const bool &rd) {
-    int i = 0, j = 0;
-
     arr_c.resize(rows, DiscreteArray(cols));
 
-    printf("\nQUBIC %s: greedy biclustering\n\n", VER);
+    fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
     /* get the program options defined in get_options.c */
     /*set memory for the point which is declared in struct.h*/
     //AllocVar(po);
@@ -682,8 +671,41 @@ public:
   }
 };
 
+/**************************************************************************/
+/* file-related operations */
+
+/* Strings */
+/* strcmp: a zero value indicates that both strings are equal.
+* a value greater than zero indicates that the first character that does not match has a greater value in str1 than in str2;
+* And a value less than zero indicates the opposite.
+*/
+#define sameString(a, b) (strcmp((a), (b))==0)
+/* Returns TRUE if two strings are same */
+
+FILE *mustOpen(const char *fileName, const char *mode)
+/* Open a file or die */
+{
+  FILE *f;
+
+  if (sameString(fileName, "stdin")) return stdin;
+  if (sameString(fileName, "stdout")) return stdout;
+  if ((f = fopen(fileName, mode)) == NULL) {
+    const char *modeName = "";
+    if (mode) {
+      if (mode[0] == 'r') modeName = " to read";
+      else if (mode[0] == 'w') modeName = " to write";
+      else if (mode[0] == 'a') modeName = " to append";
+    }
+    fprintf(stderr, "[Error] Can't open %s%s: %s", fileName, modeName, 0);
+    throw - 1;
+  }
+  return f;
+}
+
+/**************************************************************************/
+
 static void write_imported(const char* stream_nm, const DiscreteArrayList & arr_c, const std::vector<std::string> &genes, const std::vector<std::string> &conds, const std::vector<discrete> &symbols) {
-  int row, col;
+  size_t row, col;
   FILE *fw;
   fw = mustOpen(stream_nm, "w");
   fprintf(fw, "o");
@@ -696,7 +718,7 @@ static void write_imported(const char* stream_nm, const DiscreteArrayList & arr_
       fprintf(fw, "\t%d", symbols[arr_c[row][col]]);
     fputc('\n', fw);
   }
-  progress("Formatted data are written to %s", stream_nm);
+  fprintf(stdout, "Formatted data are written to %s", stream_nm);
   fclose(fw);
 }
 
@@ -711,7 +733,7 @@ static void print_bc(FILE* fw, const Block & b, const int & num,
   block_rows = b.block_rows();
   /* block_width (conditions) */
   block_cols = b.block_cols();
-  fprintf(fw, "BC%03d\tS=%d\tPvalue:%LG \n", num, block_rows * block_cols, b.pvalue);
+  fprintf(fw, "BC%03d\tS=%d\tPvalue:%g \n", num, block_rows * block_cols, static_cast<double>(b.pvalue));
   /* fprintf(fw, "BC%03d\tS=%d\tPvalue:%lf \n", num, block_rows * block_cols, (double)b.pvalue); */
   fprintf(fw, " Genes [%d]: ", block_rows);
   for (std::set<int>::iterator it = b.genes_order.begin(); it != b.genes_order.end(); ++it)
@@ -744,7 +766,7 @@ static void print_bc(FILE* fw, const Block & b, const int & num,
     }
     fputc('\n', fw);
   }
-  /*printf ("BC%03d: #of 1 and -1 are:\t%d\t%d\n",num,num_1,num_2);
+  /*fprintf(stdout, "BC%03d: #of 1 and -1 are:\t%d\t%d\n",num,num_1,num_2);
   fputc('\n', fw);*/
 }
 
@@ -758,25 +780,26 @@ void print_params(FILE *fw, bool IS_DISCRETE, const std::string &FN, const size_
   fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
   fprintf(fw, "# Datafile %s: %s type\n", FN.c_str(), filedesc.c_str());
   fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
-    COL_WIDTH, FILTER, TOLERANCE, RPT_BLOCK);
+    static_cast<unsigned int>(COL_WIDTH), FILTER, TOLERANCE, RPT_BLOCK);
   if (!IS_DISCRETE)
     fprintf(fw, " -q %.2f -r %d", QUANTILE, DIVIDED);
   fprintf(fw, "\n\n");
 }
 
+/**************************************************************************/
+
 std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const bool &rd = false) {
   qubic qubic(data);
   std::vector<Block> output = qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
 
-  printf("%d", output.size());
+  fprintf(stdout, "%d", static_cast<unsigned int>(output.size()));
 
   {
     FILE *fw = mustOpen((tfile + ".rules").c_str(), "w");
-    for (int row = 0; row < row_names.size(); row++)
-    {
-      fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", row_names[row].c_str(), qubic.genes_rules[row].lower, qubic.genes_rules[row].upper, qubic.genes_rules[row].cntl, qubic.genes_rules[row].cntu);
+    for (size_t row = 0; row < row_names.size(); row++) {
+      fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", row_names[row].c_str(), qubic.genes_rules[row].lower, qubic.genes_rules[row].upper, static_cast<unsigned int>(qubic.genes_rules[row].cntl), static_cast<unsigned int>(qubic.genes_rules[row].cntu));
     }
-    progress("Discretization rules are written to %s", (tfile + ".rules").c_str());
+    fprintf(stdout, "Discretization rules are written to %s\n", (tfile + ".rules").c_str());
     fclose(fw);
   }
 
@@ -785,13 +808,13 @@ std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const st
   {
     FILE *fw = mustOpen((tfile + ".blocks").c_str(), "w");
     print_params(fw, rd, tfile, qubic.COL_WIDTH, rf, rc, ro, rq, rr);
-    for (int i = 0; i < output.size(); i++) {
+    for (size_t i = 0; i < output.size(); i++) {
       print_bc(fw, output[i], i, qubic.arr_c, row_names, col_names, qubic.symbols);
     }
     /* clean up */
     fclose(fw);
   }
-  printf("%d clusters are written to %s\n", output.size(), (tfile + ".blocks").c_str());
+  fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()), (tfile + ".blocks").c_str());
   return output;
 }
 
