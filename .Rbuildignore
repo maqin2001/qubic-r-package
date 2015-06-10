@@ -2,13 +2,20 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+# todo file
+TODO
+
 # idea files. 
 ^.idea/
 
 # data files. 
-^data/
+^testdata/
+
 # tests files. 
 ^tests/
+
+# Make file
+Makefile
 
 # Make files
 (^|.*)\.sln$

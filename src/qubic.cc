@@ -91,14 +91,14 @@ private:
     return bb[ps];
   }
 
-  static continuous quantile_from_sorted_data(const std::vector<continuous> & sorted_data, const size_t & n, const double & f) {
+  static continuous quantile_from_sorted_data(const std::vector<continuous> & sorted_data, const size_t n, const double f) {
     /*floor function returns the largest integral value less than or equal to x*/
     int i = static_cast <int> (floor((n - 1) * f));
     continuous delta = static_cast<continuous>((n - 1) * f - i);
     return (1 - delta)*sorted_data[i] + delta*sorted_data[i + 1];
   }
 
-  static discrete dis_value(const float & current, const discrete & divided, const std::vector<continuous> & small, const int & cntl, const std::vector<continuous> & big, const int & cntu) {
+  static discrete dis_value(const float current, const discrete divided, const std::vector<continuous> & small, const int cntl, const std::vector<continuous> & big, const int cntu) {
     continuous d_space = static_cast<continuous>(1.0 / divided);
     for (discrete i = 0; i < divided; i++) {
       if ((cntl > 0) && (current <= quantile_from_sorted_data(small, cntl, static_cast<continuous>(d_space * (i + 1)))))
@@ -110,7 +110,7 @@ private:
   }
 
   void discretize(const std::vector<std::vector<continuous> > &arr,
-    discrete *bb, std::vector<discrete>& symbols, const double& f, DiscreteArrayList &arr_c, const discrete divided) {
+    discrete *bb, std::vector<discrete>& symbols, const double f, DiscreteArrayList &arr_c, const discrete divided) {
     size_t row, col;
     std::vector<continuous> rowdata(arr[0].size());
     std::vector<continuous> big(arr[0].size()), small(arr[0].size());
@@ -194,7 +194,7 @@ private:
 
 
 
-  void update_colcand(std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
+  void update_colcand(std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
     size_t i;
     for (i = 0; i < cols; i++)
       if (colcand[i] && (g1[i] != g2[i]))
@@ -202,7 +202,7 @@ private:
   }
 
   /*calculate the weight of the edge with two vertices g1 and g2*/
-  int intersect_row(const std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
+  int intersect_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
     size_t i;
     int cnt = 0;
     for (i = 0; i < cols; i++)
@@ -212,7 +212,7 @@ private:
   }
 
   /*calculate the negative correlation between g1 and g2*/
-  int reverse_row(const std::vector<bool> & colcand, const DiscreteArray& g1, const DiscreteArray& g2) {
+  int reverse_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
     size_t i;
     int cnt = 0;
     for (i = 0; i < cols; i++) {
@@ -224,7 +224,7 @@ private:
   /* calculate the coverage of any row to the current consensus
   * cnt = # of valid consensus columns
   */
-  int seed_current_modify(const DiscreteArray& s, std::vector<bool> &colcand, const int &components) {
+  int seed_current_modify(const DiscreteArray &s, std::vector<bool> &colcand, const int components) {
     size_t i, k, flag, n;
     int threshold = static_cast <int> (ceil(components * TOLERANCE));
     discrete ss;
@@ -247,7 +247,7 @@ private:
   }
 
   /*check whether current edge can be treat as a seed*/
-  bool check_seed(const Edge *e, const std::vector<Block> & bb) {
+  bool check_seed(const Edge *e, const std::vector<Block> &bb) {
     int block_id = bb.size();
     std::vector<int> profiles(rows);
     int i, b1, b2, b3;
@@ -383,7 +383,7 @@ private:
   }
 
   /* compare function for qsort, descending by score */
-  static bool block_cmpr(const Block & a, const Block & b) {
+  static bool block_cmpr(const Block &a, const Block &b) {
     return a.score > b.score;
   }
 
@@ -438,7 +438,7 @@ private:
   /************************************************************************/
 
 
-  std::vector<Block> cluster(const std::vector<Edge *> & el) {
+  std::vector<Block> cluster(const std::vector<Edge *> &el) {
     std::vector<Block> bb;
 
     size_t j, k, components;
@@ -589,7 +589,7 @@ private:
     return cluster(EdgeList.get_edge_list());
   }
 
-  static int intersect_rowE(const std::vector<bool> & colcand, std::vector<discrete> & g1, std::vector<discrete> & g2, const int & cols) {
+  static int intersect_rowE(const std::vector<bool> &colcand, std::vector<discrete> &g1, std::vector<discrete> &g2, const int cols) {
     int i, cnt = 0;
     for (i = 0; i < cols; i++)
       if (colcand[i] && (g1[i] == g2[i]) && g1[i] != 0)
@@ -597,7 +597,7 @@ private:
     return cnt;
   }
 
-  int reverse_rowE(const std::vector<bool> & colcand, std::vector<discrete> & g1, std::vector<discrete> & g2, const int & cols) {
+  int reverse_rowE(const std::vector<bool> &colcand, std::vector<discrete> &g1, std::vector<discrete> &g2, const int cols) {
     int i, cnt = 0;
     for (i = 0; i < cols; i++)
       if (colcand[i] && (symbols[g1[i]] == -symbols[g2[i]]))
@@ -625,7 +625,7 @@ private:
     }
   }
 
-  std::vector<Block> run_qubic(const double & rq, const double & rc, const double & rf, const int & rk, const discrete & rr, const int & ro, const bool &rd) {
+  std::vector<Block> run_qubic(const double rq, const double rc, const double rf, const int rk, const discrete rr, const int ro, const bool rd) {
     arr_c.resize(rows, DiscreteArray(cols));
 
     fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
@@ -658,7 +658,7 @@ private:
   }
 
 public:
-  std::vector<Block> init_qubic(const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const bool & rd = false) {
+  std::vector<Block> init_qubic(const double rq = 0.06, const double rc = 0.95, const double rf = 1, const int rk = 2, const discrete rr = 1, const int ro = 100, const bool rd = false) {
     return run_qubic(rq, rc, rf, rk, rr, ro, rd);
   }
 
@@ -704,7 +704,7 @@ FILE *mustOpen(const char *fileName, const char *mode)
 
 /**************************************************************************/
 
-static void write_imported(const char* stream_nm, const DiscreteArrayList & arr_c, const std::vector<std::string> &genes, const std::vector<std::string> &conds, const std::vector<discrete> &symbols) {
+static void write_imported(const char* stream_nm, const DiscreteArrayList &arr_c, const std::vector<std::string> &genes, const std::vector<std::string> &conds, const std::vector<discrete> &symbols) {
   size_t row, col;
   FILE *fw;
   fw = mustOpen(stream_nm, "w");
@@ -718,7 +718,7 @@ static void write_imported(const char* stream_nm, const DiscreteArrayList & arr_
       fprintf(fw, "\t%d", symbols[arr_c[row][col]]);
     fputc('\n', fw);
   }
-  fprintf(stdout, "Formatted data are written to %s", stream_nm);
+  fprintf(stdout, "Formatted data are written to %s\n", stream_nm);
   fclose(fw);
 }
 
@@ -788,11 +788,9 @@ void print_params(FILE *fw, bool IS_DISCRETE, const std::string &FN, const size_
 
 /**************************************************************************/
 
-std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double & rq = 0.06, const double & rc = 0.95, const double & rf = 1, const int & rk = 2, const discrete & rr = 1, const int & ro = 100, const bool &rd = false) {
+std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double rq = 0.06, const double rc = 0.95, const double rf = 1, const int rk = 2, const discrete rr = 1, const int ro = 100, const bool rd = false) {
   qubic qubic(data);
   std::vector<Block> output = qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
-
-  fprintf(stdout, "%d", static_cast<unsigned int>(output.size()));
 
   {
     FILE *fw = mustOpen((tfile + ".rules").c_str(), "w");
@@ -818,10 +816,16 @@ std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const st
   return output;
 }
 
-std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::string & tfile, const double & rq, const double & rc, const double & rf, const int & rk, const short & rr, const int & ro, const bool &rd) {
+std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::string &tfile, const double rq, const double rc, const double rf, const int rk, const short rr, const int ro, const bool rd) {
   qubic qubic(data);
   return qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
 }
+
+std::vector<Block> r_main(const std::vector<std::vector<float> > &x, const short r, const double q, const double c, const int o, const double f, const int rk, const bool rd) {
+  qubic qubic(x);
+  return qubic.init_qubic(q, c, f, rk, r, o, rd);
+}
+
 
 std::vector<Block> r_main(const std::vector<std::vector<float> > &data) {
   qubic qubic(data);

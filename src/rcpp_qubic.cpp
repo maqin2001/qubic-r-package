@@ -61,10 +61,10 @@ extern "C" void my_function_to_handle_aborts(int signal_number) {
 }
 
 // [[Rcpp::export]]
-List qubic(NumericMatrix matrix) {
+List qubic(const NumericMatrix matrix, const short r, const double q, const double c, const int o, const double f) {
   signal(SIGABRT, &my_function_to_handle_aborts); // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   try {
-    std::vector<Block> result = r_main(to_vector<float>(matrix));
+    std::vector<Block> result = r_main(to_vector<float>(matrix), r, q, c, o, f);
 
     int number = result.size();
 
