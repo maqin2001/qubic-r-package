@@ -20,11 +20,11 @@ NumericMatrix from_vector(const std::vector<std::vector<T>>& result) {
   size_t nc = result.size();
   size_t nr = result[0].size();
   NumericMatrix m(nr, nc);
-  for (size_t j = 0; j < nc; j++) {
-    const std::vector<T>& result_j = result[j];
-    if (result_j.size() != nr) stop("incompatible size");
-    for (size_t i = 0; i < nr; i++) {
-      m(i, j) = result_j[i];
+  for (size_t i = 0; i < nr; i++) {
+    const std::vector<T>& result_i = result[i];
+    if (result_i.size() != nc) stop("incompatible size");
+    for (size_t j = 0; j < nc; j++) {
+      m(i, j) = result_i[j];
     }
   }
   return m;
@@ -34,10 +34,10 @@ template<typename T>
 std::vector<std::vector<T>> to_vector(const NumericMatrix& matrix) {
   auto nc = matrix.ncol();
   auto nr = matrix.nrow();
-  std::vector<std::vector<T>> result(nc);
-  for (int j = 0; j < nc; j++) {
-    for (int i = 0; i < nr; i++) {
-      result[j].push_back(matrix(i, j));
+  std::vector<std::vector<T>> result(nr);
+  for (int i = 0; i < nr; i++) {
+    for (int j = 0; j < nc; j++) {
+      result[i].push_back(matrix(i, j));
     }
   }
   return result;

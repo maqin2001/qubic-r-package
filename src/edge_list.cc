@@ -77,7 +77,7 @@ EdgeList::EdgeList(const DiscreteArrayList& arr_c, size_t& COL_WIDTH) {
   fh_setcmp(heap, edge_cmpr);
 
   /* Generating seed list and push into heap */
-  fprintf(stdout, "Generating seed list (minimum weight %d)", static_cast<unsigned int>(COL_WIDTH));
+  fprintf(stdout, "Generating seed list (minimum weight %d)\n", static_cast<unsigned int>(COL_WIDTH));
   int min_score = COL_WIDTH - 1;
   /* iterate over all genes to retrieve all edges */
   for (size_t i = 0; i < arr_c.size(); i++)
