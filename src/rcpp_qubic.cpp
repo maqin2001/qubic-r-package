@@ -28,8 +28,8 @@ NumericMatrix from_vector(const std::vector<std::vector<T>> &result) {
   return m;
 }
 
-template<typename T>
-std::vector<std::vector<T>> to_vector(const NumericMatrix &matrix) {
+template<typename T, typename TMatrix>
+std::vector<std::vector<T>> to_vector(const TMatrix &matrix) {
   auto nc = matrix.ncol();
   auto nr = matrix.nrow();
   std::vector<std::vector<T>> result(nr);
@@ -40,7 +40,7 @@ std::vector<std::vector<T>> to_vector(const NumericMatrix &matrix) {
 }
 
 NumericMatrix nothing(NumericMatrix matrix) {
-  return from_vector<float>(to_vector<float>(matrix));
+  return from_vector<float>(to_vector<float, NumericMatrix>(matrix));
 }
 
 List get_list() {
@@ -79,7 +79,19 @@ List qubic(const NumericMatrix matrix, const short r, const double q,
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT,  &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main_c(to_vector<float>(matrix), r, q, c, o, f, k);
+    std::vector<Block> result = r_main_c(to_vector<float, NumericMatrix>(matrix), r, q, c, o, f, k);
+    return from_blocks(result, matrix.nrow(), matrix.ncol());
+  } catch (double) {
+    stop("catch");
+  }
+}
+
+// [[Rcpp::export]]
+List qubic_d(const IntegerMatrix matrix, const double c, const int o, const double f, const int k) {
+  // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
+  signal(SIGABRT,  &my_function_to_handle_aborts);
+  try {
+    std::vector<Block> result = r_main_d(to_vector<short, IntegerMatrix>(matrix), c, o, f, k);
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");

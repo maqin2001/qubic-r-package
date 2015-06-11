@@ -40,5 +40,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 
+# .props files
+(^|.*)\.props$
+
 # main file of this project
 main.cc

@@ -1,6 +1,6 @@
-qubiclust <- function(x, r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2) {
+qubiclust_d <- function(x, c = 0.95, o = 100, f = 1, k = 2) {
   MYCALL <- match.call()
-  res <- qubic(x, r, q, c, o, f, k)
+  res <- qubic_d(x, c, o, f, k)
   return(BiclustResult(as.list(MYCALL),
                        matrix(unlist(res["RowxNumber"]), ncol = as.numeric(res["Number"]), byrow = FALSE),
                        matrix(unlist(res["NumberxCol"]), nrow = as.numeric(res["Number"]), byrow = FALSE),

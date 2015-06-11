@@ -49,17 +49,15 @@ private:
   /*************************************************************************/
   
   static void update_colcand(std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
-    size_t i;
-    for (i = 0; i < colcand.size(); i++)
+    for (size_t i = 0; i < colcand.size(); i++)
       if (colcand[i] && (g1[i] != g2[i]))
         colcand[i] = false;
   }
 
   /*calculate the weight of the edge with two vertices g1 and g2*/
   static int intersect_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
-    size_t i;
     int cnt = 0;
-    for (i = 0; i < colcand.size(); i++)
+    for (size_t i = 0; i < colcand.size(); i++)
       if (colcand[i] && (g1[i] == g2[i]) && (g1[i] != 0))
         cnt++;
     return cnt;
@@ -68,9 +66,8 @@ private:
   /*calculate the negative correlation between g1 and g2*/
   static int reverse_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2,
    const std::vector<discrete> &symbols) {
-    size_t i;
     int cnt = 0;
-    for (i = 0; i < colcand.size(); i++) {
+    for (size_t i = 0; i < colcand.size(); i++) {
       if (colcand[i] && (symbols[g1[i]] == -symbols[g2[i]])) cnt++;
     }
     return cnt;
@@ -80,13 +77,13 @@ private:
   * cnt = # of valid consensus columns
   */
   static int seed_current_modify(const DiscreteArray &s, std::vector<bool> &colcand, const int components, std::vector<std::vector<bits16> > &profile, double TOLERANCE) {
-    size_t i, k, flag, n;
+    size_t n;
     int threshold = static_cast <int> (ceil(components * TOLERANCE));
     discrete ss;
     int cnt = 0;
-    for (i = 0; i < profile.size(); i++) {
-      flag = 0; ss = s[i];
-      for (k = 1; k < profile[i].size(); k++) {
+    for (size_t i = 0; i < profile.size(); i++) {
+      size_t flag = 0; ss = s[i];
+      for (size_t k = 1; k < profile[i].size(); k++) {
         n = profile[i][k];
         if (k == ss) n++;
         if (n >= threshold) {
