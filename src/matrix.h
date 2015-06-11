@@ -6,7 +6,7 @@
 
 template<typename T> class Matrix {
 public:
-  const std::vector<std::vector<T> >& get_data_const() const { return data; }
+  const std::vector<std::vector<T> >& get_data() const { return data; }
   const std::vector<std::string>& get_row_names() const { return row_names; }
   const std::vector<std::string>& get_col_names() const { return col_names; }
 public: // protected: TODO: Fix me
