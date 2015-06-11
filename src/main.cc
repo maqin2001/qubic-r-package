@@ -1,6 +1,6 @@
 #include <algorithm> // find
 
-#include "../src/config.h"
+#include "main.h"
 #include "../src/fopen_matrix.h"
 #include "../src/matrix_float.h"
 #include "../src/qubic.h"
@@ -81,12 +81,12 @@ int main(int argc, char *argv[]) {
   }
 
   const char *file_name = cmdOptionExists(argv, argv + argc, "-i") ? getCmdOption(argv, argv + argc, "-i") : DEFAULT_FILENAME;
+  short r = static_cast<short>((cmdOptionExists(argv, argv + argc, "-r") ? std::atoi(getCmdOption(argv, argv + argc, "-r")) : 1));
   double q = cmdOptionExists(argv, argv + argc, "-q") ? std::atof(getCmdOption(argv, argv + argc, "-q")) : 0.06;
   double c = cmdOptionExists(argv, argv + argc, "-c") ? std::atof(getCmdOption(argv, argv + argc, "-c")) : 0.95;
+  int o = cmdOptionExists(argv, argv + argc, "-o") ? std::atoi(getCmdOption(argv, argv + argc, "-o")) : 10;
   double f = cmdOptionExists(argv, argv + argc, "-f") ? std::atof(getCmdOption(argv, argv + argc, "-f")) : 1.0;
   int k = cmdOptionExists(argv, argv + argc, "-k") ? std::atoi(getCmdOption(argv, argv + argc, "-k")) : 2;
-  short r = cmdOptionExists(argv, argv + argc, "-r") ? std::atoi(getCmdOption(argv, argv + argc, "-r")) : 1;
-  int o = cmdOptionExists(argv, argv + argc, "-o") ? std::atoi(getCmdOption(argv, argv + argc, "-o")) : 100;
   bool d = cmdOptionExists(argv, argv + argc, "-d");
 
   MatrixFloat matrix = FopenMatrix::load_matrix<float>(file_name);

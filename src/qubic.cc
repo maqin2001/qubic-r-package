@@ -430,6 +430,7 @@ private:
       i++;
       if (flag) {
         output.push_back(b_ptr);
+        j++;
       }
     }
     return output;
