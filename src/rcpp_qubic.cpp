@@ -75,11 +75,11 @@ List from_blocks(const std::vector<Block> &r, const size_t nr, const size_t nc) 
 
 // [[Rcpp::export]]
 List qubic(const NumericMatrix matrix, const short r, const double q,
-           const double c, const int o, const double f) {
+           const double c, const int o, const double f, const int k) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT,  &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main(to_vector<float>(matrix), r, q, c, o, f);
+    std::vector<Block> result = r_main_c(to_vector<float>(matrix), r, q, c, o, f, k);
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");

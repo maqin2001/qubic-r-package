@@ -32,15 +32,17 @@ namespace FopenMatrix {
       char value[LABEL_LEN];
       while (1 == fscanf(fp, "%s", value)) {
         matrix.row_names.push_back(value);
-
         std::vector<T> line_data(matrix.col_names.size());
-
         for (size_t i = 0; i < matrix.col_names.size(); i++) {
           if (std::is_floating_point<T>::value) fscanf(fp, "%f", &line_data[i]);
-          else if (std::is_integral<T>::value) fscanf(fp, "%d", &line_data[i]);
+          else if (std::is_integral<T>::value) {
+            int v;
+            fscanf(fp, "%d", &v);
+            line_data[i] = v;
+          }
           else throw - 1;
         }
-        matrix.data.push_back(line_data);
+        matrix.data.emplace_back(line_data);
       }
       assert(matrix.row_names.size() == matrix.data.size());
       return matrix; // RVO
@@ -53,7 +55,7 @@ namespace FopenMatrix {
       printf("Failed to open 'input.txt'");
       throw - 1;
     }
-    Matrix<T> matrix = internal::load_matrix_from_file<float>(fp, reserved_count); // RVO
+    Matrix<T> matrix = internal::load_matrix_from_file<T>(fp, reserved_count); // RVO
     fclose(fp);
     return matrix; // RVO
   }

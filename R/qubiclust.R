@@ -25,7 +25,7 @@
 #' @aliases QUBIC QU BCQU-class biclust,matrix,BCQU-method
 #'
 #' @usage ## S4 method for class 'matrix,BCQU':
-#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1)
+#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2)
 #' 
 #' @param x The data matrix where biclusters have to be found. 
 #' (for example: a qualitative representation of gene expression data)
@@ -34,6 +34,8 @@
 #' @param c The required consistency level of a bicluster.
 #' @param o The number of output biclusters.
 #' @param f The filter cut-off for data post-processing.
+#' @param k The minimum column width of the block, 
+#' default: 5\% of columns, minimum 2 columns.
 #' 
 #' @return Returns an Biclust object, which contains bicluster candidates
 #' 
@@ -43,7 +45,7 @@
 #' #Random matrix with embedded bicluster
 #' test <- matrix(rnorm(5000),100,50)
 #' test[11:20,11:20] <- rnorm(100,3,0.3)
-#' res<-biclust(test, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1)
+#' res<-biclust(test, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2)
 #' res
 #' 
 #' \dontrun{

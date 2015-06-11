@@ -5,31 +5,24 @@
 #include <cstring> // memset
 #include <algorithm>
 
+#include "charset.h"
 #include "edge_list.h"
 #include "version.h"
-
-struct rule {
-  float lower;
-  float upper;
-  size_t cntl;
-  size_t cntu;
-};
+#include "discretize.h"
 
 class qubic {
   /* global data */
   std::vector<std::vector<continuous> > arr;
+  std::vector<std::vector<discrete> > arr_d;
 public:
   DiscreteArrayList arr_c;
   std::vector<discrete> symbols;
   size_t COL_WIDTH;
-  std::vector<rule> genes_rules;
+  //std::vector<rule> genes_rules;
 private:
-  bool IS_DISCRETE;
   double FILTER;
   double TOLERANCE;
   int RPT_BLOCK;
-  double QUANTILE;
-  discrete DIVIDED;
   size_t rows, cols;
   Prog_options po;
 
@@ -79,81 +72,6 @@ private:
       "     default: 0.95\n"
       "===================================================================\n");
     return 1;
-  }
-
-  static discrete charset_add(std::vector<discrete> &ar, const discrete &s, discrete *bb) {
-    /*A signed short can hold all the values between SHRT_MIN  and SHRT_MAX inclusive.SHRT_MIN is required to be -32767 or less,SHRT_MAX must be at least 32767*/
-    int ps = s + SHRT_MAX;
-    if (bb[ps] < 0) {
-      bb[ps] = static_cast<discrete>(ar.size());
-      ar.push_back(s);
-    }
-    return bb[ps];
-  }
-
-  static continuous quantile_from_sorted_data(const std::vector<continuous> & sorted_data, const size_t n, const double f) {
-    /*floor function returns the largest integral value less than or equal to x*/
-    int i = static_cast <int> (floor((n - 1) * f));
-    continuous delta = static_cast<continuous>((n - 1) * f - i);
-    return (1 - delta)*sorted_data[i] + delta*sorted_data[i + 1];
-  }
-
-  static discrete dis_value(const float current, const discrete divided, const std::vector<continuous> & small, const int cntl, const std::vector<continuous> & big, const int cntu) {
-    continuous d_space = static_cast<continuous>(1.0 / divided);
-    for (discrete i = 0; i < divided; i++) {
-      if ((cntl > 0) && (current <= quantile_from_sorted_data(small, cntl, static_cast<continuous>(d_space * (i + 1)))))
-        return -i - 1;
-      if ((cntu > 0) && (current >= quantile_from_sorted_data(big, cntu, static_cast<continuous>(1.0 - d_space * (i + 1)))))
-        return i + 1;
-    }
-    return 0;
-  }
-
-  static void discretize(const std::vector<std::vector<continuous> > &arr,
-    discrete *bb, std::vector<discrete>& symbols, const double f, DiscreteArrayList &arr_c, const discrete divided, std::vector<rule> &genes_rules) {
-    size_t row, col;
-    std::vector<continuous> rowdata(arr[0].size());
-    std::vector<continuous> big(arr[0].size()), small(arr[0].size());
-    size_t i, cntu, cntl;
-    float f1, f2, f3, upper, lower;
-    for (row = 0; row < arr.size(); row++) {
-      for (col = 0; col < arr[0].size(); col++)
-        rowdata[col] = arr[row][col];
-      std::sort(rowdata.begin(), rowdata.end());
-
-      f1 = quantile_from_sorted_data(rowdata, arr[0].size(), 1 - f);
-      f2 = quantile_from_sorted_data(rowdata, arr[0].size(), f);
-      f3 = quantile_from_sorted_data(rowdata, arr[0].size(), 0.5);
-      if ((f1 - f3) >= (f3 - f2)) {
-        upper = 2 * f3 - f2;
-        lower = f2;
-      } else {
-        upper = f1;
-        lower = 2 * f3 - f1;
-      }
-      cntu = 0; cntl = 0;
-      for (i = 0; i < arr[0].size(); i++) {
-        if (rowdata[i] < lower) {
-          small[cntl] = rowdata[i];
-          cntl++;
-        }
-        if (rowdata[i] > upper) {
-          big[cntu] = rowdata[i];
-          cntu++;
-        }
-      }
-
-      for (col = 0; col < arr[0].size(); col++)
-        arr_c[row][col] = charset_add(symbols, dis_value(arr[row][col], divided, small, cntl, big, cntu), bb);
-
-      rule rule;
-      rule.lower = lower;
-      rule.upper = upper;
-      rule.cntl = cntl;
-      rule.cntu = cntu;
-
-      genes_rules.push_back(rule);
-    }
   }
 
   void seed_update(const DiscreteArray& s) {
@@ -291,12 +209,11 @@ private:
   }
 
   long double get_pvalue(const continuous & a, const int & b) {
-    int i = 0;
-    long double one = 1, pvalue = 0;
-    long double poisson = one / exp(a);
-    for (i = 0; i < b + 300; i++) {
-      if (i >(b - 1)) pvalue = pvalue + poisson;
-      else poisson = poisson * a / (i + 1);
+    long double pvalue = 0;
+    long double poisson = 1.0 / exp(a);
+    for (int i = 0; i < b + 300; i++) {
+      if (i > (b - 1)) pvalue += poisson;
+      else poisson *= a / (i + 1.0);
     }
     return pvalue;
   }
@@ -367,7 +284,7 @@ private:
         if (max_cnt < COL_WIDTH || max_i < 0) break;
       }
       if (po.IS_area)	score = components * max_cnt;
-      else score = std::min(static_cast<int>(components), max_cnt); // ggggggggg
+      else score = std::min(static_cast<int>(components), max_cnt);
       if (score > b.score) b.score = score;
       if (pvalue < b.pvalue) b.pvalue = pvalue;
       genes.push_back(max_i);
@@ -579,14 +496,6 @@ private:
     }
   }
 
-  std::vector<Block> make_graph(const DiscreteArrayList &arr_c, size_t &COL_WIDTH) {
-    EdgeList EdgeList(arr_c, COL_WIDTH);
-
-    /* bi-clustering */
-    fprintf(stdout, "Clustering started");
-    return cluster(EdgeList.get_edge_list());
-  }
-
   static int intersect_rowE(const std::vector<bool> &colcand, std::vector<discrete> &g1, std::vector<discrete> &g2, const int cols) {
     int i, cnt = 0;
     for (i = 0; i < cols; i++)
@@ -602,59 +511,15 @@ private:
         cnt++;
     return cnt;
   }
-
-  static void make_charsets_d(
-    const std::vector<std::vector<continuous> > &arr,
-    DiscreteArrayList &arr_c,
-    std::vector<discrete> &symbols) {
-    discrete bb[USHRT_MAX];
-    memset(bb, -1, USHRT_MAX*sizeof(*bb));
-    charset_add(symbols, 0, bb);
-    for (size_t i = 0; i < arr.size(); i++)
-      for (size_t j = 0; j < arr[0].size(); j++) {
-        arr_c[i][j] = charset_add(symbols, (discrete)arr[i][j], bb);
-      }
-    fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(symbols.size()));
-    for (size_t i = 0; i < symbols.size(); i++)
-      fprintf(stdout, "%d ", symbols[i]);  fprintf(stdout, "]\n");
-  }
-
-  static void make_charsets_c(
-    const std::vector<std::vector<continuous> > &arr, 
-    DiscreteArrayList &arr_c,
-    std::vector<discrete> &symbols,
-    std::vector<rule> &genes_rules, const double QUANTILE, const short DIVIDED) {
-    discrete bb[USHRT_MAX];
-    memset(bb, -1, USHRT_MAX*sizeof(*bb));
-    charset_add(symbols, 0, bb);
-    for (size_t i = 0; i < arr.size(); i++)
-      for (size_t j = 0; j < arr[0].size(); j++)
-        arr_c[i][j] = 0;
-    discretize(arr, bb, symbols, QUANTILE, arr_c, DIVIDED, genes_rules);
-  }
-
-  void make_charsets(std::vector<discrete> &symbols) {
-    if (IS_DISCRETE) {
-      make_charsets_d(arr, arr_c, symbols);
-    } else {
-      make_charsets_c(arr, arr_c, symbols, genes_rules, QUANTILE, DIVIDED);
-    }
-  }
-
-  std::vector<Block> run_qubic(const double rq, const double rc, const double rf, const int rk, const discrete rr, const int ro, const bool rd) {
-    arr_c.resize(rows, DiscreteArray(cols));
-
+  
+public:
+  std::vector<Block> init_qubic(const double rc = 0.95, const double rf = 1, const int rk = 2, const int ro = 100) {
     fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
-    /* get the program options defined in get_options.c */
-    /*set memory for the point which is declared in struct.h*/
-    //AllocVar(po);
+
     /*Initialize the point*/
-    IS_DISCRETE = rd;
     po.IS_pvalue = false;
     /* case 'P': po.IS_pvalue = true; */
     COL_WIDTH = rk;
-    DIVIDED = rr;
-    QUANTILE = rq;
     TOLERANCE = rc;
     RPT_BLOCK = ro;
     po.SCH_BLOCK = 2 * RPT_BLOCK;
@@ -667,31 +532,32 @@ private:
     po.IS_cond = false;
     /* case 'C': po.IS_cond = true; */
 
-    make_charsets(symbols);
+    arr_c.resize(rows, DiscreteArray(cols));
+
+    make_charsets_d(arr_d, arr_c, symbols);
 
     /* the file that stores all blocks */
-    return make_graph(arr_c, COL_WIDTH);
-  }
+    EdgeList EdgeList(arr_c, COL_WIDTH);
 
-public:
-  std::vector<Block> init_qubic(const double rq = 0.06, const double rc = 0.95, const double rf = 1, const int rk = 2, const discrete rr = 1, const int ro = 100, const bool rd = false) {
-    return run_qubic(rq, rc, rf, rk, rr, ro, rd);
+    /* bi-clustering */
+    fprintf(stdout, "Clustering started");
+    return cluster(EdgeList.get_edge_list());
   }
 
   qubic(const std::vector<std::vector<float> > &data) {
-    if (data.size() == 0) throw - 1;
+    if (data.size() == 0) throw -1.0;
     rows = data.size();
     cols = data[0].size();
 
     arr = data;
   }
 
-  qubic(const std::vector<std::vector<int> > &data) {
-    if (data.size() == 0) throw - 1;
+  qubic(const std::vector<std::vector<short> > &data) {
+    if (data.size() == 0) throw -1.0;
     rows = data.size();
     cols = data[0].size();
 
-    //arr = data;
+    arr_d = data;
   }
 };
 
@@ -706,21 +572,14 @@ public:
 #define sameString(a, b) (strcmp((a), (b))==0)
 /* Returns TRUE if two strings are same */
 
-FILE *mustOpen(const char *fileName, const char *mode)
-/* Open a file or die */
-{
+/* Open a file to write or die */
+FILE *mustOpenWrite(const char *fileName) {
   FILE *f;
 
   if (sameString(fileName, "stdin")) return stdin;
   if (sameString(fileName, "stdout")) return stdout;
-  if ((f = fopen(fileName, mode)) == NULL) {
-    const char *modeName = "";
-    if (mode) {
-      if (mode[0] == 'r') modeName = " to read";
-      else if (mode[0] == 'w') modeName = " to write";
-      else if (mode[0] == 'a') modeName = " to append";
-    }
-    fprintf(stderr, "[Error] Can't open %s%s: %s", fileName, modeName, 0);
+  if ((f = fopen(fileName, "w")) == NULL) {
+    fprintf(stderr, "[Error] Can't open %s to write: %s", fileName, 0);
     throw - 1;
   }
   return f;
@@ -729,16 +588,14 @@ FILE *mustOpen(const char *fileName, const char *mode)
 /**************************************************************************/
 
 static void write_imported(const char* stream_nm, const DiscreteArrayList &arr_c, const std::vector<std::string> &genes, const std::vector<std::string> &conds, const std::vector<discrete> &symbols) {
-  size_t row, col;
-  FILE *fw;
-  fw = mustOpen(stream_nm, "w");
+  FILE *fw = mustOpenWrite(stream_nm);
   fprintf(fw, "o");
-  for (col = 0; col < conds.size(); col++)
+  for (size_t col = 0; col < conds.size(); col++)
     fprintf(fw, "\t%s", conds[col].c_str());
   fputc('\n', fw);
-  for (row = 0; row < genes.size(); row++) {
+  for (size_t row = 0; row < genes.size(); row++) {
     fprintf(fw, "%s", genes[row].c_str());
-    for (col = 0; col < conds.size(); col++)
+    for (size_t col = 0; col < conds.size(); col++)
       fprintf(fw, "\t%d", symbols[arr_c[row][col]]);
     fputc('\n', fw);
   }
@@ -795,62 +652,62 @@ static void print_bc(FILE* fw, const Block & b, const int & num,
 }
 
 void print_params(FILE *fw, bool IS_DISCRETE, const std::string &FN, const size_t COL_WIDTH, double FILTER, double TOLERANCE,
-  int RPT_BLOCK,
-  double QUANTILE,
-  discrete DIVIDED) {
-  std::string filedesc = "continuous";
-  if (IS_DISCRETE)
-    filedesc = "discrete";
+  int RPT_BLOCK) {
   fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
-  fprintf(fw, "# Datafile %s: %s type\n", FN.c_str(), filedesc.c_str());
+  fprintf(fw, "# Datafile %s: type\n", FN.c_str());
   fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
     static_cast<unsigned int>(COL_WIDTH), FILTER, TOLERANCE, RPT_BLOCK);
-  if (!IS_DISCRETE)
-    fprintf(fw, " -q %.2f -r %d", QUANTILE, DIVIDED);
   fprintf(fw, "\n\n");
 }
 
 /**************************************************************************/
 
-std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::vector<std::string > &row_names, const std::vector<std::string > &col_names, const std::string & tfile = "rQUBIC", const double rq = 0.06, const double rc = 0.95, const double rf = 1, const int rk = 2, const discrete rr = 1, const int ro = 100, const bool rd = false) {
-  qubic qubic(data);
-  std::vector<Block> output = qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
-
+std::vector<Block> main_d(const std::vector<std::vector<short>> &x, const std::vector<std::string> &row_names,
+                          const std::vector<std::string> &col_names, const std::string &tfile,
+                          const double c, const int o, const double f, const int k) {
+  qubic qubic(x);
+  std::vector<Block> output = qubic.init_qubic(c, f, k, o);
+  write_imported((tfile + ".chars").c_str(), qubic.arr_c, row_names, col_names, qubic.symbols);
   {
-    FILE *fw = mustOpen((tfile + ".rules").c_str(), "w");
+    FILE *fw = mustOpenWrite((tfile + ".blocks").c_str());
+    print_params(fw, true, tfile, qubic.COL_WIDTH, f, c, o);
+    for (size_t i = 0; i < output.size(); i++)
+      print_bc(fw, output[i], i, qubic.arr_c, row_names, col_names, qubic.symbols);
+    /* clean up */
+    fclose(fw);
+  }
+  fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()),
+          (tfile + ".blocks").c_str());
+  return output;
+}
+
+std::vector<Block> main_c(const std::vector<std::vector<float>> &x, const std::vector<std::string> &row_names,
+                          const std::vector<std::string> &col_names, const std::string &tfile, const short r, const double q,
+                          const double c, const int o, const double f, const int k) {
+  std::vector<rule> genes_rules;
+  std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
+  {
+    FILE *fw = mustOpenWrite((tfile + ".rules").c_str());
     for (size_t row = 0; row < row_names.size(); row++) {
-      fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", row_names[row].c_str(), qubic.genes_rules[row].lower, qubic.genes_rules[row].upper, static_cast<unsigned int>(qubic.genes_rules[row].cntl), static_cast<unsigned int>(qubic.genes_rules[row].cntu));
+      fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", row_names[row].c_str(),
+              genes_rules[row].lower, genes_rules[row].upper, static_cast<unsigned int>(genes_rules[row].cntl),
+              static_cast<unsigned int>(genes_rules[row].cntu));
     }
     fprintf(stdout, "Discretization rules are written to %s\n", (tfile + ".rules").c_str());
     fclose(fw);
   }
-
-  write_imported((tfile + ".chars").c_str(), qubic.arr_c, row_names, col_names, qubic.symbols);
-
-  {
-    FILE *fw = mustOpen((tfile + ".blocks").c_str(), "w");
-    print_params(fw, rd, tfile, qubic.COL_WIDTH, rf, rc, ro, rq, rr);
-    for (size_t i = 0; i < output.size(); i++) {
-      print_bc(fw, output[i], i, qubic.arr_c, row_names, col_names, qubic.symbols);
-    }
-    /* clean up */
-    fclose(fw);
-  }
-  fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()), (tfile + ".blocks").c_str());
-  return output;
+  return main_d(arr_d, row_names, col_names, tfile, c, o, f, k);
 }
 
-std::vector<Block> r_main(const std::vector<std::vector<float>> &data, const std::string &tfile, const double rq, const double rc, const double rf, const int rk, const short rr, const int ro, const bool rd) {
-  qubic qubic(data);
-  return qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
-}
-
-std::vector<Block> r_main(const std::vector<std::vector<float>> &x, const short r, const double q, const double c, const int o, const double f, const int rk, const bool rd) {
+std::vector<Block> r_main_d(const std::vector<std::vector<short>> &x, const double c /*= 0.95*/, const int o /*= 100*/,
+                            const double f /*= 1*/, const int k /*= 2*/) {
   qubic qubic(x);
-  return qubic.init_qubic(q, c, f, rk, r, o, rd);
+  return qubic.init_qubic(c, f, k, o);
 }
 
-std::vector<Block> r_main(const std::vector<std::vector<int>> &x, const short r, const double q, const double c, const int o, const double f, const int rk, const bool rd) {
-  qubic qubic(x);
-  return qubic.init_qubic(q, c, f, rk, r, o, rd);
+std::vector<Block> r_main_c(const std::vector<std::vector<float>> &x, const short r /*= 1*/, const double q /*= 0.06*/,
+                            const double c /*= 0.95*/, const int o /*= 100*/, const double f /*= 1*/, const int k /*= 2*/) {
+  std::vector<rule> genes_rules;
+  std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
+  return r_main_d(arr_d, c, o, f, k);
 }

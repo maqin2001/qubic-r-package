@@ -84,10 +84,19 @@ int main(int argc, char *argv[]) {
   double f = cmdOptionExists(argv, argv + argc, "-f") ? std::atof(getCmdOption(argv, argv + argc, "-f")) : 1.0;
   int k = cmdOptionExists(argv, argv + argc, "-k") ? std::atoi(getCmdOption(argv, argv + argc, "-k")) : 2;
   bool d = cmdOptionExists(argv, argv + argc, "-d");
-  MatrixFloat matrix = FopenMatrix::load_matrix<float>(file_name);
-  //printf("Size of matrix: %d", matrix.get_data_const().size());
+  if (d) {
+    auto matrix = FopenMatrix::load_matrix<short>(file_name);
+    //printf("Size of matrix: %d", matrix.get_data_const().size());
 #ifndef LOAD_FILE_ONLY
-  run_qubic(matrix, file_name, q, c, f, k, r, o, d);
+    run_qubic_d(matrix, file_name, c, o, f, k);
 #endif
+  }
+  else {
+    auto matrix = FopenMatrix::load_matrix<float>(file_name);
+    //printf("Size of matrix: %d", matrix.get_data_const().size());
+#ifndef LOAD_FILE_ONLY
+    run_qubic_c(matrix, file_name, r, q, c, o, f, k);
+#endif
+  }
   return 0;
 }
