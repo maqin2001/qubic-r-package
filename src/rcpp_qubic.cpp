@@ -60,12 +60,7 @@ extern "C" void my_function_to_handle_aborts(int signal_number) {
   stop("abort()");
 }
 
-// [[Rcpp::export]]
-List qubic(const NumericMatrix matrix, const short r, const double q, const double c, const int o, const double f) {
-  signal(SIGABRT, &my_function_to_handle_aborts); // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
-  try {
-    std::vector<Block> result = r_main(to_vector<float>(matrix), r, q, c, o, f);
-
+List from_blocks(const std::vector<Block> &result) {  
     int number = result.size();
 
     auto x = LogicalMatrix(matrix.nrow(), number);
@@ -88,6 +83,14 @@ List qubic(const NumericMatrix matrix, const short r, const double q, const doub
       Named("NumberxCol") = y,
       Named("Number") = result.size(),
       Named("info") = get_list());
+}
+
+// [[Rcpp::export]]
+List qubic(const NumericMatrix matrix, const short r, const double q, const double c, const int o, const double f) {
+  signal(SIGABRT, &my_function_to_handle_aborts); // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
+  try {
+    std::vector<Block> result = r_main(to_vector<float>(matrix), r, q, c, o, f);
+    return from_blocks(result);
   } catch (double) {
     stop("catch");
   }

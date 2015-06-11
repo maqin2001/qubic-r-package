@@ -81,7 +81,7 @@ private:
     return 1;
   }
 
-  static discrete charset_add(std::vector<discrete>& ar, const discrete & s, discrete *bb) {
+  static discrete charset_add(std::vector<discrete> &ar, const discrete &s, discrete *bb) {
     /*A signed short can hold all the values between SHRT_MIN  and SHRT_MAX inclusive.SHRT_MIN is required to be -32767 or less,SHRT_MAX must be at least 32767*/
     int ps = s + SHRT_MAX;
     if (bb[ps] < 0) {
@@ -109,8 +109,8 @@ private:
     return 0;
   }
 
-  void discretize(const std::vector<std::vector<continuous> > &arr,
-    discrete *bb, std::vector<discrete>& symbols, const double f, DiscreteArrayList &arr_c, const discrete divided) {
+  static void discretize(const std::vector<std::vector<continuous> > &arr,
+    discrete *bb, std::vector<discrete>& symbols, const double f, DiscreteArrayList &arr_c, const discrete divided, std::vector<rule> &genes_rules) {
     size_t row, col;
     std::vector<continuous> rowdata(arr[0].size());
     std::vector<continuous> big(arr[0].size()), small(arr[0].size());
@@ -142,6 +142,7 @@ private:
           cntu++;
         }
       }
+
       for (col = 0; col < arr[0].size(); col++)
         arr_c[row][col] = charset_add(symbols, dis_value(arr[row][col], divided, small, cntl, big, cntu), bb);
 
@@ -153,8 +154,6 @@ private:
 
       genes_rules.push_back(rule);
     }
-
-
   }
 
   void seed_update(const DiscreteArray& s) {
@@ -191,9 +190,7 @@ private:
     }
   }
   /*************************************************************************/
-
-
-
+  
   void update_colcand(std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
     size_t i;
     for (i = 0; i < cols; i++)
@@ -606,23 +603,41 @@ private:
     return cnt;
   }
 
-  void make_charsets(std::vector<discrete> &symbols) {
+  static void make_charsets_d(
+    const std::vector<std::vector<continuous> > &arr,
+    DiscreteArrayList &arr_c,
+    std::vector<discrete> &symbols) {
     discrete bb[USHRT_MAX];
     memset(bb, -1, USHRT_MAX*sizeof(*bb));
     charset_add(symbols, 0, bb);
+    for (size_t i = 0; i < arr.size(); i++)
+      for (size_t j = 0; j < arr[0].size(); j++) {
+        arr_c[i][j] = charset_add(symbols, (discrete)arr[i][j], bb);
+      }
+    fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(symbols.size()));
+    for (size_t i = 0; i < symbols.size(); i++)
+      fprintf(stdout, "%d ", symbols[i]);  fprintf(stdout, "]\n");
+  }
+
+  static void make_charsets_c(
+    const std::vector<std::vector<continuous> > &arr, 
+    DiscreteArrayList &arr_c,
+    std::vector<discrete> &symbols,
+    std::vector<rule> &genes_rules, const double QUANTILE, const short DIVIDED) {
+    discrete bb[USHRT_MAX];
+    memset(bb, -1, USHRT_MAX*sizeof(*bb));
+    charset_add(symbols, 0, bb);
+    for (size_t i = 0; i < arr.size(); i++)
+      for (size_t j = 0; j < arr[0].size(); j++)
+        arr_c[i][j] = 0;
+    discretize(arr, bb, symbols, QUANTILE, arr_c, DIVIDED, genes_rules);
+  }
+
+  void make_charsets(std::vector<discrete> &symbols) {
     if (IS_DISCRETE) {
-      for (size_t i = 0; i < arr.size(); i++)
-        for (size_t j = 0; j < arr[0].size(); j++) {
-          arr_c[i][j] = charset_add(symbols, (discrete)arr[i][j], bb);
-        }
-      fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(symbols.size()));
-      for (size_t i = 0; i < symbols.size(); i++)
-        fprintf(stdout, "%d ", symbols[i]);  fprintf(stdout, "]\n");
+      make_charsets_d(arr, arr_c, symbols);
     } else {
-      for (size_t i = 0; i < arr.size(); i++)
-        for (size_t j = 0; j < arr[0].size(); j++)
-          arr_c[i][j] = 0;
-      discretize(arr, bb, symbols, QUANTILE, arr_c, DIVIDED);
+      make_charsets_c(arr, arr_c, symbols, genes_rules, QUANTILE, DIVIDED);
     }
   }
 
@@ -669,6 +684,14 @@ public:
     cols = data[0].size();
 
     arr = data;
+  }
+
+  qubic(const std::vector<std::vector<int> > &data) {
+    if (data.size() == 0) throw - 1;
+    rows = data.size();
+    cols = data[0].size();
+
+    //arr = data;
   }
 };
 
@@ -817,18 +840,17 @@ std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const st
   return output;
 }
 
-std::vector<Block> r_main(const std::vector<std::vector<float> > &data, const std::string &tfile, const double rq, const double rc, const double rf, const int rk, const short rr, const int ro, const bool rd) {
+std::vector<Block> r_main(const std::vector<std::vector<float>> &data, const std::string &tfile, const double rq, const double rc, const double rf, const int rk, const short rr, const int ro, const bool rd) {
   qubic qubic(data);
   return qubic.init_qubic(rq, rc, rf, rk, rr, ro, rd);
 }
 
-std::vector<Block> r_main(const std::vector<std::vector<float> > &x, const short r, const double q, const double c, const int o, const double f, const int rk, const bool rd) {
+std::vector<Block> r_main(const std::vector<std::vector<float>> &x, const short r, const double q, const double c, const int o, const double f, const int rk, const bool rd) {
   qubic qubic(x);
   return qubic.init_qubic(q, c, f, rk, r, o, rd);
 }
 
-
-std::vector<Block> r_main(const std::vector<std::vector<float> > &data) {
-  qubic qubic(data);
-  return qubic.init_qubic();
+std::vector<Block> r_main(const std::vector<std::vector<int>> &x, const short r, const double q, const double c, const int o, const double f, const int rk, const bool rd) {
+  qubic qubic(x);
+  return qubic.init_qubic(q, c, f, rk, r, o, rd);
 }
