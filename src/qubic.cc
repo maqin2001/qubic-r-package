@@ -11,69 +11,8 @@
 #include "discretize.h"
 
 class qubic {
-  /* global data */
-  std::vector<std::vector<continuous> > arr;
-  std::vector<std::vector<discrete> > arr_d;
-public:
-  DiscreteArrayList arr_c;
-  std::vector<discrete> symbols;
-  size_t COL_WIDTH;
-  //std::vector<rule> genes_rules;
 private:
-  double FILTER;
-  double TOLERANCE;
-  int RPT_BLOCK;
-  size_t rows, cols;
-  Prog_options po;
-
-  /* must be defined */
-  std::vector<std::vector<bits16> > profile;
-
-  int r_puts() {
-    puts("\n===================================================================\n"
-      "[Usage]\n"
-      "qubic(data, [argument list]);\n"
-      "like :\n"
-      "qubic(data, file = 'rQUBIC', q = 0.06, c = 0.95, f = 1, k = 2, r = 1, o = 100, d = 'F')\n"
-      "===================================================================\n"
-      "[Input]\n"
-      "-file : input file must be one of two tab-delimited formats\n"
-      "  A) continuous data (default, use pre-set discretization (see -q and -r))\n"
-      "     -------------------------------------\n"
-      "     o        cond1    cond2    cond3\n"
-      "     gene1      2.4      3.5     -2.4\n"
-      "     gene2     -2.1      0.0      1.2\n"
-      "     -------------------------------------\n"
-      "  B) discrete data with arbitrary classes (turn on -d)\n"
-      "     use '0' for missing or insignificant data\n"
-      "     -------------------------------------\n"
-      "     o        cond1    cond2    cond3\n"
-      "     gene1        1        2        2\n"
-      "     gene2       -1        2        0\n"
-      "     -------------------------------------\n"
-      "-q : use quantile discretization for continuous data\n"
-      "     default: 0.06 (see details in Method section in paper)\n"
-      "-r : the number of ranks as which we treat the up(down)-regulated value\n"
-      "     when discretization\n"
-      "     default: 1\n"
-      "-d : discrete data, where user should send their processed data\n"
-      "     to different value classes, see above\n"
-      "-C : the flag using the lower bound of condition number (5 percents of the gene number)\n"
-      "===================================================================\n"
-      "[Output]\n"
-      "-o : number of blocks to report, default: 100\n"
-      "-f : filtering overlapping blocks,\n"
-      "     default: 1 (do not remove any blocks)\n"
-      "-k : minimum column width of the block,\n"
-      "     default: 5% of columns, minimum 2 columns\n"
-      "-c : consistency level of the block (0.5-1.0], the minimum ratio between the\n"
-      "     number of identical valid symbols in a column and the total number \n"
-      "     of rows in the output\n"
-      "     default: 0.95\n"
-      "===================================================================\n");
-    return 1;
-  }
-
+ 
   static void seed_update(const DiscreteArray &s, std::vector<std::vector<bits16>> &profile) {
     for (size_t i = 0; i < s.size(); i++)
       profile[i][s[i]]++;
@@ -490,13 +429,6 @@ private:
     return report_blocks(bb, RPT_BLOCK, FILTER);
   }
   
-  /* remove a row from the profile */
-  void seed_deduct(const discrete *s) {
-    for (size_t i = 0; i < cols; i++) {
-      profile[i][s[i]]--;
-    }
-  }
-
   static int intersect_rowE(const std::vector<bool> &colcand, std::vector<discrete> &g1, std::vector<discrete> &g2, const int cols) {
     int i, cnt = 0;
     for (i = 0; i < cols; i++)
@@ -505,60 +437,34 @@ private:
     return cnt;
   }
 
-  int reverse_rowE(const std::vector<bool> &colcand, std::vector<discrete> &g1, std::vector<discrete> &g2, const int cols) {
-    int i, cnt = 0;
-    for (i = 0; i < cols; i++)
-      if (colcand[i] && (symbols[g1[i]] == -symbols[g2[i]]))
-        cnt++;
-    return cnt;
-  }
-  
+ 
 public:
-  std::vector<Block> init_qubic(const double rc = 0.95, const double rf = 1, const int rk = 2, const int ro = 100) {
+  static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols &all, const double rc = 0.95, const double rf = 1, size_t rk = 2, const int ro = 100) {
     fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
 
     /*Initialize the point*/
-    po.IS_pvalue = false;
+    bool IS_pvalue = false;
     /* case 'P': po.IS_pvalue = true; */
-    COL_WIDTH = rk;
-    TOLERANCE = rc;
-    RPT_BLOCK = ro;
-    po.SCH_BLOCK = 2 * RPT_BLOCK;
     /* ensure enough searching space */
-    /*if (po.SCH_BLOCK < 1000) po.SCH_BLOCK = 1000;*/
-    FILTER = rf;
+    int SCH_BLOCK = std::max(2 * ro, 1000);
+
     /* case 's': po.IS_SWITCH = true; */
-    po.IS_area = false;
+    bool IS_area = false;
     /* case 'S': po.IS_area = true; */
-    po.IS_cond = false;
+    bool IS_cond = false;
     /* case 'C': po.IS_cond = true; */
     
-    DiscreteArrayListWithSymbols all = make_charsets_d(arr_d);
-    arr_c = all.list;
-    symbols = all.symbols;
 
     /* the file that stores all blocks */
-    EdgeList EdgeList(all.list, COL_WIDTH);
+    EdgeList EdgeList(all.list, rk);
 
     /* bi-clustering */
     fprintf(stdout, "Clustering started");
-    return cluster(all, EdgeList.get_edge_list(), profile, COL_WIDTH, TOLERANCE, po.IS_cond, po.IS_area, po.IS_pvalue, po.SCH_BLOCK, RPT_BLOCK, FILTER);
-  }
 
-  qubic(const std::vector<std::vector<float> > &data) {
-    if (data.size() == 0) throw -1.0;
-    rows = data.size();
-    cols = data[0].size();
 
-    arr = data;
-  }
+    std::vector<std::vector<bits16> > profile;
 
-  qubic(const std::vector<std::vector<short> > &data) {
-    if (data.size() == 0) throw -1.0;
-    rows = data.size();
-    cols = data[0].size();
-
-    arr_d = data;
+    return cluster(all, EdgeList.get_edge_list(), profile, rk, rc, IS_cond, IS_area, IS_pvalue, SCH_BLOCK, ro, rf);
   }
 };
 
@@ -666,14 +572,14 @@ void print_params(FILE *fw, bool IS_DISCRETE, const std::string &FN, const size_
 std::vector<Block> main_d(const std::vector<std::vector<short>> &x, const std::vector<std::string> &row_names,
                           const std::vector<std::string> &col_names, const std::string &tfile,
                           const double c, const int o, const double f, const int k) {
-  qubic qubic(x);
-  std::vector<Block> output = qubic.init_qubic(c, f, k, o);
-  write_imported((tfile + ".chars").c_str(), qubic.arr_c, row_names, col_names, qubic.symbols);
+  DiscreteArrayListWithSymbols all = make_charsets_d(x);
+  std::vector<Block> output = qubic::init_qubic(all, c, f, k, o);
+  write_imported((tfile + ".chars").c_str(), all.list, row_names, col_names, all.symbols);
   {
     FILE *fw = mustOpenWrite((tfile + ".blocks").c_str());
-    print_params(fw, true, tfile, qubic.COL_WIDTH, f, c, o);
+    print_params(fw, true, tfile, k, f, c, o);
     for (size_t i = 0; i < output.size(); i++)
-      print_bc(fw, output[i], i, qubic.arr_c, row_names, col_names, qubic.symbols);
+      print_bc(fw, output[i], i, all.list, row_names, col_names, all.symbols);
     /* clean up */
     fclose(fw);
     fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()),
@@ -702,8 +608,9 @@ std::vector<Block> main_c(const std::vector<std::vector<float>> &x, const std::v
 
 std::vector<Block> r_main_d(const std::vector<std::vector<short>> &x, const double c /*= 0.95*/, const int o /*= 100*/,
                             const double f /*= 1*/, const int k /*= 2*/) {
-  qubic qubic(x);
-  return qubic.init_qubic(c, f, k, o);
+
+  DiscreteArrayListWithSymbols all = make_charsets_d(x);
+  return qubic::init_qubic(all, c, f, k, o);
 }
 
 std::vector<Block> r_main_c(const std::vector<std::vector<float>> &x, const short r /*= 1*/, const double q /*= 0.06*/,
