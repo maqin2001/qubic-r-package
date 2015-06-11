@@ -1,13 +1,15 @@
 #ifndef EDGE_LIST_H
 #define EDGE_LIST_H
 
-#include <vector>
-
+#include "discrete.h"
 #include "struct.h"
 
-typedef std::vector<discrete> DiscreteArray;
-typedef std::vector<DiscreteArray> DiscreteArrayList;
-
+/* edge between two genes */
+typedef struct Edge {
+  size_t gene_one;
+  size_t gene_two;
+  int score;
+} Edge;
 
 class EdgeList {
 private:

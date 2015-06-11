@@ -6,17 +6,6 @@
 
 /* Two major data types */
 typedef float continuous;
-typedef short discrete;
-
-
-/***** Structures *****/
-
-/* edge between two genes */
-typedef struct Edge {
-  size_t gene_one;
-  size_t gene_two;
-  int score;
-} Edge;
 
 /* holds running options */
 typedef struct Prog_options {

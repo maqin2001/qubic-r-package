@@ -74,28 +74,28 @@ private:
     return 1;
   }
 
-  void seed_update(const DiscreteArray& s) {
-    for (size_t i = 0; i < cols; i++)
+  static void seed_update(const DiscreteArray &s, std::vector<std::vector<bits16>> &profile) {
+    for (size_t i = 0; i < s.size(); i++)
       profile[i][s[i]]++;
   }
 
   /* scan through all columns and identify the set within threshold,
    * "fuzziness" of the block is controlled by TOLERANCE (-c)
    */
-  void scan_block(const std::vector<int> & gene_set, Block & b) {
+  static void scan_block(const DiscreteArrayList &arr_c, const Symbols &symbols, const std::vector<int> &gene_set, Block &b, std::vector<std::vector<bits16>> &profile, double TOLERANCE) {
     size_t i, j;
     size_t block_rows, cur_rows;
     block_rows = cur_rows = gene_set.size();
 
     size_t k;
-    for (j = 0; j < cols; j++)
-      for (k = 0; k < symbols.size(); k++)
+    for (j = 0; j < profile.size(); j++)
+      for (k = 0; k < profile[j].size(); k++)
         profile[j][k] = 0;
     for (j = 0; j < cur_rows; j++)
-      seed_update(arr_c[gene_set[j]]);
+      seed_update(arr_c[gene_set[j]], profile);
 
     int btolerance = static_cast<int>(ceil(TOLERANCE* block_rows));
-    for (j = 0; j < cols; j++) {
+    for (j = 0; j < profile.size(); j++) {
       /* See if this column satisfies tolerance */
       /* here i start from 1 because symbols[0]=0 */
       for (i = 1; i < symbols.size(); i++) {
@@ -109,28 +109,29 @@ private:
   }
   /*************************************************************************/
   
-  void update_colcand(std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
+  static void update_colcand(std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
     size_t i;
-    for (i = 0; i < cols; i++)
+    for (i = 0; i < colcand.size(); i++)
       if (colcand[i] && (g1[i] != g2[i]))
         colcand[i] = false;
   }
 
   /*calculate the weight of the edge with two vertices g1 and g2*/
-  int intersect_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
+  static int intersect_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
     size_t i;
     int cnt = 0;
-    for (i = 0; i < cols; i++)
+    for (i = 0; i < colcand.size(); i++)
       if (colcand[i] && (g1[i] == g2[i]) && (g1[i] != 0))
         cnt++;
     return cnt;
   }
 
   /*calculate the negative correlation between g1 and g2*/
-  int reverse_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2) {
+  static int reverse_row(const std::vector<bool> &colcand, const DiscreteArray &g1, const DiscreteArray &g2,
+   const std::vector<discrete> &symbols) {
     size_t i;
     int cnt = 0;
-    for (i = 0; i < cols; i++) {
+    for (i = 0; i < colcand.size(); i++) {
       if (colcand[i] && (symbols[g1[i]] == -symbols[g2[i]])) cnt++;
     }
     return cnt;
@@ -139,14 +140,14 @@ private:
   /* calculate the coverage of any row to the current consensus
   * cnt = # of valid consensus columns
   */
-  int seed_current_modify(const DiscreteArray &s, std::vector<bool> &colcand, const int components) {
+  static int seed_current_modify(const DiscreteArray &s, std::vector<bool> &colcand, const int components, std::vector<std::vector<bits16> > &profile, double TOLERANCE) {
     size_t i, k, flag, n;
     int threshold = static_cast <int> (ceil(components * TOLERANCE));
     discrete ss;
     int cnt = 0;
-    for (i = 0; i < cols; i++) {
+    for (i = 0; i < profile.size(); i++) {
       flag = 0; ss = s[i];
-      for (k = 1; k < symbols.size(); k++) {
+      for (k = 1; k < profile[i].size(); k++) {
         n = profile[i][k];
         if (k == ss) n++;
         if (n >= threshold) {
@@ -162,7 +163,7 @@ private:
   }
 
   /*check whether current edge can be treat as a seed*/
-  bool check_seed(const Edge *e, const std::vector<Block> &bb) {
+  static bool check_seed(const Edge *e, const std::vector<Block> &bb, size_t rows) {
     int block_id = bb.size();
     std::vector<int> profiles(rows);
     int i, b1, b2, b3;
@@ -208,7 +209,7 @@ private:
     }
   }
 
-  long double get_pvalue(const continuous & a, const int & b) {
+ static  long double get_pvalue(const continuous & a, const int & b) {
     long double pvalue = 0;
     long double poisson = 1.0 / exp(a);
     for (int i = 0; i < b + 300; i++) {
@@ -218,10 +219,12 @@ private:
     return pvalue;
   }
 
-  void block_init(Block & b,
+ static void block_init(const DiscreteArrayList &arr_c, Block & b,
     std::vector<int> &genes, std::vector<int> &scores,
     std::vector<bool> &candidates, const int &cand_threshold,
-    size_t &components, std::vector<long double> & pvalues) {
+    size_t &components, std::vector<long double> & pvalues, bool IS_cond, size_t COL_WIDTH, bool IS_area) {
+  size_t rows = arr_c.size();
+  size_t cols = arr_c[0].size();
     int i, score, top;
     int cnt = 0, cnt_all = 0, pid = 0;
     continuous cnt_ave = 0, row_all = static_cast<continuous>(rows);
@@ -278,12 +281,12 @@ private:
       }
       cnt_ave = cnt_all / row_all;
       pvalue = get_pvalue(cnt_ave, max_cnt);
-      if (po.IS_cond) {
+      if (IS_cond) {
         if (max_cnt < COL_WIDTH || max_i < 0 || max_cnt < b.cond_low_bound) break;
       } else {
         if (max_cnt < COL_WIDTH || max_i < 0) break;
       }
-      if (po.IS_area)	score = components * max_cnt;
+      if (IS_area)	score = components * max_cnt;
       else score = std::min(static_cast<int>(components), max_cnt);
       if (score > b.score) b.score = score;
       if (pvalue < b.pvalue) b.pvalue = pvalue;
@@ -302,8 +305,7 @@ private:
   }
 
   /************************************************************************/
-
-  std::vector<Block> report_blocks(std::vector<Block> bb) {
+  static std::vector<Block> report_blocks(std::vector<Block> bb, int RPT_BLOCK, double FILTER) {
     std::vector<Block> output;
 
     int num = bb.size();
@@ -351,14 +353,16 @@ private:
   }
 
   /************************************************************************/
-
-
-  std::vector<Block> cluster(const std::vector<Edge *> &el) {
+  static std::vector<Block > cluster(const DiscreteArrayListWithSymbols &all, const std::vector<Edge *> &el,
+    std::vector<std::vector<bits16>> &profile, size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area, 
+    bool IS_pvalue, int SCH_BLOCK, int RPT_BLOCK, double FILTER) {
     std::vector<Block> bb;
+    size_t rows = all.list.size();
+    size_t cols = all.list[0].size();
 
     size_t j, k, components;
 
-    profile.resize(cols, std::vector<bits16>(symbols.size()));
+    profile.resize(cols, std::vector<bits16>(all.symbols.size()));
 
     std::vector<long double> pvalues(rows);
     std::vector<bool> candidates(rows);
@@ -373,12 +377,12 @@ private:
       if (rows > 250) {
         if (allincluster.find(e->gene_one) != allincluster.end() && allincluster.find(e->gene_two) != allincluster.end()) flag = false;
       } else {
-        flag = check_seed(e, bb);
+        flag = check_seed(e, bb, rows);
       }
       if (!flag) continue;
 
       for (j = 0; j < cols; j++)
-        for (k = 0; k < symbols.size(); k++)
+        for (k = 0; k < all.symbols.size(); k++)
           profile[j][k] = 0;
 
       /*you must allocate a struct if you want to use the pointers related to it*/
@@ -412,11 +416,11 @@ private:
       components = 2;
 
       /* expansion step, generate a bicluster without noise */
-      block_init(b, genes_order, scores, candidates, cand_threshold, components, pvalues);
+      block_init(all.list, b, genes_order, scores, candidates, cand_threshold, components, pvalues, IS_cond, COL_WIDTH, IS_area);
 
       /* track back to find the genes by which we get the best score*/
       for (k = 0; k < components; k++) {
-        if (po.IS_pvalue)
+        if (IS_pvalue)
           if ((pvalues[k] == b.pvalue) && (k >= 2) && (scores[k] != scores[k + 1])) break;
         if ((scores[k] == b.score) && ((k + 1 == scores.size()) || (scores[k + 1] != b.score))) break;
       }
@@ -424,7 +428,7 @@ private:
       std::fill(candidates.begin(), candidates.end(), true);
 
       for (int ki = 0; ki < components - 1; ki++) {
-        seed_update(arr_c[genes_order[ki]]);
+        seed_update(all.list[genes_order[ki]], profile);
         candidates[genes_order[ki]] = false;
       }
       candidates[genes_order[k]] = false;
@@ -434,12 +438,12 @@ private:
       std::fill(colcand.begin(), colcand.end(), false);
 
       /* add columns satisfy the conservative r */
-      int cnt = seed_current_modify(arr_c[genes_order[k]], colcand, components);
+      int cnt = seed_current_modify(all.list[genes_order[k]], colcand, components, profile, TOLERANCE);
 
       /* add some new possible genes */
       int m_cnt;
       for (size_t ki = 0; ki < rows; ki++) {
-        m_cnt = intersect_row(colcand, arr_c[genes_order[0]], arr_c[ki]);
+        m_cnt = intersect_row(colcand, all.list[genes_order[0]], all.list[ki]);
         if (candidates[ki] && (m_cnt >= floor(cnt* TOLERANCE))) {
           genes_order.push_back(ki);
           components++;
@@ -449,7 +453,7 @@ private:
 
       /* add genes that negative regulated to the consensus */
       for (size_t ki = 0; ki < rows; ki++) {
-        m_cnt = reverse_row(colcand, arr_c[genes_order[0]], arr_c[ki]);
+        m_cnt = reverse_row(colcand, all.list[genes_order[0]], all.list[ki], all.symbols);
         if (candidates[ki] && (m_cnt >= floor(cnt * TOLERANCE))) {
           genes_reverse.push_back(ki);
           components++;
@@ -458,11 +462,10 @@ private:
       }
 
       /* store gene arrays inside block */
-
-      scan_block(genes_order, b);
+      scan_block(all.list, all.symbols, genes_order, b, profile, TOLERANCE);
       if (b.block_cols() == 0) continue;
       //b.block_rows = components;
-      if (po.IS_pvalue) b.score = static_cast<int>(-(100 * log(b.pvalue)));
+      if (IS_pvalue) b.score = static_cast<int>(-(100 * log(b.pvalue)));
       else b.score = components * b.block_cols();
 
       for (std::vector<int>::iterator it = genes_order.begin(); it != genes_order.end(); ++it) {
@@ -480,15 +483,13 @@ private:
       /*save the current block b to the block list bb so that we can sort the blocks by their score*/
       bb.push_back(b);
       /* reaching the results number limit */
-      if (bb.size() == po.SCH_BLOCK) break;
+      if (bb.size() == SCH_BLOCK) break;
       fputc('.', stdout);
     }
     fprintf(stdout, "\n");
-    return report_blocks(bb);
+    return report_blocks(bb, RPT_BLOCK, FILTER);
   }
-
-  /*make_graph subroutine prototypes */
-
+  
   /* remove a row from the profile */
   void seed_deduct(const discrete *s) {
     for (size_t i = 0; i < cols; i++) {
@@ -531,17 +532,17 @@ public:
     /* case 'S': po.IS_area = true; */
     po.IS_cond = false;
     /* case 'C': po.IS_cond = true; */
-
-    arr_c.resize(rows, DiscreteArray(cols));
-
-    make_charsets_d(arr_d, arr_c, symbols);
+    
+    DiscreteArrayListWithSymbols all = make_charsets_d(arr_d);
+    arr_c = all.list;
+    symbols = all.symbols;
 
     /* the file that stores all blocks */
-    EdgeList EdgeList(arr_c, COL_WIDTH);
+    EdgeList EdgeList(all.list, COL_WIDTH);
 
     /* bi-clustering */
     fprintf(stdout, "Clustering started");
-    return cluster(EdgeList.get_edge_list());
+    return cluster(all, EdgeList.get_edge_list(), profile, COL_WIDTH, TOLERANCE, po.IS_cond, po.IS_area, po.IS_pvalue, po.SCH_BLOCK, RPT_BLOCK, FILTER);
   }
 
   qubic(const std::vector<std::vector<float> > &data) {
@@ -599,8 +600,8 @@ static void write_imported(const char* stream_nm, const DiscreteArrayList &arr_c
       fprintf(fw, "\t%d", symbols[arr_c[row][col]]);
     fputc('\n', fw);
   }
-  fprintf(stdout, "Formatted data are written to %s\n", stream_nm);
   fclose(fw);
+  fprintf(stdout, "Formatted data are written to %s\n", stream_nm);
 }
 
 /* Identified clusters are backtraced to the original data, by
@@ -675,9 +676,9 @@ std::vector<Block> main_d(const std::vector<std::vector<short>> &x, const std::v
       print_bc(fw, output[i], i, qubic.arr_c, row_names, col_names, qubic.symbols);
     /* clean up */
     fclose(fw);
+    fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()),
+      (tfile + ".blocks").c_str());
   }
-  fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()),
-          (tfile + ".blocks").c_str());
   return output;
 }
 
@@ -693,8 +694,8 @@ std::vector<Block> main_c(const std::vector<std::vector<float>> &x, const std::v
               genes_rules[row].lower, genes_rules[row].upper, static_cast<unsigned int>(genes_rules[row].cntl),
               static_cast<unsigned int>(genes_rules[row].cntu));
     }
-    fprintf(stdout, "Discretization rules are written to %s\n", (tfile + ".rules").c_str());
     fclose(fw);
+    fprintf(stdout, "Discretization rules are written to %s\n", (tfile + ".rules").c_str());
   }
   return main_d(arr_d, row_names, col_names, tfile, c, o, f, k);
 }

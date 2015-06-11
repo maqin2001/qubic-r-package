@@ -9,16 +9,18 @@ discrete charset_add(std::vector<discrete> &ar, const discrete &s, discrete *bb)
   return bb[ps];
 }
 
-void make_charsets_d(const std::vector<std::vector<discrete> > &arr, DiscreteArrayList &arr_c,
-                     std::vector<discrete> &symbols) {
+DiscreteArrayListWithSymbols make_charsets_d(const std::vector<std::vector<discrete>> &arr) {
+  DiscreteArrayListWithSymbols all;
+  all.list.resize(arr.size(), DiscreteArray(arr[0].size()));
   discrete bb[USHRT_MAX];
   memset(bb, -1, USHRT_MAX * sizeof(*bb));
-  charset_add(symbols, 0, bb);
+  charset_add(all.symbols, 0, bb);
   for (size_t i = 0; i < arr.size(); i++)
     for (size_t j = 0; j < arr[0].size(); j++)
-      arr_c[i][j] = charset_add(symbols, (discrete)arr[i][j], bb);
-  fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(symbols.size()));
-  for (size_t i = 0; i < symbols.size(); i++)
-    fprintf(stdout, "%d ", symbols[i]);
+      all.list[i][j] = charset_add(all.symbols, (discrete)arr[i][j], bb);
+  fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(all.symbols.size()));
+  for (size_t i = 0; i < all.symbols.size(); i++)
+    fprintf(stdout, "%d ", all.symbols[i]);
   fprintf(stdout, "]\n");
+  return all;
 }
