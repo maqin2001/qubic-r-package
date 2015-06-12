@@ -1,0 +1,23 @@
+<s>1. 加入参数列表；</s>
+2. 提供比现在的更详细的报告（包括矩阵的尺寸、运行时间、查看聚类的指引）；（查看具体一个聚类的时候，可以专门查看gene list和condition list）
+3. 提供查看（或者生成）离散化的矩阵的方法。（注，这个矩阵可以方便用户查取一个条件下不同基因的表达状态是高是低，或者一个gene在不同条件下的表达状态）
+4. 未来会提供通过GO ID或KEGG ID进行functional enrichment annotation的功能。（这个功能需要用户提供额外的文件，可以做成optional的。我们再仔细的商量，可以放到最后做）
+5. 对于给定的一个gene id或者condition id，有个函数可以调出所有包含这个ID的biclusters的BC#和基本信息。
+#下面的几个功能，最好能兼容其他几个软件的输出，也就是说，我们可以考虑以某种形式接受别的软件的输出，做如下图形化处理。这些功能可能是非常popular的。
+6. 对给定的一个bicluster（BC#）生成network和heatmap。
+network example: 
+https://mail.google.com/mail/u/0/?ui=2&ik=72d89f488d&view=fimg&th=14ddaab5b760039a&attid=0.2&disp=emb&realattid=ii_14dd9f317a70df3e&attbid=ANGjdJ_D29qqzfyNAX_uPdFuH8KGZ1qHinvpyryOGFX5kwhERC938btIFteBVFRprpoUoAhHagGwav2Lv_Z2LbcJLQTLFcHcJmkQcwO9z2yo7XNnVQZ73JM42j7F490&sz=s0-l75-ft&ats=1433915092614&rm=14ddaab5b760039a&zw&atsh=1
+
+heatmap example:
+https://mail.google.com/mail/u/0/?ui=2&ik=72d89f488d&view=fimg&th=14ddaab5b760039a&attid=0.1&disp=emb&realattid=ii_14dd9f55dd7cf58c&attbid=ANGjdJ8TPdUDV1pI_Yz5gUg0XZPnccfpXuLMWuO3AGvN0v_dpzdjNKp8RNJgA-dQJ-5luD4MkOZvqA2tF3Msw28p93OXA1ImMlv_zLj4amBc_D-Mnw9DYJX2ECEMONY&sz=s0-l75-ft&ats=1433915092614&rm=14ddaab5b760039a&zw&atsh=1
+
+6. 对任意两个bicluster （允许有overlap），计算一个correlation score，并且生成network和heatmap，或者叫做bicluster correlation analysis。因为三个bicluster就没有办法展现在一张heatmap中了，所以我们就只做到两个。
+network example (两种颜色代表两个bicluster)
+https://mail.google.com/mail/u/0/?ui=2&ik=72d89f488d&view=fimg&th=14ddaab5b760039a&attid=0.4&disp=emb&realattid=ii_14dd9f502ee6956b&attbid=ANGjdJ9qLIZvkX5wXyVPn_xKv3FlPnVjUzYRsS4g1RQLZiBQ6oxoMqy-1pZjb9CQ1IaLAXpfDFSOxVXxNxeGR7dpSpQyDV7R8mpHZHjg05AuGvmU7UEe-eNFC7aiRtM&sz=s0-l75-ft&ats=1433915092615&rm=14ddaab5b760039a&zw&atsh=1
+
+heatmap example （每一个submatrix in read代表一个bicluster）
+https://mail.google.com/mail/u/0/?ui=2&ik=72d89f488d&view=fimg&th=14ddaab5b760039a&attid=0.3&disp=emb&realattid=ii_14dd9f7c24dad544&attbid=ANGjdJ_dY2swAKk9EQypoRn7wZqZoVxNN4RaX4iBGOnFM9-NRHI5TZYEQAJQZQR_DAyJG7h2FY-4ZHvKxLYU3Z-vuOCCt6YHqWutlJqTPM8ydLPA9MkAFWh3WPZgVds&sz=s0-l75-ft&ats=1433915092615&rm=14ddaab5b760039a&zw&atsh=1
+
+使用工具检查R和C的语法。
+去除所有警告。
+
