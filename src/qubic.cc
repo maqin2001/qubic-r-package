@@ -436,24 +436,19 @@ private:
 
  
 public:
-  static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols &all, const double rc = 0.95, const double rf = 1, size_t rk = 2, const int ro = 100) {
+  static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols &all, const double c, const double f, size_t k, const int o, const Option &option) {
     fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
 
-    /*Initialize the point*/
-    bool IS_pvalue = false;
-    /* case 'P': po.IS_pvalue = true; */
     /* ensure enough searching space */
-    int SCH_BLOCK = std::max(2 * ro, 1000);
+    int SCH_BLOCK = std::max(2 * o, 1000);
 
     /* case 's': po.IS_SWITCH = true; */
-    bool IS_area = false;
-    /* case 'S': po.IS_area = true; */
-    bool IS_cond = false;
-    /* case 'C': po.IS_cond = true; */
-    
+    bool IS_pvalue = option.p;
+    bool IS_area = option.s;
+    bool IS_cond = option.c;
 
     /* the file that stores all blocks */
-    EdgeList EdgeList(all.list, rk);
+    EdgeList EdgeList(all.list, k);
 
     /* bi-clustering */
     fprintf(stdout, "Clustering started");
@@ -461,7 +456,7 @@ public:
 
     std::vector<std::vector<bits16> > profile;
 
-    return cluster(all, EdgeList.get_edge_list(), profile, rk, rc, IS_cond, IS_area, IS_pvalue, SCH_BLOCK, ro, rf);
+    return cluster(all, EdgeList.get_edge_list(), profile, k, c, IS_cond, IS_area, IS_pvalue, SCH_BLOCK, o, f);
   }
 };
 
@@ -568,9 +563,9 @@ void print_params(FILE *fw, bool IS_DISCRETE, const std::string &FN, const size_
 
 std::vector<Block> main_d(const std::vector<std::vector<short>> &x, const std::vector<std::string> &row_names,
                           const std::vector<std::string> &col_names, const std::string &tfile,
-                          const double c, const int o, const double f, const int k) {
+                          const double c, const int o, const double f, const int k, const Option & option) {
   DiscreteArrayListWithSymbols all = make_charsets_d(x);
-  std::vector<Block> output = qubic::init_qubic(all, c, f, k, o);
+  std::vector<Block> output = qubic::init_qubic(all, c, f, k, o, option);
   write_imported((tfile + ".chars").c_str(), all.list, row_names, col_names, all.symbols);
   {
     FILE *fw = mustOpenWrite((tfile + ".blocks").c_str());
@@ -587,7 +582,7 @@ std::vector<Block> main_d(const std::vector<std::vector<short>> &x, const std::v
 
 std::vector<Block> main_c(const std::vector<std::vector<float>> &x, const std::vector<std::string> &row_names,
                           const std::vector<std::string> &col_names, const std::string &tfile, const short r, const double q,
-                          const double c, const int o, const double f, const int k) {
+                          const double c, const int o, const double f, const int k, const Option & option /*= Option()*/) {
   std::vector<rule> genes_rules;
   std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
   {
@@ -600,19 +595,19 @@ std::vector<Block> main_c(const std::vector<std::vector<float>> &x, const std::v
     fclose(fw);
     fprintf(stdout, "Discretization rules are written to %s\n", (tfile + ".rules").c_str());
   }
-  return main_d(arr_d, row_names, col_names, tfile, c, o, f, k);
+  return main_d(arr_d, row_names, col_names, tfile, c, o, f, k, option);
 }
 
-std::vector<Block> r_main_d(const std::vector<std::vector<short>> &x, const double c /*= 0.95*/, const int o /*= 100*/,
-                            const double f /*= 1*/, const int k /*= 2*/) {
+std::vector<Block> r_main_d(const std::vector<std::vector<short>> &x, const double c, const int o,
+                            const double f, const int k, const Option &option) {
 
   DiscreteArrayListWithSymbols all = make_charsets_d(x);
-  return qubic::init_qubic(all, c, f, k, o);
+  return qubic::init_qubic(all, c, f, k, o, option);
 }
 
-std::vector<Block> r_main_c(const std::vector<std::vector<float>> &x, const short r /*= 1*/, const double q /*= 0.06*/,
-                            const double c /*= 0.95*/, const int o /*= 100*/, const double f /*= 1*/, const int k /*= 2*/) {
+std::vector<Block> r_main_c(const std::vector<std::vector<float>> &x, const short r, const double q,
+                            const double c, const int o, const double f, const int k, const Option &option) {
   std::vector<rule> genes_rules;
   std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
-  return r_main_d(arr_d, c, o, f, k);
+  return r_main_d(arr_d, c, o, f, k, option);
 }

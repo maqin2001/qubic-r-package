@@ -258,6 +258,7 @@
     <ClInclude Include="src\edge_list.h" />
     <ClInclude Include="src\fib.h" />
     <ClInclude Include="src\fibpriv.h" />
+    <ClInclude Include="src\option.h" />
     <ClInclude Include="src\run_qubic.h" />
     <ClInclude Include="src\main_config.h" />
     <ClInclude Include="src\matrix_float.h" />

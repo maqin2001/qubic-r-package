@@ -7,11 +7,12 @@
 
 #include <Rcpp.h>
 
-#include "qubic.h"
-#include "matrix_float.h"
-#include "fopen_matrix.h"
-#include "edge_list.h"
 #include "config.h"
+#include "edge_list.h"
+#include "fopen_matrix.h"
+#include "matrix_float.h"
+#include "option.h"
+#include "qubic.h"
 
 using namespace Rcpp;
 
@@ -75,11 +76,11 @@ List from_blocks(const std::vector<Block> &r, const size_t nr, const size_t nc) 
 
 // [[Rcpp::export]]
 List qubic(const NumericMatrix matrix, const short r, const double q,
-           const double c, const int o, const double f, const int k) {
+           const double c, const int o, const double f, const int k, const bool P, const bool S, const bool C) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT,  &my_function_to_handle_aborts);
-  try {
-    std::vector<Block> result = r_main_c(to_vector<float, NumericMatrix>(matrix), r, q, c, o, f, k);
+  try {    
+    std::vector<Block> result = r_main_c(to_vector<float, NumericMatrix>(matrix), r, q, c, o, f, k, Option(P, S, C));
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");
@@ -87,11 +88,11 @@ List qubic(const NumericMatrix matrix, const short r, const double q,
 }
 
 // [[Rcpp::export]]
-List qubic_d(const IntegerMatrix matrix, const double c, const int o, const double f, const int k) {
+List qubic_d(const IntegerMatrix matrix, const double c, const int o, const double f, const int k, const bool P, const bool S, const bool C) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT,  &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main_d(to_vector<short, IntegerMatrix>(matrix), c, o, f, k);
+    std::vector<Block> result = r_main_d(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C));
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");

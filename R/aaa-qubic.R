@@ -35,6 +35,9 @@
 #' @param o The number of output biclusters.
 #' @param f The filter cut-off for data post-processing.
 #' @param k The minimum column width of the block, minimum \code{2} columns.
+#' @param P The flag to enlarge current biclsuter by the \emph{p} value constrain.
+#' @param S The flag using area as the value of bicluster to determine when stop.
+#' @param C The flag using the lower bound of condition number (5 persents of the gene number).
 #' 
 #' @return Returns an Biclust object, which contains bicluster candidates
 #' 
@@ -59,13 +62,20 @@ NULL
 #' #Random matrix with embedded bicluster
 #' test <- matrix(rnorm(5000),100,50)
 #' test[11:20,11:20] <- rnorm(100,3,0.3)
-#' res<-biclust(test, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2)
+#' res<-biclust(test, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2, 
+#'              P = FALSE, S = FALSE, C = FALSE)
 #' res
 #'  
 #' \dontrun{
-#' #microarray matrix
+#' #Bicluster on microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast, method=BCQU())
+#' res}
+#' 
+#' \dontrun{
+#' #Bicluster on selected of genes
+#' data(EisenYeast)
+#' res<-biclust(EisenYeast[c("YHR051W","YGL117W","YDR495C"),], method=BCQU())
 #' res}
 #' 
 setClass('BCQU',
@@ -75,7 +85,8 @@ setClass('BCQU',
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
 #' @usage ## S4 method for class 'matrix,BCQU':
-#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2)
+#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2, 
+#'         P = FALSE, S = FALSE, C = FALSE)
 BCQU <- function() {
   return(new('BCQU'))
 }
@@ -106,7 +117,8 @@ setClass('BCQU.d',
 #' @describeIn QUBIC Performs a QUalitative BIClustering for discretized matrix.
 #' 
 #' @usage ## S4 method for class 'matrix,BCQU.d':
-#' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = 2)
+#' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = 2, 
+#'         P = FALSE, S = FALSE, C = FALSE)
 BCQU.d <- function() {
   return(new('BCQU.d'))
 }
