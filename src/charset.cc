@@ -18,7 +18,7 @@ DiscreteArrayListWithSymbols make_charsets_d(const std::vector<std::vector<discr
   DiscreteArrayListWithSymbols all;
   all.list.resize(arr.size(), DiscreteArray(arr[0].size()));
   discrete bb[USHRT_MAX];
-  std::fill(bb, bb + USHRT_MAX, -1);
+  std::fill_n(bb, USHRT_MAX, -1);
   charset_add(all.symbols, 0, bb);
   for (size_t i = 0; i < arr.size(); i++)
     for (size_t j = 0; j < arr[0].size(); j++)

@@ -1,12 +1,13 @@
 #include "discretize.h"
 
+#include <cmath>
 #include <algorithm>
 
 #include "edge_list.h"
 
 continuous quantile_from_sorted_data(const std::vector<continuous> &sorted_data, const size_t n, const double f) {
   /*floor function returns the largest integral value less than or equal to x*/
-  int i = static_cast <int>(floor((n - 1) * f));
+  int i = static_cast <int>(std::floor((n - 1) * f));
   continuous delta = static_cast<continuous>((n - 1) * f - i);
   return (1 - delta) * sorted_data[i] + delta * sorted_data[i + 1];
 }
