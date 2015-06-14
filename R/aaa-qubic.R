@@ -22,7 +22,7 @@
 #' where I and J are subsets of genes and conditions, respectively.
 #' @name QUBIC
 #' 
-#' @aliases biclust method
+#' @aliases QUBIC qubic BCQU bcqu BCQU.d bcqu.d biclust method
 #'
 #' @param x the data matrix where biclusters have to be found. 
 #' (for example: a qualitative representation of gene expression data) \cr
@@ -53,9 +53,7 @@ NULL
 #' \code{BCQU} performs a QUalitative BIClustering.
 #' 
 #' @name BCQU
-#' 
-#' @aliases QUBIC BCQU
-#' 
+#'  
 #' @rdname QUBIC
 #'
 #' @examples
@@ -81,7 +79,7 @@ NULL
 setClass('BCQU',
          contains = 'BiclustMethod',
          prototype = prototype(
-           biclustFunction = function(x,...){qubiclust(x,...)}))
+           biclustFunction = function(x,...){.qubiclust(x,...)}))
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
 #' @usage ## S4 method for class 'matrix,BCQU':
@@ -112,7 +110,7 @@ BCQU <- function() {
 setClass('BCQU.d',
          contains = 'BiclustMethod',
          prototype = prototype(
-           biclustFunction = function(x,...){qubiclust_d(x,...)}))
+           biclustFunction = function(x,...){.qubiclust_d(x,...)}))
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering for discretized matrix.
 #' 
