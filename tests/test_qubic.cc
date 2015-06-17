@@ -21,7 +21,7 @@ TEST_CASE("run_qubic_test") {
   REQUIRE(result.size() == 2);
   REQUIRE(result[0].genes_order.size() == 3);
 
-  std::vector<Block> result2 = r_main_c(matrix.data, 1, 0.06, 0.95, 100, 1, 2, Option());
+  std::vector<Block> result2 = r_main_c(matrix.data, 1, 0.06, 0.95, 100, 1, 2, Option(), true);
   REQUIRE(result2.size() == 2);
   REQUIRE(result2[0].genes_order.size() == 3);
 }
@@ -40,7 +40,7 @@ TEST_CASE("run_qubic_toy_test") {
   REQUIRE(result.size() == 4);
   REQUIRE(result[0].genes_order.size() == 8);
 
-  std::vector<Block> result2 = r_main_d(matrix.data, 0.95, 100, 1, 2, Option());
+  std::vector<Block> result2 = r_main_d(matrix.data, 0.95, 100, 1, 2, Option(), true);
   REQUIRE(result2.size() == 4);
   REQUIRE(result2[0].genes_order.size() == 8);
 }

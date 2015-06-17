@@ -1,8 +1,8 @@
 Package: QUBIC
 Type: Package
 Title: What the package does (short line)
-Version: 0.64.0
-Date: 2015-06-12
+Version: 0.67.0
+Date: 2015-06-17
 Author: Who wrote it
 Maintainer: If something goes wrong, please send your complains to Yu Zhang <zy26@jlu.edu.cn>
 Depends: biclust

@@ -10,4 +10,13 @@ struct Option {
   bool c;
 };
 
+struct DOption {
+  double c;
+  int o;
+  double f;
+  int k;
+  Option option;
+  bool verbose;
+};
+
 #endif

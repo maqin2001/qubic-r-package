@@ -1,7 +1,7 @@
+######################################################################
 #' QUBIC: A Qualitative Biclustering Algorithm for Analyses of Gene Expression Data
 #'
 #' QUBIC is a biclusting package.
-#'
 #' For a given representing matrix of a microarray data set, 
 #' we construct a weighted graph G with genes represented as vertices, edges connecting every pair of genes, 
 #' and the weight of each edge being the similarity level between the two corresponding (entire) rows. 
@@ -20,6 +20,7 @@
 #' and tackle the biclustering problem as follows. 
 #' We find all feasible biclusters (I,J) in the given data set such that min{|I|, |J|} is as large as possible, 
 #' where I and J are subsets of genes and conditions, respectively.
+#' 
 #' @name QUBIC
 #' 
 #' @aliases QUBIC qubic BCQU bcqu BCQU.d bcqu.d biclust method
@@ -35,12 +36,20 @@
 #' @param o The number of output biclusters.
 #' @param f The filter cut-off for data post-processing.
 #' @param k The minimum column width of the block, minimum \code{2} columns.
-#' @param P The flag to enlarge current biclsuter by the \emph{p} value constrain.
-#' @param S The flag using area as the value of bicluster to determine when stop.
 #' @param C The flag using the lower bound of condition number (5 persents of the gene number).
+#' @param type The constrain type.
+#' @param verbose If '\code{TRUE}', prints extra information on progress.
 #' 
 #' @return Returns an Biclust object, which contains bicluster candidates
 #' 
+#' @details If \code{type} is omitted or \code{type="default"}, the default method of QUBIC will be used.
+#' 
+#' If \code{type="pvalue"}, enlarge current biclsuter by the \emph{p} value constrain.
+#' 
+#' If \code{type="area"}, using area as the value of bicluster to determine when stop.
+#' 
+#' Other types are reserved for future use.
+#'  
 #' @seealso \code{\link{biclust}}
 #' 
 #' @references Li G, Ma Q, Tang H, Paterson AH, Xu Y. 
@@ -60,22 +69,35 @@ NULL
 #' #Random matrix with embedded bicluster
 #' test <- matrix(rnorm(5000),100,50)
 #' test[11:20,11:20] <- rnorm(100,3,0.3)
-#' res<-biclust(test, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2, 
-#'              P = FALSE, S = FALSE, C = FALSE)
+#' res<-biclust(test, method = BCQU())
 #' res
-#'  
-#' \dontrun{
-#' #Bicluster on microarray matrix
-#' data(BicatYeast)
-#' res<-biclust(BicatYeast, method=BCQU())
-#' res}
 #' 
+#' \dontrun{
+#' #Load microarray matrix
+#' data(BicatYeast)
+#' #Display number of column and row of BicatYeast
+#' ncol(BicatYeast)
+#' nrow(BicatYeast)
+#' #Bicluster on microarray matrix
+#' system.time(res<-biclust(BicatYeast, method=BCQU()))
+#' #Show bicluster info
+#' res
+#' #Show the first bicluster
+#' bicluster(BicatYeast, res, 1)
+#' #Show the 4th bicluster
+#' bicluster(BicatYeast, res, 4)
+#' 
+#' }
 #' \dontrun{
 #' #Bicluster on selected of genes
 #' data(EisenYeast)
 #' res<-biclust(EisenYeast[c("YHR051W","YGL117W","YDR495C"),], method=BCQU())
 #' res}
-#' 
+#' \dontrun{
+#' #Display size of Bicluster on selected of genes
+#' data(EisenYeast)
+#' res<-biclust(EisenYeast[c("YHR051W","YGL117W","YDR495C"),], method=BCQU())
+#' res}
 setClass('BCQU',
          contains = 'BiclustMethod',
          prototype = prototype(
@@ -84,7 +106,7 @@ setClass('BCQU',
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
 #' @usage ## S4 method for class 'matrix,BCQU':
 #' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2, 
-#'         P = FALSE, S = FALSE, C = FALSE)
+#'         C = FALSE, type = "default", verbose = TRUE)
 BCQU <- function() {
   return(new('BCQU'))
 }
@@ -95,18 +117,15 @@ BCQU <- function() {
 #' 
 #' @name BCQU.d-class
 #'  
-#' @aliases QUBICD QUD BCQU.d-class biclust,matrix,BCQU.d-method
+#' @aliases qubic_d QUBICD QUD BCQU.d-class biclust,matrix,BCQU.d-method
 #' 
 #' @rdname QUBIC
 #'
 #' @examples
-#' 
-#' #
 #' #Discretize yeast microarray data
 #' data(BicatYeast)
 #' res <- biclust(discretize(BicatYeast[1:10,1:10]), method=BCQU.d())
 #' res
-#' 
 setClass('BCQU.d',
          contains = 'BiclustMethod',
          prototype = prototype(
@@ -116,7 +135,7 @@ setClass('BCQU.d',
 #' 
 #' @usage ## S4 method for class 'matrix,BCQU.d':
 #' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = 2, 
-#'         P = FALSE, S = FALSE, C = FALSE)
+#'         C = FALSE, type = "default", verbose = TRUE)
 BCQU.d <- function() {
   return(new('BCQU.d'))
 }
