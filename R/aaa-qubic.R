@@ -36,15 +36,14 @@
 #' @param o The number of output biclusters.
 #' @param f The filter cut-off for data post-processing.
 #' @param k The minimum column width of the block, minimum \code{2} columns.
-#' @param C The flag using the lower bound of condition number (5 persents of the gene number).
 #' @param type The constrain type.
-#' @param verbose If '\code{TRUE}', prints extra information on progress.
+#' @param P The flag enlarge current biclsuter by the \emph{p} value constrain.
+#' @param C The flag using the lower bound of condition number (5 persents of the gene number).
+#' @param verbose If '\code{TRUE}', prints extra information on progress. Not working yet.
 #' 
 #' @return Returns an Biclust object, which contains bicluster candidates
 #' 
 #' @details If \code{type} is omitted or \code{type="default"}, the default method of QUBIC will be used.
-#' 
-#' If \code{type="pvalue"}, enlarge current biclsuter by the \emph{p} value constrain.
 #' 
 #' If \code{type="area"}, using area as the value of bicluster to determine when stop.
 #' 
@@ -84,20 +83,24 @@ NULL
 #' res
 #' #Show the first bicluster
 #' bicluster(BicatYeast, res, 1)
-#' #Show the 4th bicluster
-#' bicluster(BicatYeast, res, 4)
+#' #Get the 4th bicluster
+#' bic4 <- bicluster(BicatYeast, res, 4)[[1]]
+#' #or
+#' bic4 <- bicluster(BicatYeast, res)[[4]]
+#' #Show rownames of the 4th bicluster
+#' rownames(bic4)
+#' #Show colnames of the 4th bicluster
+#' colnames(bic4)
+#' #
 #' 
 #' }
 #' \dontrun{
 #' #Bicluster on selected of genes
 #' data(EisenYeast)
 #' res<-biclust(EisenYeast[c("YHR051W","YGL117W","YDR495C"),], method=BCQU())
-#' res}
-#' \dontrun{
-#' #Display size of Bicluster on selected of genes
-#' data(EisenYeast)
-#' res<-biclust(EisenYeast[c("YHR051W","YGL117W","YDR495C"),], method=BCQU())
-#' res}
+#' res
+#' 
+#' }
 setClass('BCQU',
          contains = 'BiclustMethod',
          prototype = prototype(
@@ -106,7 +109,7 @@ setClass('BCQU',
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
 #' @usage ## S4 method for class 'matrix,BCQU':
 #' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2, 
-#'         C = FALSE, type = "default", verbose = TRUE)
+#'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
 BCQU <- function() {
   return(new('BCQU'))
 }
@@ -135,7 +138,7 @@ setClass('BCQU.d',
 #' 
 #' @usage ## S4 method for class 'matrix,BCQU.d':
 #' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = 2, 
-#'         C = FALSE, type = "default", verbose = TRUE)
+#'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
 BCQU.d <- function() {
   return(new('BCQU.d'))
 }
