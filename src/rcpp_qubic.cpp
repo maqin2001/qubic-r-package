@@ -1,13 +1,14 @@
 #include <csignal>
 #include <algorithm>
 #include <iostream>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
 
 #include <Rcpp.h>
 
 #include "config.h"
+#include "discretize.h"
 #include "edge_list.h"
 #include "fopen_matrix.h"
 #include "matrix_float.h"
@@ -76,11 +77,14 @@ List from_blocks(const std::vector<Block> &r, const size_t nr, const size_t nc) 
 
 // [[Rcpp::export]]
 List qubic(const NumericMatrix matrix, const short r, const double q,
-           const double c, const int o, const double f, const int k, const bool P, const bool S, const bool C, const bool verbose) {
+           const double c, const int o, const double f, const int k,
+           const bool P, const bool S, const bool C,
+           const bool verbose) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
-  signal(SIGABRT,  &my_function_to_handle_aborts);
-  try {    
-    std::vector<Block> result = r_main_c(to_vector<float, NumericMatrix>(matrix), r, q, c, o, f, k, Option(P, S, C), verbose);
+  signal(SIGABRT, &my_function_to_handle_aborts);
+  try {
+    auto x = to_vector<float, NumericMatrix>(matrix);
+    std::vector<Block> result = r_main_c(x, r, q, c, o, f, k, Option(P, S, C), verbose);
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");
@@ -88,13 +92,27 @@ List qubic(const NumericMatrix matrix, const short r, const double q,
 }
 
 // [[Rcpp::export]]
-List qubic_d(const IntegerMatrix matrix, const double c, const int o, const double f, const int k, const bool P, const bool S, const bool C, const bool verbose) {
+List qubic_d(const IntegerMatrix matrix,
+             const double c, const int o, const double f, const int k,
+             const bool P, const bool S, const bool C,
+             const bool verbose) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
-  signal(SIGABRT,  &my_function_to_handle_aborts);
+  signal(SIGABRT, &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main_d(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C), verbose);
+    auto x = to_vector<short, IntegerMatrix>(matrix);
+    std::vector<Block> result = r_main_d(x, c, o, f, k, Option(P, S, C), verbose);
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");
   }
+}
+
+// [[Rcpp::export]]
+NumericMatrix qudiscretize(const NumericMatrix matrix, const short r = 1, const double q = 0.06) {
+  std::vector<rule> genes_rules;
+  auto x = to_vector<float, NumericMatrix>(matrix);
+  std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
+  NumericMatrix result = from_vector(arr_d);
+  result.attr("dimnames") = matrix.attr("dimnames");
+  return result;
 }
