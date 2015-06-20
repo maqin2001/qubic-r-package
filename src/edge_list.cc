@@ -48,7 +48,7 @@ static void fh_dump(fibheap *h, std::vector<Edge *> &data_array, int min_score) 
   for (i = n - 1; i >= 0; i--) {
     Edge *t = (Edge *)fh_min(h);
     if (t->score > min_score) break;
-    (Edge *)fh_extractmin(h);
+    fh_extractmin(h);
   }
   data_array.resize(i + 1);
   for (; i >= 0; i--)

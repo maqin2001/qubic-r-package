@@ -101,6 +101,20 @@ NULL
 #' res
 #' 
 #' }
+#' \dontrun{
+#' # Draw overlapping heatmap
+#' data(BicatYeast)
+#' res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
+#' heatmapBC(x = BicatYeast, bicResult = res)
+#' 
+#' }
+#' \dontrun{
+#' # Draw heatmap of the first cluster
+#' data(BicatYeast)
+#' res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
+#' drawHeatmap(BicatYeast, res, 1)
+#' 
+#' }
 setClass('BCQU',
          contains = 'BiclustMethod',
          prototype = prototype(
@@ -116,7 +130,7 @@ BCQU <- function() {
 
 #' QUBICD
 #' 
-#' \code{BCQU.d} performs a QUalitative BIClustering for discretized matrix.
+#' \code{BCQU.d} performs a QUalitative BIClustering for a discret matrix.
 #' 
 #' @name BCQU.d-class
 #'  
@@ -125,16 +139,15 @@ BCQU <- function() {
 #' @rdname QUBIC
 #'
 #' @examples
-#' #Discretize yeast microarray data
+#' #Biclustering of discretized yeast microarray data
 #' data(BicatYeast)
-#' res <- biclust(discretize(BicatYeast[1:10,1:10]), method=BCQU.d())
-#' res
+#' biclust(discretize(BicatYeast[1:10,1:10]), method=BCQU.d())
 setClass('BCQU.d',
          contains = 'BiclustMethod',
          prototype = prototype(
            biclustFunction = function(x,...){.qubiclust_d(x,...)}))
 
-#' @describeIn QUBIC Performs a QUalitative BIClustering for discretized matrix.
+#' @describeIn QUBIC Performs a QUalitative BIClustering for a discret matrix.
 #' 
 #' @usage ## S4 method for class 'matrix,BCQU.d':
 #' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = 2, 
@@ -142,3 +155,21 @@ setClass('BCQU.d',
 BCQU.d <- function() {
   return(new('BCQU.d'))
 }
+
+#' Create a qualitative discret matrix
+#' 
+#' \code{qudiscretize} delivers a discret matrix.
+#' 
+#' @usage qudiscretize(matrix, r = 1L, q = 0.06)
+#' @param r The range of possible ranks.
+#' @param q The percentage of the regulating conditions for each gene.
+#' 
+#' @name qudiscretize
+#'  
+#' @aliases qudiscretize
+#' 
+#' @examples
+#' #Qualitative discretize yeast microarray data 
+#' data(BicatYeast)
+#' qudiscretize(BicatYeast[1:7, 1:5])
+NULL

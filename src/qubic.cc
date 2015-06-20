@@ -39,8 +39,7 @@ private:
       /* here i start from 1 because symbols[0]=0 */
       for (i = 1; i < symbols.size(); i++) {
         if ((profile[j][i] >= btolerance)) {
-          bool result = b.conds.insert(j).second;
-          assert(result);
+          b.conds.insert(j).second;
           break;
         }
       }
@@ -405,14 +404,12 @@ private:
       else b.score = components * b.block_cols();
 
       for (std::vector<int>::iterator it = genes_order.begin(); it != genes_order.end(); ++it) {
-        bool result = b.genes_order.insert(*it).second;
-        assert(result);
+        b.genes_order.insert(*it).second;
         allincluster.insert(*it);
       }
 
       for (std::vector<int>::iterator it = genes_reverse.begin(); it != genes_reverse.end(); ++it) {
-        bool result = b.genes_reverse.insert(*it).second;
-        assert(result);
+        b.genes_reverse.insert(*it).second;
         allincluster.insert(*it);
       }
 
@@ -477,7 +474,7 @@ FILE *mustOpenWrite(const char *fileName) {
   if (sameString(fileName, "stdin")) return stdin;
   if (sameString(fileName, "stdout")) return stdout;
   if ((f = fopen(fileName, "w")) == NULL) {
-    fprintf(stderr, "[Error] Can't open %s to write: %s", fileName, 0);
+    fprintf(stderr, "[Error] Can't open %s to write.", fileName);
     throw - 1;
   }
   return f;
@@ -599,7 +596,7 @@ std::vector<Block> main_c(const std::vector<std::vector<float>> &x, const std::v
 
 std::vector<Block> r_main_d(const std::vector<std::vector<short>> &x, const double c, const int o,
                             const double f, const int k, const Option &option, const bool verbose) {
-  if (verbose) fprintf(stdout, "Size of matrix is (%d, %d)\n", x.size(), x[0].size());
+  if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", x.size(), x[0].size());
   DiscreteArrayListWithSymbols all = make_charsets_d(x);
   return qubic::init_qubic(all, c, f, k, o, option, verbose);
 }

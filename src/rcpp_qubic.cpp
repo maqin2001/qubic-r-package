@@ -19,12 +19,12 @@ using namespace Rcpp;
 
 template<typename T>
 NumericMatrix from_vector(const std::vector<std::vector<T>> &result) {
-  size_t nc = result.size();
-  size_t nr = result[0].size();
+  size_t nr = result.size();
+  size_t nc = result[0].size();
   NumericMatrix m(nr, nc);
   for (size_t i = 0; i < nr; i++) {
     const std::vector<T> &result_i = result[i];
-    if (result_i.size() != nc) stop("incompatible size");
+    if (result_i.size() != nc) stop("QUBIC: incompatible size %d != %d", result_i.size(), nc);
     for (size_t j = 0; j < nc; j++) m(i, j) = result_i[j];
   }
   return m;
