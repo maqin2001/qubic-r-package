@@ -89,7 +89,9 @@ fh_deleteel(struct fibheap *h, struct fibheap_el *x)
     * XXX - This should never happen as fh_replace should set it
     * to min.
     */
-    abort();
+    // [zy]
+    // abort();
+    // [zy]
   }
 
   x->fhe_data = data;
@@ -283,7 +285,9 @@ fh_replacekeydata(struct fibheap *h, struct fibheap_el *x, int key, void *data)
   */
   if ((r = fh_comparedata(h, key, data, x)) > 0) {
     /* XXX - bad code! */
-    abort();
+    // [zy]
+    // abort();
+    // [zy]
     fh_deleteel(h, x);
 
     x->fhe_data = data;
@@ -654,8 +658,10 @@ fh_checkcons(struct fibheap *h)
     if (oDl != h->fh_Dl)
       h->fh_cons = (struct fibheap_el **)realloc(h->fh_cons,
       sizeof *h->fh_cons * (h->fh_Dl + 1));
-    if (h->fh_cons == NULL)
-      abort();
+    // [zy]
+    //if (h->fh_cons == NULL)
+      //abort();
+    // [zy]
   }
 }
 

@@ -43,5 +43,8 @@ bld/
 # .props files
 (^|.*)\.props$
 
+# .lnk files
+(^|.*)\.lnk$
+
 # main file of this project
 main.cc

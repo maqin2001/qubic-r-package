@@ -58,20 +58,20 @@ extern "C" void my_function_to_handle_aborts(int signal_number) {
   stop("abort()");
 }
 
-List from_blocks(const std::vector<Block> &r, const size_t nr, const size_t nc) {
-  int number = r.size();
+List from_blocks(const std::vector<Block> &blocks, const size_t nr, const size_t nc) {
+  int number = blocks.size();
   auto x = LogicalMatrix(nr, number);
   auto y = LogicalMatrix(number, nc);
   for (int i = 0; i < number; i++) {
-    for (auto it = r[i].genes_order.begin(); it != r[i].genes_order.end(); it++) x(*it, i) = true;
-    for (auto it = r[i].genes_reverse.begin(); it != r[i].genes_reverse.end(); it++) x(*it, i) = true;
-    for (auto it = r[i].conds.begin(); it != r[i].conds.end(); it++)
+    for (auto it = blocks[i].genes_order.begin(); it != blocks[i].genes_order.end(); it++) x(*it, i) = true;
+    for (auto it = blocks[i].genes_reverse.begin(); it != blocks[i].genes_reverse.end(); it++) x(*it, i) = true;
+    for (auto it = blocks[i].conds.begin(); it != blocks[i].conds.end(); it++)
       y(i, *it) = true;
   }
   return List::create(
            Named("RowxNumber") = x,
            Named("NumberxCol") = y,
-           Named("Number") = r.size(),
+           Named("Number") = blocks.size(),
            Named("info") = get_list());
 }
 
@@ -84,11 +84,12 @@ List qubic(const NumericMatrix matrix, const short r, const double q,
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {
     auto x = to_vector<float, NumericMatrix>(matrix);
-    std::vector<Block> result = r_main_c(x, r, q, c, o, f, k, Option(P, S, C), verbose);
-    return from_blocks(result, matrix.nrow(), matrix.ncol());
+    std::vector<Block> blocks = r_main_c(x, r, q, c, o, f, k, Option(P, S, C, true), verbose);
+    return from_blocks(blocks, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");
   }
+  return List::create(); // avoid warning
 }
 
 // [[Rcpp::export]]
@@ -100,11 +101,12 @@ List qubic_d(const IntegerMatrix matrix,
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {
     auto x = to_vector<short, IntegerMatrix>(matrix);
-    std::vector<Block> result = r_main_d(x, c, o, f, k, Option(P, S, C), verbose);
+    std::vector<Block> result = r_main_d(x, c, o, f, k, Option(P, S, C, true), verbose);
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   } catch (double) {
     stop("catch");
   }
+  return List::create(); // avoid warning
 }
 
 // [[Rcpp::export]]

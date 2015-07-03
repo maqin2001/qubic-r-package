@@ -17,7 +17,7 @@ private:
   int get_key(const Edge* s);
 public:
   const std::vector<Edge *> &get_edge_list() const;
-  EdgeList(const DiscreteArrayList &, size_t&);
+  EdgeList(const DiscreteArrayList &, size_t&, bool verbose);
   ~EdgeList();
 };
 

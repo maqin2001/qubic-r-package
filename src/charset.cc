@@ -14,7 +14,7 @@ discrete charset_add(std::vector<discrete> &ar, const discrete &s, discrete *bb)
   return bb[ps];
 }
 
-DiscreteArrayListWithSymbols make_charsets_d(const std::vector<std::vector<discrete>> &arr) {
+DiscreteArrayListWithSymbols make_charsets_d(const std::vector<std::vector<discrete>> &arr, bool verbose) {
   DiscreteArrayListWithSymbols all;
   all.list.resize(arr.size(), DiscreteArray(arr[0].size()));
   discrete bb[USHRT_MAX];
@@ -23,9 +23,9 @@ DiscreteArrayListWithSymbols make_charsets_d(const std::vector<std::vector<discr
   for (size_t i = 0; i < arr.size(); i++)
     for (size_t j = 0; j < arr[0].size(); j++)
       all.list[i][j] = charset_add(all.symbols, arr[i][j], bb);
-  fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(all.symbols.size()));
+  if (verbose) fprintf(stdout, "Discretized data contains %d classes with charset [ ", static_cast<unsigned int>(all.symbols.size()));
   for (size_t i = 0; i < all.symbols.size(); i++)
-    fprintf(stdout, "%d ", all.symbols[i]);
-  fprintf(stdout, "]\n");
+    if (verbose) fprintf(stdout, "%d ", all.symbols[i]);
+  if (verbose) fprintf(stdout, "]\n");
   return all;
 }
