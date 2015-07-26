@@ -102,14 +102,13 @@ class qubic {
   /*check whether current edge can be treat as a seed*/
   static bool check_seed(const Edge *e, const std::vector<Block> &bb, size_t rows) {
     int block_id = bb.size();
-    std::vector<int> profiles(rows);
     int i, b1, b2, b3;
     bool fg = false;
     b1 = b2 = -1;
     for (i = 0; i < block_id; i++)
       if ((bb[i].contains(e->gene_one)) && (bb[i].contains(e->gene_two)))
         return false;
-    for (size_t i = 0; i < rows; i++) profiles[i] = 0;
+    std::vector<int> profiles(rows, 0);
     fg = false;
     for (i = 0; i < block_id; i++)
       if (bb[i].contains(e->gene_one)) {
