@@ -15,7 +15,16 @@
 #' #Load microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
-#' qugraph(BicatYeast[1:50, ], res, c(4, 13), method = "spearman",
+#' #Draw two biclusters
+#' qugraph(BicatYeast[1:50, ], res, number = c(4, 13), group = c(4, 13), method = "spearman",
+#'         layout = "spring", minimum = 0.6, edge.labe = FALSE)
+#' }
+#' \dontrun{
+#' #Load microarray matrix
+#' data(BicatYeast)
+#' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
+#' #Draw all biclusters
+#' qugraph(BicatYeast[1:50, ], res, group = c(4, 13), method = "spearman",
 #'         layout = "spring", minimum = 0.6, edge.labe = FALSE)
 #' }
 #' @seealso \code{\link{QUBIC}} \code{\link{qgraph}} \code{\link{cor}}
@@ -42,33 +51,53 @@ qugraph <- function(x, BicRes, number = 1:BicRes@Number,
   allrownames <- Reduce(union, rownamelist)
   allcolnames <- Reduce(union, colnamelist)
   
-  for (i in seq(1, length(index) - 1, by = 1)) {
-    for (j in seq(i + 1, length(index), by = 1)) {
-      rownamelist[[paste(names(bics)[index[[i]]], " & ", names(bics)[index[[j]]], sep = "")]] <-
-        intersect(rownamelist[[index[[i]]]], rownamelist[[index[[j]]]])
-    }
-  }
-  
-  for (i in seq_along(bics)) {
-    for (j in seq(length(bics) + 1, length(rownamelist), by = 1)) {
-      rownamelist[[names(bics)[i]]] <-
-        setdiff(rownamelist[[i]], rownamelist[[j]])
-    }
-  }
+  #   if (length(index) > 2) {
+  #     for (i in seq(1, length(index) - 1, by = 1)) {
+  #       for (j in seq(i + 1, length(index), by = 1)) {
+  #         rownamelist[[paste(names(bics)[index[[i]]], " & ", names(bics)[index[[j]]], sep = "")]] <-
+  #           intersect(rownamelist[[index[[i]]]], rownamelist[[index[[j]]]])
+  #       }
+  #     }
+  #   }
+  #   
+  #   if (length(bics) < length(rownamelist)) {
+  #     for (i in seq_along(bics)) {
+  #       for (j in seq(length(bics) + 1, length(rownamelist), by = 1)) {
+  #         rownamelist[[names(bics)[i]]] <-
+  #           setdiff(rownamelist[[i]], rownamelist[[j]])
+  #       }
+  #     }
+  #   }
   
   un <- x[allrownames, allcolnames]
   rowidlist <- list()
   
-  for (i in seq_along(rownamelist)) {
-    if (length(rownamelist[[i]]) > 0)
-      rowidlist[[names(rownamelist)[[i]]]] <-
-        match(rownamelist[[i]], rownames(un))
-  }
+  #   for (i in seq_along(rownamelist)) {
+  #     if (length(rownamelist[[i]]) > 0)
+  #       rowidlist[[names(rownamelist)[[i]]]] <-
+  #         match(rownamelist[[i]], rownames(un))
+  #   }
+  
+  if (length(group) != 2) stop("length(group) != 2")
+  rowidlist[[paste(names(bics)[index[[1]]], " & ", names(bics)[index[[2]]], sep = "")]] <-
+    match(intersect(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]]), rownames(un))
+  rowidlist[[names(bics)[index[[1]]]]] <-
+    match(setdiff(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]]), rownames(un))
+  rowidlist[[names(bics)[index[[2]]]]] <-
+    match(setdiff(rownamelist[[index[[2]]]], rownamelist[[index[[1]]]]), rownames(un))
+  rowidlist[["Others"]] <-
+    match(setdiff(allrownames, union(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]])), rownames(un))
+  
+  
+  
+  # rownamelist[[paste(names(bics)[index[[i]]], " & ", names(bics)[index[[j]]], sep = "")]] <-
+  #           intersect(rownamelist[[index[[i]]]], rownamelist[[index[[j]]]])
+  
   
   cort <- cor(t(un), method = method)
   
   stopifnot(require("qgraph"))
   qgraph(
-    cort, groups = rowidlist, layout = layout, minimum = minimum, ... = ...
+    cort, groups = rowidlist, layout = layout, minimum = minimum, color = cbind(rainbow(length(rowidlist) - 1),"gray"), ... = ...
   )
 }
