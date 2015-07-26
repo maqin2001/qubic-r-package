@@ -51,34 +51,11 @@ qugraph <- function(x, BicRes, number = 1:BicRes@Number,
   allrownames <- Reduce(union, rownamelist)
   allcolnames <- Reduce(union, colnamelist)
   
-  #   if (length(index) > 2) {
-  #     for (i in seq(1, length(index) - 1, by = 1)) {
-  #       for (j in seq(i + 1, length(index), by = 1)) {
-  #         rownamelist[[paste(names(bics)[index[[i]]], " & ", names(bics)[index[[j]]], sep = "")]] <-
-  #           intersect(rownamelist[[index[[i]]]], rownamelist[[index[[j]]]])
-  #       }
-  #     }
-  #   }
-  #   
-  #   if (length(bics) < length(rownamelist)) {
-  #     for (i in seq_along(bics)) {
-  #       for (j in seq(length(bics) + 1, length(rownamelist), by = 1)) {
-  #         rownamelist[[names(bics)[i]]] <-
-  #           setdiff(rownamelist[[i]], rownamelist[[j]])
-  #       }
-  #     }
-  #   }
-  
   un <- x[allrownames, allcolnames]
   rowidlist <- list()
   
-  #   for (i in seq_along(rownamelist)) {
-  #     if (length(rownamelist[[i]]) > 0)
-  #       rowidlist[[names(rownamelist)[[i]]]] <-
-  #         match(rownamelist[[i]], rownames(un))
-  #   }
-  
-  if (length(group) != 2) stop("length(group) != 2")
+  if (length(group) != 2)
+    stop("length(group) != 2")
   rowidlist[[paste(names(bics)[index[[1]]], " & ", names(bics)[index[[2]]], sep = "")]] <-
     match(intersect(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]]), rownames(un))
   rowidlist[[names(bics)[index[[1]]]]] <-
@@ -87,12 +64,6 @@ qugraph <- function(x, BicRes, number = 1:BicRes@Number,
     match(setdiff(rownamelist[[index[[2]]]], rownamelist[[index[[1]]]]), rownames(un))
   rowidlist[["Others"]] <-
     match(setdiff(allrownames, union(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]])), rownames(un))
-  
-  
-  
-  # rownamelist[[paste(names(bics)[index[[i]]], " & ", names(bics)[index[[j]]], sep = "")]] <-
-  #           intersect(rownamelist[[index[[i]]]], rownamelist[[index[[j]]]])
-  
   
   cort <- cor(t(un), method = method)
   
