@@ -49,7 +49,7 @@
 #'
 #' Other types are reserved for future use.
 #'
-#' @seealso \code{\link{qudiscretize}} \code{\link{qugraph}} \code{\link{biclust}}
+#' @seealso \code{\link{qudiscretize}} \code{\link{qnetwork}} \code{\link{qnet2xml}} \code{\link{biclust}}
 #'
 #' @references Li G, Ma Q, Tang H, Paterson AH, Xu Y.
 #' QUBIC: a qualitative biclustering algorithm for analyses of gene expression data.
@@ -68,22 +68,28 @@ NULL
 #' #Random matrix with embedded bicluster
 #' test <- matrix(rnorm(5000),100,50)
 #' test[11:20,11:20] <- rnorm(100,3,0.3)
-#' biclust(test, method = BCQU())
+#' res<-biclust(test, method = BCQU())
+#' summary(res)
+#' show(res)
+#' names(attributes(res))
 #'
 #' \dontrun{
 #' #Load microarray matrix
 #' data(BicatYeast)
+#' 
 #' #Display number of column and row of BicatYeast
 #' ncol(BicatYeast)
-#' nrow(BicatYeast)
+#' nrow(BicatYeast) 
 #' #Bicluster on microarray matrix
 #' system.time(res<-biclust(BicatYeast, method=BCQU()))
+#' 
 #' #Show bicluster info
 #' res
 #' #Show the first bicluster
 #' bicluster(BicatYeast, res, 1)
 #' #Get the 4th bicluster
 #' bic4 <- bicluster(BicatYeast, res, 4)[[1]]
+#' 
 #' #or
 #' bic4 <- bicluster(BicatYeast, res)[[4]]
 #' #Show rownames of the 4th bicluster
@@ -103,11 +109,40 @@ NULL
 #'
 #' }
 #' \dontrun{
-#' # draw a single bicluster
+#' # Get bicluster by row name = 249364_at
+#' bicluster(BicatYeast, res, which(res@@RowxNumber[which(rownames(BicatYeast)=="249364_at"),]))
+#'
+#' }
+#' \dontrun{
+#' # Get bicluster by col name = cold_roots_6h
+#' bicluster(BicatYeast, res, which(res@@NumberxCol[,which(colnames(BicatYeast)=="cold_roots_6h")]))
+#'
+#' }
+#' \dontrun{
+#' #
+#' bicluster(BicatYeast, res, which(res@@NumberxCol[,which(colnames(BicatYeast)=="cold_roots_6h")]))
+#'
+#' }
+#' \dontrun{
+#' # draw a single bicluster using drawHeatmap {bicust}
 #' data(BicatYeast)
 #' res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
 #' # Draw heatmap of the first cluster
 #' drawHeatmap(BicatYeast, res, 1)
+#'
+#' }
+#' \dontrun{
+#' # draw a single bicluster using heatmap {stats}
+#' data(BicatYeast)
+#' res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
+#' bic10 <- bicluster(BicatYeast, res, 10)[[1]]
+#' 
+#' # Draw heatmap of the 10th cluster using heatmap {stats}
+#' heatmap(as.matrix(t(bic10)), Rowv = NA, Colv = NA, scale = "none")
+#' 
+#' # Draw heatmap of the 10th cluster using plot_heatmap {phyloseq}
+#' stopifnot(require("phyloseq"))
+#' plot_heatmap(otu_table(bic10, taxa_are_rows = TRUE))
 #'
 #' }
 #' \dontrun{
@@ -138,21 +173,6 @@ NULL
 #' # Draw all the biclusters, not working well.
 #' # Overlap plotting only works for two neighbor bicluster defined by the order in the number slot.
 #' heatmapBC(x = BicatYeast, bicResult = res, number = 0)
-#'
-#' }
-#' \dontrun{
-#' # Get bicluster by row name = 249364_at
-#' bicluster(BicatYeast, res, which(res@@RowxNumber[which(rownames(BicatYeast)=="249364_at"),]))
-#'
-#' }
-#' \dontrun{
-#' # Get bicluster by col name = cold_roots_6h
-#' bicluster(BicatYeast, res, which(res@@NumberxCol[,which(colnames(BicatYeast)=="cold_roots_6h")]))
-#'
-#' }
-#' \dontrun{
-#' #
-#' bicluster(BicatYeast, res, which(res@@NumberxCol[,which(colnames(BicatYeast)=="cold_roots_6h")]))
 #'
 #' }
 setClass('BCQU',

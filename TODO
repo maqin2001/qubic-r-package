@@ -19,5 +19,7 @@ https://mail.google.com/mail/u/0/?ui=2&ik=72d89f488d&view=fimg&th=14ddaab5b76003
 https://mail.google.com/mail/u/0/?ui=2&ik=72d89f488d&view=fimg&th=14ddaab5b760039a&attid=0.3&disp=emb&realattid=ii_14dd9f7c24dad544&attbid=ANGjdJ_dY2swAKk9EQypoRn7wZqZoVxNN4RaX4iBGOnFM9-NRHI5TZYEQAJQZQR_DAyJG7h2FY-4ZHvKxLYU3Z-vuOCCt6YHqWutlJqTPM8ydLPA9MkAFWh3WPZgVds&sz=s0-l75-ft&ats=1433915092615&rm=14ddaab5b760039a&zw&atsh=1
 
 使用工具检查R和C的语法。
-去除所有警告。
+<s>去除所有警告。</s>
 考虑离散化的函数名是不是和biclust里面的binarize类似。
+
+<s>兼容Cytoscape</s>

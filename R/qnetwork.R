@@ -1,37 +1,41 @@
-#' Draw Bicluster Graph
+#' Get Bicluster Graph
 #'
-#' This is the main function of \code{qugraph}
-#' which automatically creates an appropriate network for one or two biclusters and
+#' This is the main function of \code{network}
+#' which automatically creates an appropriate network for two biclusters and
 #' sends it to the plotting method.
+#' @aliases Qnetwork network
 #' @param x The data matrix
 #' @param BicRes BiclustResult object
 #' @param number Which bicluster to be plotted
 #' @param method a character string indicating
 #' which correlation coefficient (or covariance) is to be computed.
 #' One of "pearson" (default), "kendall", or "spearman", can be abbreviated.
-#' @param ... Any additional arguments described in \code{\link{qgraph}}.
+#' @return a list contains a weights matrix and groupinfo
 #' @examples
 #' \dontrun{
 #' #Load microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
 #' #Draw two biclusters
-#' qugraph(BicatYeast[1:50, ], res, number = c(4, 13), group = c(4, 13), method = "spearman",
-#'         layout = "spring", minimum = 0.6, edge.labe = FALSE)
+#' net <- qnetwork(BicatYeast[1:50, ], res, number = c(4, 13), group = c(4, 13), method = "spearman")
+#' stopifnot(require("qgraph"))
+#' qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6,
+#'        color = cbind(rainbow(length(net[[2]]) - 1),"gray"), edge.label = FALSE)
 #' }
 #' \dontrun{
 #' #Load microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
 #' #Draw all biclusters
-#' qugraph(BicatYeast[1:50, ], res, group = c(4, 13), method = "spearman",
-#'         layout = "spring", minimum = 0.6, edge.labe = FALSE)
+#' net <- qnetwork(BicatYeast[1:50, ], res, group = c(4, 13), method = "spearman")
+#' stopifnot(require("qgraph"))
+#' qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6,
+#'        color = cbind(rainbow(length(net[[2]]) - 1),"gray"), edge.label = FALSE)
 #' }
-#' @seealso \code{\link{QUBIC}} \code{\link{qgraph}} \code{\link{cor}}
-qugraph <- function(x, BicRes, number = 1:BicRes@Number,
-                    group = c(number[[1]]),
-                    method = c("pearson", "kendall", "spearman"),
-                    layout = "spring", minimum = 0.6, ...) {
+#' @seealso \code{\link{qnet2xml}} \code{\link{QUBIC}} \code{\link{qgraph}} \code{\link{cor}}
+qnetwork <- function(x, BicRes, number = 1:BicRes@Number,
+                     group = c(number[[1]]),
+                     method = c("pearson", "kendall", "spearman")) {
   if (length(number) < 1)
     stop("at least 1 bicluster needed.")
   if (is.null(rownames(x)))
@@ -67,8 +71,5 @@ qugraph <- function(x, BicRes, number = 1:BicRes@Number,
   
   cort <- cor(t(un), method = method)
   
-  stopifnot(require("qgraph"))
-  qgraph(
-    cort, groups = rowidlist, layout = layout, minimum = minimum, color = cbind(rainbow(length(rowidlist) - 1),"gray"), ... = ...
-  )
+  return(list(cort, rowidlist))
 }

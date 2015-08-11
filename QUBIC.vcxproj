@@ -278,6 +278,9 @@
     <ClCompile Include="src\run_qubic.cc" />
     <ClCompile Include="src\struct.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="testdata\sample.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

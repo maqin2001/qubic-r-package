@@ -1,8 +1,8 @@
 Package: QUBIC
 Type: Package
 Title: What the package does (short line)
-Version: 0.86.7
-Date: 2015-07-26
+Version: 0.89.11
+Date: 2015-08-11
 Author: Who wrote it
 Maintainer: If something goes wrong, please send your complains to Yu Zhang <zy26@jlu.edu.cn>
 Depends: biclust
@@ -11,4 +11,3 @@ License: CC BY-NC-ND 4.0
 Imports: Rcpp (>= 0.11.0)
 LinkingTo: Rcpp
 SystemRequirements: C++11
-Suggests: qgraph

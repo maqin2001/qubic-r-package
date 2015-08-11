@@ -90,4 +90,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="testdata\sample.xml" />
+  </ItemGroup>
 </Project>
