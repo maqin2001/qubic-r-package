@@ -1,11 +1,11 @@
 Package: QUBIC
-Type: Package
-Title: What the package does (short line)
+Type: R Package
+Title: A Qualitative Biclustering Algorithm for Analyses of Gene Expression Data
 Version: 0.89.11
 Date: 2015-08-11
-Author: Who wrote it
-Maintainer: If something goes wrong, please send your complains to Yu Zhang <zy26@jlu.edu.cn>
-Depends: biclust
+Author: Yu Zhang, Qin Ma
+Maintainer: If something goes wrong, please send your complains to Yu Zhang <zy26@jlu.edu.cn> and Qin Ma <qin.ma@sdstate.edu>
+Depends: biclust (!!Please add all the dependents here)
 Description: The main function of this package provides QUBIC algorithms to find biclusters in two-dimensional data. 
 License: CC BY-NC-ND 4.0
 Imports: Rcpp (>= 0.11.0)
