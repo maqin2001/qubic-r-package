@@ -1,0 +1,68 @@
+---
+title: 'QUBIC: an R package for qualitative biclustering'
+author: "Yu Zhang"
+date: "August 17, 2015"
+output: pdf_document
+csl: bioinformatics.csl
+bibliography: bibliography.bib
+---
+
+# Introduction
+
+QUBIC is a qualitative biclustering algorithm for analyses of gene expression data authored by @li09. We now give the new implementation in R. 
+
+# Implementation
+
+QUBIC (QUBIC 1.0) original written in C using POSIX apis. The portability is limited. Some memory leak will be occur if trying to call the primarily functions more than once.
+
+We did refactoring and rewrite most part of QUBIC 1.0 and try to keep the result is the same. 
+
+The performance is increased. 
+
+The R package could be working with biclust written by @kaiser09.
+
+We also give examples of heat map and overlapping networks.
+
+# Functions and examples
+
+There are three functions provide by QUBIC package. ```BCQU()``` makes following...
+
+```{r}
+library(QUBIC);
+test <- matrix(rnorm(5000),100,50)
+test[11:20,11:20] <- rnorm(100,3,0.3)
+res<-biclust(test, method = BCQU())
+summary(res)
+```
+
+We can also draw heat maps.
+
+```{r, echo=FALSE}
+# draw a single bicluster using drawHeatmap {bicust}
+data(BicatYeast)
+res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
+# Draw heatmap of the first cluster
+drawHeatmap(BicatYeast, res, 1)
+
+# Conclusions
+```
+
+QUBIC is a well known qualitative biclustering algorithm. QUBIC package should serve and save time for bioinformatics scientists.
+
+# Note
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
