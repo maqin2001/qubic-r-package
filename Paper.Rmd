@@ -1,39 +1,104 @@
 ---
-title: 'QUBIC: an R package for qualitative biclustering'
-author: "Yu Zhang"
-date: "August 17, 2015"
-output: pdf_document
+title: 'RQUBIC: an R package for qualitative biclustering in support of gene co-expression analyses'
 csl: bioinformatics.csl
+output: 
+  word_document:
+    reference_docx: Bioinformatics.docx
 bibliography: bibliography.bib
 ---
 
-# Introduction
+Yu Zhang^1^, Qin Ma^2,\#^
 
-QUBIC is a qualitative biclustering algorithm for analyses of gene expression data authored by @li09. We now give the new implementation in R. 
+^1^College of Computer Science and Technology, Jilin University,
+Changchun, Jilin, China
 
-# Implementation
+^2^Department of Plant Science, South Dakota State University,
+Brookings, SD, 57007, USA
 
-QUBIC (QUBIC 1.0) original written in C using POSIX apis. The portability is limited. Some memory leak will be occur if trying to call the primarily functions more than once.
+^\#^ Corresponding authors:
 
-We did refactoring and rewrite most part of QUBIC 1.0 and try to keep the result is the same. 
+*qin.ma@sdstate.edu*
 
-The performance is increased. 
+**Running title:** An R package for biclustering of gene expression data
+
+Abstract
+========
+
+**Summary**:
+
+**Availability**:
+
+**Contact**: qin.ma@sdstate.edu
+
+**Supplementary information:** Supplementary data are available at
+*Bioinformatics* online.
+
+Introduction
+============
+
+QUBIC is a qualitative biclustering algorithm for analyses of gene
+expression data authored by @li09. We now give the new
+implementation in R.
+
+1.  gene expression data is very important in XXX
+
+2.  large-scale microarray data and RNA-seq data provide good
+    opportunity to do gene co-expression analyses? meanwhile the
+    effective and efficient algorithms are needed to implement such
+    analysis.
+
+3.  Substantial efforts have been made in this field, such as XX, XX,
+    XXX, among which XX has the R package implementation?It is worth
+    noting that our in-house algorithm, QUBIC, is reviewed as one of the
+    best programs in terms of their prediction performance on benchmark
+    datasets. Most importantly, it is the best one regarding real
+    biological data. (cite this paper:
+    http://bib.oxfordjournals.org/content/early/2012/07/06/bib.bbs032.full)
+
+4.  Currently, QUBIC is already cited for XX times and in 2012 we also
+    developed a web server, QServer, to facilitate the users without
+    comprehensive computational background (cite Qserver paper). As the
+    scale of gene expression data keeps increasing, we developed this R
+    package of QUBIC to void submitting large data to a webserver.
+
+5.  The unique features of our R package:
+
+    a.  Updated and more stable back-end resource code, written by C++,
+        which has better memory control and is more efficient than the
+        one published in 2009.
+
+    b.  Comprehensive functions, including XX, XX, XX
+
+Implementation
+==============
+
+QUBIC (QUBIC 1.0) original written in C using POSIX apis. The
+portability is limited. Some memory leak will be occur if trying to call
+the primarily functions more than once.
+
+We did refactoring and rewrite most part of QUBIC 1.0 and try to keep
+the result is the same.
+
+The performance is increased.
 
 The R package could be working with biclust written by @kaiser09.
 
 We also give examples of heat map and overlapping networks.
 
-# Functions and examples
+Functions and examples
+======================
 
-There are three functions provide by QUBIC package. ```BCQU()``` makes following...
-
+There are three functions provide by QUBIC package. ```BCQU()``` makes
+following...
 ```{r}
-library(QUBIC);
-test <- matrix(rnorm(5000),100,50)
-test[11:20,11:20] <- rnorm(100,3,0.3)
-res<-biclust(test, method = BCQU())
-summary(res)
+    library(QUBIC);
+
+    test <- matrix(rnorm(5000),100,50)
+    test[11:20,11:20] <- rnorm(100,3,0.3)
+    res<-biclust(test, method = BCQU())
+    summary(res)
 ```
+
 
 We can also draw heat maps.
 
@@ -47,13 +112,19 @@ drawHeatmap(BicatYeast, res, 1)
 # Conclusions
 ```
 
-QUBIC is a well known qualitative biclustering algorithm. QUBIC package should serve and save time for bioinformatics scientists.
+QUBIC is a well known qualitative biclustering algorithm. QUBIC package
+should serve and save time for bioinformatics scientists.
 
-# Note
+Note
+====
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is an R Markdown document. Markdown is a simple formatting syntax
+for authoring HTML, PDF, and MS Word documents. For more details on
+using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+When you click the **Knit** button a document will be generated that
+includes both content as well as the output of any embedded R code
+chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
 summary(cars)
@@ -65,4 +136,13 @@ You can also embed plots, for example:
 plot(cars)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Note that the `echo = FALSE` parameter was added to the code chunk to
+prevent printing of the R code that generated the plot.
+
+Acknowledgements
+================
+
+This work was supported by xxx.
+
+References
+==========
