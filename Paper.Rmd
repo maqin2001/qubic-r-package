@@ -52,12 +52,11 @@ implementation in R.
     noting that our in-house algorithm, QUBIC, is reviewed as one of the
     best programs in terms of their prediction performance on benchmark
     datasets. Most importantly, it is the best one regarding real
-    biological data. (cite this paper:
-    http://bib.oxfordjournals.org/content/early/2012/07/06/bib.bbs032.full)
+    biological data [@eren12].
 
 4.  Currently, QUBIC is already cited for XX times and in 2012 we also
     developed a web server, QServer, to facilitate the users without
-    comprehensive computational background (cite Qserver paper). As the
+    comprehensive computational background [@zhou12]. As the
     scale of gene expression data keeps increasing, we developed this R
     package of QUBIC to void submitting large data to a webserver.
 
