@@ -47,14 +47,13 @@ implementation in R.
     effective and efficient algorithms are needed to implement such
     analysis.
 
-3.  Substantial efforts have been made in this field, such as XX, XX,
-    XXX<!---列举出主要的几个双聚类软件。具体的可以参见这个review：http://bib.oxfordjournals.org/content/early/2012/07/06/bib.bbs032.full-->, among which XX has the R package implementation?It is worth
+3.  Substantial efforts have been made in this field, such as @cheng00, Plaid [@lazzeroni02], Bayesian Biclustering (BCC) [@gu08]<!---列举出主要的几个双聚类软件。具体的可以参见这个review：http://bib.oxfordjournals.org/content/early/2012/07/06/bib.bbs032.full-->, among them Cheng and Church and Plaid has the R package implementation. It is worth
     noting that our in-house algorithm, QUBIC, is reviewed as one of the
     best programs in terms of their prediction performance on benchmark
     datasets. Most importantly, it is the best one regarding real
     biological data [@eren12].
 
-4.  Currently, QUBIC is already cited for XX times and in 2012 we also
+4.  Currently, QUBIC is already cited for 88 times (via Google Scholar) and in 2012 we also
     developed a web server, QServer, to facilitate the users without
     comprehensive computational background [@zhou12]. As the
     scale of gene expression data keeps increasing, we developed this R
