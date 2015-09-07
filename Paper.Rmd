@@ -1,9 +1,13 @@
 ---
-title: 'RQUBIC: an R package for qualitative biclustering in support of gene co-expression analyses'
+title: 'RQUBIC: an R package for qualitative biclustering in support of gene co-expression
+  analyses'
 csl: bioinformatics.csl
-output: 
-  word_document:
+output:
+  word_document: 
+    md_extensions: -autolink_bare_uris
     reference_docx: Bioinformatics.docx
+  pdf_document: default
+  html_document: default
 bibliography: bibliography.bib
 ---
 
@@ -15,9 +19,7 @@ Changchun, Jilin, China
 ^2^Department of Plant Science, South Dakota State University,
 Brookings, SD, 57007, USA
 
-^\#^ Corresponding authors:
-
-*qin.ma@sdstate.edu*
+^\#^ Corresponding author: qin.ma@sdstate.edu
 
 **Running title:** An R package for biclustering of gene expression data
 
@@ -30,8 +32,7 @@ Abstract
 
 **Contact**: qin.ma@sdstate.edu
 
-**Supplementary information:** Supplementary data are available at
-*Bioinformatics* online.
+**Supplementary information:** Supplementary data are available at *Bioinformatics* online.
 
 Introduction
 ============
@@ -40,10 +41,10 @@ QUBIC is a qualitative biclustering algorithm for analyses of gene
 expression data authored by @li09. We now give the new
 implementation in R.
 
-1.  gene expression data is very important in XXX<!---Try to find some description in QUBIC paper and other related papers. 注意引用相关文献。最好有些最新的。-->
+1.  Gene expression data is very important in experimental molecular biology [@brazma00], especially for cancer study [@fehrmann15].<!---Try to find some description in QUBIC paper and other related papers. 注意引用相关文献。最好有些最新的。-->
 
-2.  large-scale microarray data and RNA-seq data provide good
-    opportunity to do gene co-expression analyses? meanwhile the
+2.  Large-scale microarray data and RNA-seq data provide good
+    opportunity to do gene co-expression analyses; meanwhile the
     effective and efficient algorithms are needed to implement such
     analysis.
 
@@ -62,10 +63,12 @@ implementation in R.
 5.  The unique features of our R package:
 
     a.  Updated and more stable back-end resource code, written by C++,
-        which has better memory control and is more efficient <!--- you may want to explain why it is more efficient. 也就是你对源程序的关键改动和具体提高的程度百分比。 -->than the
-        one published in 2009.
+        which has better memory control and is more efficient than the
+        one published in 2009. 
+        For a input with 50M (arabidopsis-leaf), we observed more than 40% time saving.
+        <!--- you may want to explain why it is more efficient. 也就是你对源程序的关键改动和具体提高的程度百分比。 -->
 
-    b.  Comprehensive functions, including XX, XX, XX<!---please enrich this part,这里要突出我们所有的功能，譬如离散化，图形化，网络分析以及围绕bicluster的各种小功能。-->
+    b.  Comprehensive functions and examples, including discretize function, heatmap drawing and network analysis.<!---please enrich this part,这里要突出我们所有的功能，譬如离散化，图形化，网络分析以及围绕bicluster的各种小功能。-->
 
 Implementation
 ==============
@@ -74,13 +77,26 @@ QUBIC (QUBIC 1.0) original written in C using POSIX apis. The
 portability is limited. Some memory leak will be occur if trying to call
 the primarily functions more than once.
 
-We did refactoring and rewrite most part of QUBIC 1.0 and try to keep
-the result is the same. <!--- 这个可以更加具体，到底怎样改的，譬如更换了fibunaqie 堆等等。同时提一下这个版本非常方便进一步的功能开发和更新。-->
+We did refactoring and rewrote most part of QUBIC 1.0 and try to keep
+the result is the same. We changed most data structures to avoid memory leak. 
+Most of C pointers are replaced with std containers. 
+We rewrote and optimized core functions with the result of profiling,
+<!--- 这个可以更加具体，到底怎样改的，譬如更换了fibunaqie 堆等等。同时提一下这个版本非常方便进一步的功能开发和更新。-->
 
-The performance is increased.<!--- 要有具体的百分比。这里建议在附件中加上一个图或者表格，在几套不同的数据上比较一下原来版本和目前版本的时间。
+The performance is increased. We found average 41,4% time saving. (Windows 8 x64， Memory 8G，Intel Core i7-3770 3.4G)
+
+  Input Data        Before (ms)     After (ms)
+----------------  ------------   ------------
+Arabidopsis-leaf        212727         124688
+
+Table:  Performance increased.
+
+
+<!--- 要有具体的百分比。这里建议在附件中加上一个图或者表格，在几套不同的数据上比较一下原来版本和目前版本的时间。
 同时可以引用QUBIC的原文，在附件中我当时比较了时间，QUBIC是最快的。所以这里你只要说明Rpackage比QUBIC更快就好了。-->
 
-The R package could be working with biclust<!---除了这个，我们还要提我们可以和cytoscape结合做后续的网络化分析。 -->written by @kaiser09.
+The R package could be working with biclust<!---除了这个，我们还要提我们可以和cytoscape结合做后续的网络化分析。 --> written by @kaiser09.
+The R package also provide output which could use as input for software such as Cytoscape [@smoot11].
 
 We also give examples of heat map and overlapping networks.
 
@@ -116,35 +132,14 @@ res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
 # Draw heatmap of the first cluster
 drawHeatmap(BicatYeast, res, 1)
 
-# Conclusions
+
 ```
 
-QUBIC is a well known qualitative biclustering algorithm. QUBIC package
+Conclusions
+===========
+
+QUBIC is a well-known qualitative biclustering algorithm. QUBIC package
 should serve and save time for bioinformatics scientists.
-
-Note<!---这一节是给我看的还是要加在paper中的？-->
-====
-
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details on
-using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that
-includes both content as well as the output of any embedded R code
-chunks within the document. You can embed an R code chunk like this:
-
-```{r}
-summary(cars)
-```
-
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-plot(cars)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
 
 Acknowledgements
 ================
