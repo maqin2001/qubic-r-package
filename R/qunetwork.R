@@ -1,9 +1,8 @@
-#' Get Bicluster Graph
+#' Construction and visualization of co-expression network
 #'
-#' This is the main function of \code{network}
-#' which automatically creates an appropriate network for two biclusters and
-#' sends it to the plotting method.
-#' @aliases Qnetwork network
+#' This function can automatically create co-expression networks along with their visualization based on identified biclusters in QUBIC. 
+#' Three correlation methods, Pearson, Kendall and Spearman, are available for a user, facilitating different preferences in practical usage.
+#' @aliases Qnetwork network Qunetwork
 #' @param x The data matrix
 #' @param BicRes BiclustResult object
 #' @param number Which bicluster to be plotted
@@ -13,11 +12,11 @@
 #' @return a list contains a weights matrix and groupinfo
 #' @examples
 #' \dontrun{
-#' #Load microarray matrix
+#' # Load microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
-#' #Draw two biclusters
-#' net <- qnetwork(BicatYeast[1:50, ], res, number = c(4, 13), group = c(4, 13), method = "spearman")
+#' # Constructing the networks for the 4th and 13th identified biclusters.
+#' net <- qunetwork(BicatYeast[1:50, ], res, number = c(4, 13), group = c(4, 13), method = "spearman")
 #' stopifnot(require("qgraph"))
 #' qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6,
 #'        color = cbind(rainbow(length(net[[2]]) - 1),"gray"), edge.label = FALSE)
@@ -26,14 +25,15 @@
 #' #Load microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
-#' #Draw all biclusters
-#' net <- qnetwork(BicatYeast[1:50, ], res, group = c(4, 13), method = "spearman")
+#' # Constructing the networks for the 4th and 13th identified biclusters, 
+#' #   using the whole network as a background.
+#' net <- qunetwork(BicatYeast[1:50, ], res, group = c(4, 13), method = "spearman")
 #' stopifnot(require("qgraph"))
 #' qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6,
 #'        color = cbind(rainbow(length(net[[2]]) - 1),"gray"), edge.label = FALSE)
 #' }
-#' @seealso \code{\link{qnet2xml}} \code{\link{QUBIC}} \code{\link{qgraph}} \code{\link{cor}}
-qnetwork <- function(x, BicRes, number = 1:BicRes@Number,
+#' @seealso \code{\link{qunet2xml}} \code{\link{QUBIC}} \code{\link{qgraph}} \code{\link{cor}}
+qunetwork <- function(x, BicRes, number = 1:BicRes@Number,
                      group = c(number[[1]]),
                      method = c("pearson", "kendall", "spearman")) {
   if (length(number) < 1)

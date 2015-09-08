@@ -110,7 +110,7 @@ List qubic_d(const IntegerMatrix matrix,
 }
 
 // [[Rcpp::export]]
-NumericMatrix qudiscretize(const NumericMatrix matrix, const short r = 1, const double q = 0.06) {
+NumericMatrix qubic_discretize(const NumericMatrix matrix, const short r = 1, const double q = 0.06) {
   std::vector<rule> genes_rules;
   auto x = to_vector<float, NumericMatrix>(matrix);
   std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
