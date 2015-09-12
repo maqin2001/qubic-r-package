@@ -1,7 +1,12 @@
 ######################################################################
 #' QUBIC: A Qualitative Biclustering Algorithm for Analyses of Gene Expression Data
 #'
-#' QUBIC is a biclusting package.
+#'@description
+#' \code{QUBIC} is a biclustering package, with source code upgrading from C code to C++ code.
+#' The updated source code can avoid memory allocation error and is much efficient than the original one.
+#' Based on our preliminary analysis, it can save 40\% running time on a plant microarray data.
+#'
+#'@details
 #' For a given representing matrix of a microarray data set,
 #' we construct a weighted graph G with genes represented as vertices, edges connecting every pair of genes,
 #' and the weight of each edge being the similarity level between the two corresponding (entire) rows.
@@ -18,43 +23,53 @@
 #' So in our solution, we do not directly solve the problem of finding heavy subgraphs in a graph.
 #' Instead, we built our biclustering algorithm based on this graph representation of a microarray gene expression data,
 #' and tackle the biclustering problem as follows.
-#' We find all feasible biclusters (I,J) in the given data set such that min{|I|, |J|} is as large as possible,
+#' We find all feasible biclusters (I,J) in the given data set such that min\{|I|, |J|\} is as large as possible,
 #' where I and J are subsets of genes and conditions, respectively.
 #'
 #' @name QUBIC
 #'
 #' @aliases QUBIC qubic BCQU bcqu BCQU.d bcqu.d biclust method
-#' 
+#'
 #' @param x the input data matrix, which could be the normalized gene expression matrix or its qualitative representation from Qdiscretization or other discretization ways.
 #' (for example: a qualitative representation of gene expression data) \cr
 #' For \code{BCQU()}, the data matrix should be real \cr
 #' For \code{BCQU.d()}, the data matrix should be discretized as integer.
-#' Zeros in the matrix will be treated as non-relevant value.#' 
-#' @param r \code{BCQU()} and \code{qudiscretize()} only. The range of possible ranks.
-#' @param q \code{BCQU()} and \code{qudiscretize()} only. The percentage of the regulating conditions for each gene.
-#' @param c The required consistency level of a bicluster.
-#' @param o The number of output biclusters.
-#' @param f The filter cut-off for data post-processing.
+#' Zeros in the matrix will be treated as non-relevant value.
+#' @param r Affect the granularity of the biclusters. The range of possible ranks.
+#' A user can start with a small value of \code{r}
+#' (the default value is \code{1} so the corresponding data matrix consists of values '\code{1}', '\code{-1}' and '\code{0}'),
+#' evaluate the results, and then use larger values
+#' (should not be larger than half of the number of the columns) to look for fine structures within the identified biclusters.
+#' @param q Affect the granularity of the biclusters. The percentage of the regulating conditions for each gene.
+#' The choice of \code{q}'s value depends on the specific application goals;
+#' that is if the goal is to find genes that are responsive to local regulators,
+#' we should use a relatively small \emph{q}-value; otherwise we may want to consider larger \emph{q}-values.
+#' The default value of \code{q} is \code{0.06} in QUBIC
+#' (this value is selected based on the optimal biclustering results on simulated data).
+#' @param c The required consistency level of a bicluster. The default value of \code{c} is \code{0.95}
+#' @param o The number of output biclusters. \code{o}'s default value is \code{100}.
+#' @param f Control parameter, to control the level of overlaps between to-be-identified biclusters.
+#' The filter cut-off for data post-processing. For overlaps among to-be-identified biclusters.
+#' Its default value is set to \code{1} to ensure that no two reported biclusters overlap more than \code{f}.
 #' @param k The minimum column width of the block, minimum \code{2} columns.
-#' @param type The constrain type.
-#' @param P the flag to enlarge current bicluster using a \emph{p}-value contrain, which is defined based on its significance of expression consistency  comparing to some simulated submatrix. Default: \code{FALSE}.
-#' @param C the flag to set the lower bound of the condition number in a bicluster as 5\% of the total condition number in the input data. Only suggested to use when the input data has a few conditions (e.g. less than 20). Default: \code{FALSE}.
+#' @param type The constrain type. \cr
+#' If \code{type} is omitted or \code{type="default"}, the original objective function in QUBIC will be used, which is to maximize the minimal value of numbers of rows and columns.
+#' If \code{type="area"}, the program tries to identify the bicluster with the maximal value of number of rows multiplied by number of columns.
+#' Other types are reserved for future use.
+#' @param P the flag to enlarge current bicluster using a \emph{p}-value contrain,
+#' which is defined based on its significance of expression consistency  comparing to some simulated submatrix. Default: \code{FALSE}.
+#' @param C the flag to set the lower bound of the condition number in a bicluster as 5\% of the total condition number in the input data.
+#' Only suggested to use when the input data has a few conditions (e.g. less than \code{20}). Default: \code{FALSE}.
 #' @param verbose If '\code{TRUE}', prints extra information on progress.
 #' @return Returns an Biclust object, which contains bicluster candidates
-#'
-#' @details If \code{type} is omitted or \code{type="default"}, the original objective function in QUBIC will be used, which is to maximize the minimal value of numbers of rows and columns.
-#'
-#' If \code{type="area"}, the program tries to identify the bicluster with the maximal value of number of rows multiplied by number of columns.
-#'
-#' Other types are reserved for future use.
 #'
 #' @seealso \code{\link{qudiscretize}} \code{\link{qunetwork}} \code{\link{qunet2xml}} \code{\link{biclust}}
 #'
 #' @references Li G, Ma Q, Tang H, Paterson AH, Xu Y.
 #' QUBIC: a qualitative biclustering algorithm for analyses of gene expression data.
-#' \emph{Nucleic Acids Research}. 2009;\bold{37(15)}:e101. doi:10.1093/nar/gkp491. 
+#' \emph{Nucleic Acids Research}. 2009;\bold{37(15)}:e101. doi:10.1093/nar/gkp491.
 #' @references Zhou F, Ma Q, Li G, Xu Y.
-#' QServer: A Biclustering Server for Prediction and Assessment of Co-Expressed Gene Clusters. 
+#' QServer: A Biclustering Server for Prediction and Assessment of Co-Expressed Gene Clusters.
 #' \emph{PLoS ONE}. 2012;\bold{7(3)}:e32660. doi: 10.1371/journal.pone.0032660
 #'
 #' @keywords qubic biclust bicluster bi-cluster biclustering bi-clustering
@@ -78,20 +93,20 @@ NULL
 #' \dontrun{
 #' # Load microarray matrix
 #' data(BicatYeast)
-#' 
+#'
 #' # Display number of column and row of BicatYeast
 #' ncol(BicatYeast)
-#' nrow(BicatYeast) 
+#' nrow(BicatYeast)
 #' #Bicluster on microarray matrix
 #' system.time(res<-biclust(BicatYeast, method=BCQU()))
-#' 
+#'
 #' # Show bicluster info
 #' res
 #' # Show the first bicluster
 #' bicluster(BicatYeast, res, 1)
 #' # Get the 4th bicluster
 #' bic4 <- bicluster(BicatYeast, res, 4)[[1]]
-#' 
+#'
 #' # or
 #' bic4 <- bicluster(BicatYeast, res)[[4]]
 #' # Show rownames of the 4th bicluster
@@ -138,10 +153,10 @@ NULL
 #' data(BicatYeast)
 #' res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
 #' bic10 <- bicluster(BicatYeast, res, 10)[[1]]
-#' 
+#'
 #' # Draw heatmap of the 10th cluster using heatmap {stats}
 #' heatmap(as.matrix(t(bic10)), Rowv = NA, Colv = NA, scale = "none")
-#' 
+#'
 #' # Draw heatmap of the 10th cluster using plot_heatmap {phyloseq}
 #' stopifnot(require("phyloseq"))
 #' plot_heatmap(otu_table(bic10, taxa_are_rows = TRUE))
@@ -191,18 +206,6 @@ setClass('BCQU',
 #'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
 BCQU <- function() {
   return(new('BCQU'))
-}
-#' A Reference Class to represent a bank account.
-#'
-#' @param r This is the first argument
-foo <- function(r) r + 10
-
-#' A Reference Class to represent a bank account.
-#'
-#' @param b This is the second argument
-#' @inheritParams qudiscretize
-bar <- function(r, b) {
-  foo(r) * 10
 }
 
 #' QUBICD

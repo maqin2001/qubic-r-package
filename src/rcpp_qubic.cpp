@@ -75,6 +75,8 @@ List from_blocks(const std::vector<Block> &blocks, const size_t nr, const size_t
            Named("info") = get_list());
 }
 
+//' @rdname QUBIC
+//' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export]]
 List qubic(const NumericMatrix matrix, const short r, const double q,
            const double c, const int o, const double f, const int k,
@@ -92,6 +94,8 @@ List qubic(const NumericMatrix matrix, const short r, const double q,
   return List::create(); // avoid warning
 }
 
+//' @rdname QUBIC
+//' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export]]
 List qubic_d(const IntegerMatrix matrix,
              const double c, const int o, const double f, const int k,
@@ -109,8 +113,30 @@ List qubic_d(const IntegerMatrix matrix,
   return List::create(); // avoid warning
 }
 
+//' Create a qualitative discrete matrix for a given gene expression matrix
+//'
+//' \code{qudiscretize} delivers a discret matrix. It is useful if we just want to get a discretized matrix.
+//'
+//' @details
+//' \code{qudiscretize} convert a given gene expression matrix to a discret matrix.
+//' It's implimented in C++, providing a increase in speed over the C equivalent.
+//'
+//' @usage qudiscretize(matrix, r = 1L, q = 0.06)
+//' @inheritParams QUBIC
+//'
+//' @name qudiscretize
+//'
+//' @aliases qudiscretize qdiscretize
+//'
+//' @examples
+//' // Qualitative discretize yeast microarray data
+//' data(BicatYeast)
+//' qudiscretize(BicatYeast[1:7, 1:5])
+//'
+//' @seealso \code{\link{QUBIC}} \code{\link{discretize}} \code{\link{qugraph}}
+//' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export]]
-NumericMatrix qubic_discretize(const NumericMatrix matrix, const short r = 1, const double q = 0.06) {
+NumericMatrix qudiscretize(const NumericMatrix matrix, const short r = 1, const double q = 0.06) {
   std::vector<rule> genes_rules;
   auto x = to_vector<float, NumericMatrix>(matrix);
   std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
