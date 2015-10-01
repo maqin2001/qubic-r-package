@@ -124,12 +124,14 @@ List qubic_d(const IntegerMatrix matrix,
 //' @usage qudiscretize(matrix, r = 1L, q = 0.06)
 //' @inheritParams QUBIC
 //'
+//' @return A qualitative discrete matrix
+//'
 //' @name qudiscretize
 //'
 //' @aliases qudiscretize qdiscretize
 //'
 //' @examples
-//' // Qualitative discretize yeast microarray data
+//' # Qualitative discretize yeast microarray data
 //' data(BicatYeast)
 //' qudiscretize(BicatYeast[1:7, 1:5])
 //'

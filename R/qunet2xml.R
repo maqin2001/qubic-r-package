@@ -1,11 +1,11 @@
 #' Convert newwork to XGMML
-#' 
+#'
 #' This function can convert the constructed co-expression networks into XGMML format, which can be used to do further network analysis in Cytoscape, Biomax and JNets.
 #' @param net Result of \code{\link{qunetwork}}
 #' @param minimum cutoff, default: 0.6
 #' @param color default: cbind(rainbow(length(net[[2]]) - 1), "gray")
+#' @return Text of XGMML
 #' @examples
-#' \dontrun{
 #' # Load microarray matrix
 #' data(BicatYeast)
 #' res<-biclust(BicatYeast[1:50, ], method=BCQU(), verbose = FALSE)
@@ -16,8 +16,6 @@
 #' qunet2xml(net, minimum = 0.6, color = cbind(rainbow(length(net[[2]]) - 1), "gray"))
 #' sink()
 #' # You can use Cytoscape, Biomax or JNets open file named tempnetworkresult.gr
-#' 
-#' }
 #' @seealso \code{\link{qunetwork}} \code{\link{QUBIC}}
 qunet2xml <-
   function(net, minimum = 0.6, color = cbind(rainbow(length(net[[2]]) - 1), "gray")) {

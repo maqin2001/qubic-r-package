@@ -5,13 +5,14 @@
 # todo file
 TODO
 
-# idea files. 
+# idea files.
 ^.idea/
 
-# data files. 
+# data and paper files.
 ^testdata/
+^paper/
 
-# tests files. 
+# tests files.
 ^tests/
 
 # Make file
@@ -46,5 +47,18 @@ bld/
 # .lnk files
 (^|.*)\.lnk$
 
+# Others
+(^|.*)\.[Cc]ache
+ClientBin/
+[Ss]tyle[Cc]op\.($|.*)
+^~\$.*\..*$
+(^|.*)~
+(^|.*)\.dbmdl
+(^|.*)\.dbproj.schemaview
+(^|.*)\.pfx
+(^|.*)\.publishsettings
+node_modules/
+bower_components/
+
 # main file of this project
-main.cc
+main\.cc
