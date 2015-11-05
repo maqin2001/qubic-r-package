@@ -72,7 +72,6 @@ const std::vector<Edge *> &EdgeList::get_edge_list() const {
 }
 EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &COL_WIDTH, bool verbose) {
   if (COL_WIDTH == 2) COL_WIDTH = std::max(arr_c[0].size() / 20, static_cast<size_t>(2));
-#if 1
   Edge *edge;
   int cnt;
   /* Allocating heap structure */
@@ -100,57 +99,6 @@ EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &COL_WIDTH, bool verbo
   if (verbose) fprintf(stdout, "%d seeds generated\n", heap->fh_n);
   fh_dump(heap, edge_list, min_score);
   if (verbose) fprintf(stdout, "%d seeds dumped\n", static_cast<unsigned int>(edge_list.size()));
-#else
-  Edge *edge;
-  int cnt;
-  int rec_num = 0;
-  /* Allocating heap structure */
-  std::priority_queue<Edge *, std::vector<Edge *>, CompEventByPtr> q;
-  /* Generating seed list and push into heap */
-  if (verbose)fprintf(stdout, "Generating seed list (minimum weight %d)", COL_WIDTH);
-  Edge __cur_min = { 0, 0, COL_WIDTH };
-  Edge *_cur_min = &__cur_min;
-  Edge **cur_min = &_cur_min;
-  /* iterate over all genes to retrieve all edges */
-  for (size_t i = 0; i < arr_c.size(); i++)
-    for (size_t j = i + 1; j < arr_c.size(); j++) {
-      cnt = str_intersect_r(arr_c[i], arr_c[j]);
-      if (cnt < _cur_min->score) continue;
-      edge = new Edge();
-      edge->gene_one = i;
-      edge->gene_two = j;
-      edge->score = cnt;
-      if (q.size() < HEAP_SIZE)
-        q.push(edge);
-      else {
-        if (_cur_min->score <= edge->score) {
-          /* Remove least value and renew */
-          q.pop();
-          q.push(edge);
-          /* Keep a memory of the current min */
-          _cur_min = q.top();
-        }
-      }
-    }
-  rec_num = q.size();
-  if (rec_num == 0) {
-    fprintf(stderr, "[Error] Not enough overlap between genes");
-    throw - 1.0;
-  }
-  /* sort the seeds */
-  if (verbose) fprintf(stdout, "%d seeds generated\n", rec_num);
-  edge_list.resize(rec_num);
-  for (int i = rec_num - 1; i >= 0; i--) {
-    edge_list[i] = q.top();
-    q.pop();
-  }
-#endif
-  //std::ofstream myfile;
-  //myfile.open("seeds1.txt");
-  //for (size_t i = 0; i < edge_list.size(); i++) {
-  //  myfile << edge_list[i]->gene_one << " " << edge_list[i]->gene_two << " " << edge_list[i]->score << std::endl;
-  //}
-  //myfile.close();
 }
 
 EdgeList::~EdgeList() {

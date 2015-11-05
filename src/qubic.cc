@@ -137,8 +137,8 @@ class qubic {
         profiles[*it]++;
       for (std::set<int>::iterator it = bb[b2].genes_reverse.begin(); it != bb[b2].genes_reverse.end(); ++it)
         profiles[*it]++;
-      for (size_t i = 0; i < rows; i++)
-        if (profiles[i] > 1) return false;
+      for (size_t index = 0; index < rows; index++)
+        if (profiles[index] > 1) return false;
       b3 = std::max(bb[b1].block_cols(), bb[b2].block_cols());
       return !(e->score < b3/* (bb[b1]->block_cols + bb[b2]->block_cols) / 2*/);
     }
@@ -373,13 +373,13 @@ class qubic {
       //b.block_rows = components;
       if (IS_pvalue) b.score = static_cast<int>(-(100 * log(b.pvalue)));
       else b.score = components * b.block_cols();
-      for (std::vector<int>::iterator it = genes_order.begin(); it != genes_order.end(); ++it) {
-        b.genes_order.insert(*it);
-        allincluster.insert(*it);
+      for (std::vector<int>::iterator iterator = genes_order.begin(); iterator != genes_order.end(); ++iterator) {
+        b.genes_order.insert(*iterator);
+        allincluster.insert(*iterator);
       }
-      for (std::vector<int>::iterator it = genes_reverse.begin(); it != genes_reverse.end(); ++it) {
-        b.genes_reverse.insert(*it);
-        allincluster.insert(*it);
+      for (std::vector<int>::iterator iterator = genes_reverse.begin(); iterator != genes_reverse.end(); ++iterator) {
+        b.genes_reverse.insert(*iterator);
+        allincluster.insert(*iterator);
       }
 
       if (f && (b.block_cols() <= 1 || b.block_rows() <= 1)) continue;
