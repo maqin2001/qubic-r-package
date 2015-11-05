@@ -312,14 +312,13 @@ namespace internal
 
   /************************************************************************/
   static std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::vector<Edge *>& el,
-                                    std::vector<std::vector<bits16>>& profile, size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
+                                    size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
                                     bool IS_pvalue, size_t SCH_BLOCK, int RPT_BLOCK, double FILTER, double f, bool verbose)
   {
+
     std::vector<Block> bb;
     size_t rows = all.list.size();
     size_t cols = all.list[0].size();
-    size_t j, k, components;
-    profile.resize(cols, std::vector<bits16>(all.symbols.size()));
     std::vector<long double> pvalues(rows);
     std::vector<bool> candidates(rows);
     std::set<int> allincluster;
@@ -337,9 +336,7 @@ namespace internal
       }
       else flag = check_seed(e, bb, rows);
       if (!flag) continue;
-      for (j = 0; j < cols; j++)
-        for (k = 0; k < all.symbols.size(); k++)
-          profile[j][k] = 0;
+      std::vector<std::vector<bits16>> profile(cols, std::vector<bits16>(all.symbols.size(), 0));
       /*you must allocate a struct if you want to use the pointers related to it*/
       Block b;
       /*initial the b->score*/
@@ -360,14 +357,15 @@ namespace internal
       if (cand_threshold < 2)
         cand_threshold = 2;
       /* maintain a candidate list to avoid looping through all rows */
-      for (j = 0; j < rows; j++)
+      for (size_t j = 0; j < rows; j++)
         candidates[j] = true;
       candidates[e->gene_one] = candidates[e->gene_two] = false;
-      components = 2;
+      size_t components = 2;
       /* expansion step, generate a bicluster without noise */
       block_init(all.list, b, genes_order, scores, candidates, cand_threshold, components, pvalues, IS_cond, COL_WIDTH,
                  IS_area);
       /* track back to find the genes by which we get the best score*/
+      size_t k;
       for (k = 0; k < components; k++)
       {
         if (IS_pvalue)
@@ -467,8 +465,7 @@ public:
     EdgeList EdgeList(all.list, k, verbose);
     /* bi-clustering */
     if (verbose) fprintf(stdout, "Clustering started");
-    std::vector<std::vector<bits16>> profile;
-    return internal::cluster(all, EdgeList.get_edge_list(), profile, k, c, IS_cond, IS_area, IS_pvalue, SCH_BLOCK, o, f, option.filter_1xn_nx1, verbose);
+    return internal::cluster(all, EdgeList.get_edge_list(), k, c, IS_cond, IS_area, IS_pvalue, SCH_BLOCK, o, f, option.filter_1xn_nx1, verbose);
   }
 };
 
