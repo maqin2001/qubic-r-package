@@ -1,6 +1,8 @@
 #ifndef EDGE_LIST_H
 #define EDGE_LIST_H
 
+#include <cstddef> // size_t
+
 #include "discrete.h"
 #include "struct.h"
 

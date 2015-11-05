@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cmath> // floor
 #include <cstring> // memset
+#include <cstddef> // size_t
 #include <algorithm>
 
 #include "charset.h"

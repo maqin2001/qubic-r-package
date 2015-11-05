@@ -1,5 +1,5 @@
 .qubiclust <-  function(x, r = 1, q = 0.06,
-                        c = 0.95, o = 100, f = 1, k = 2,
+                        c = 0.95, o = 100, f = 1, k = max(ncol(x) %/% 20, 2),
                         type = "default", P = FALSE, C = FALSE, verbose = TRUE) {
   MYCALL <- match.call()
   S <- (type == "area")
@@ -13,7 +13,7 @@
   ))
 }
 .qubiclust_d <-  function(x,
-                          c = 0.95, o = 100, f = 1, k = 2,
+                          c = 0.95, o = 100, f = 1, k = max(ncol(x) %/% 20, 2),
                           type = "default", P = FALSE, C = FALSE, verbose = TRUE) {
   MYCALL <- match.call()
   S <- (type == "area")

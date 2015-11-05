@@ -6,7 +6,8 @@
 #' @param x The data matrix
 #' @param BicRes BiclustResult object
 #' @param number Which bicluster to be plotted
-#' @param method a character string indicating
+#' @param groups An object that indicates which nodes belong together.
+#' @param method A character string indicating
 #' which correlation coefficient (or covariance) is to be computed.
 #' One of "pearson" (default), "kendall", or "spearman", can be abbreviated.
 #' @return a list contains a weights matrix and groupinfo
@@ -33,9 +34,9 @@
 #' qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6,
 #'        color = cbind(rainbow(length(net[[2]]) - 1),"gray"), edge.label = FALSE)
 #' }
-#' @seealso \code{\link{qunet2xml}} \code{\link{QUBIC}} \code{\link{qgraph}} \code{\link{cor}}
+#' @seealso \code{\link{qunet2xml}} \code{\link{QUBIC}} \code{\link{cor}}
 qunetwork <- function(x, BicRes, number = 1:BicRes@Number,
-                     group = c(number[[1]]),
+                     groups = c(number[[1]]),
                      method = c("pearson", "kendall", "spearman")) {
   if (length(number) < 1)
     stop("at least 1 bicluster needed.")
@@ -44,7 +45,7 @@ qunetwork <- function(x, BicRes, number = 1:BicRes@Number,
   if (is.null(colnames(x)))
     stop("can not plot without colnames.")
   bics <- bicluster(x, BicRes, number)
-  index <- which(number %in% group)
+  index <- which(number %in% groups)
 
   rownamelist <- list()
   colnamelist <- list()
@@ -59,7 +60,7 @@ qunetwork <- function(x, BicRes, number = 1:BicRes@Number,
   un <- x[allrownames, allcolnames]
   rowidlist <- list()
 
-  if (length(group) != 2)
+  if (length(groups) != 2)
     stop("length(group) != 2")
   rowidlist[[paste(names(bics)[index[[1]]], " & ", names(bics)[index[[2]]], sep = "")]] <-
     match(intersect(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]]), rownames(un))

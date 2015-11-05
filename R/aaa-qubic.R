@@ -51,7 +51,7 @@
 #' @param f Control parameter, to control the level of overlaps between to-be-identified biclusters.
 #' The filter cut-off for data post-processing. For overlaps among to-be-identified biclusters.
 #' Its default value is set to \code{1} to ensure that no two reported biclusters overlap more than \code{f}.
-#' @param k The minimum column width of the block, minimum \code{2} columns.
+#' @param k The minimum column width of the block, minimum \code{max(ncol(x) \%/\% 20, 2)} columns.
 #' @param type The constrain type. \cr
 #' If \code{type} is omitted or \code{type="default"}, the original objective function in QUBIC will be used, which is to maximize the minimal value of numbers of rows and columns.
 #' If \code{type="area"}, the program tries to identify the bicluster with the maximal value of number of rows multiplied by number of columns.
@@ -202,7 +202,7 @@ setClass('BCQU',
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
 #' @usage ## S4 method for class 'matrix,BCQU':
-#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = 2,
+#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = max(ncol(x) \%/\% 20, 2),
 #'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
 BCQU <- function() {
   return(new('BCQU'))
@@ -234,7 +234,7 @@ setClass('BCQU.d',
 #' @describeIn QUBIC Performs a QUalitative BIClustering for a discret matrix.
 #'
 #' @usage ## S4 method for class 'matrix,BCQU.d':
-#' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = 2,
+#' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = max(ncol(x) \%/\% 20, 2),
 #'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
 BCQU.d <- function() {
   return(new('BCQU.d'))

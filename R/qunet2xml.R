@@ -23,7 +23,7 @@ qunet2xml <-
     cat("\n")
     cat('<!DOCTYPE graph SYSTEM "http://www.cs.rpi.edu/~puninj/XGMML/xgmml.dtd">')
     cat("\n")
-    cat('<graph directed="0" label="QUGRAPH: Hello, I am a graph" >')
+    cat('<graph directed="0" label="QUNET2XML: Hello, I am a graph" >')
     cat("\n")
     for (i in 1:length(net[[2]])){
       for (j in net[[2]][[i]]) {

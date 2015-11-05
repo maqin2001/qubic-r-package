@@ -2,6 +2,8 @@
 #define BLOCK_H
 
 #include <set>
+#include <cstddef> // size_t
+
 /* biclustering block */
 class Block {
 public:

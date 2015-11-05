@@ -121,28 +121,28 @@ List qubic_d(const IntegerMatrix matrix,
 //' \code{qudiscretize} convert a given gene expression matrix to a discret matrix.
 //' It's implimented in C++, providing a increase in speed over the C equivalent.
 //'
-//' @usage qudiscretize(matrix, r = 1L, q = 0.06)
+//' @usage qudiscretize(x, r = 1L, q = 0.06)
 //' @inheritParams QUBIC
 //'
 //' @return A qualitative discrete matrix
 //'
 //' @name qudiscretize
 //'
-//' @aliases qudiscretize qdiscretize
+//' @aliases qudiscretize qdiscretize BCQU
 //'
 //' @examples
 //' # Qualitative discretize yeast microarray data
 //' data(BicatYeast)
 //' qudiscretize(BicatYeast[1:7, 1:5])
 //'
-//' @seealso \code{\link{QUBIC}} \code{\link{discretize}} \code{\link{qugraph}}
+//' @seealso \code{\link{QUBIC}} \code{\link{discretize}}
 //' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export]]
-NumericMatrix qudiscretize(const NumericMatrix matrix, const short r = 1, const double q = 0.06) {
+NumericMatrix qudiscretize(const NumericMatrix x, const short r = 1, const double q = 0.06) {
   std::vector<rule> genes_rules;
-  auto x = to_vector<float, NumericMatrix>(matrix);
-  std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
+  auto x1 = to_vector<float, NumericMatrix>(x);
+  std::vector<std::vector<discrete>> arr_d = discretize(x1, q, r, genes_rules);
   NumericMatrix result = from_vector(arr_d);
-  result.attr("dimnames") = matrix.attr("dimnames");
+  result.attr("dimnames") = x.attr("dimnames");
   return result;
 }
