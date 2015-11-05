@@ -198,3 +198,7 @@ FakesAssemblies/
 
 # Backup file
 *.bak
+
+# RcppExports files
+/R/RcppExports.R
+/src/RcppExports.cpp
