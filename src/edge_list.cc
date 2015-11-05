@@ -71,7 +71,6 @@ const std::vector<Edge *> &EdgeList::get_edge_list() const {
   return edge_list;
 }
 EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &COL_WIDTH, bool verbose) {
-  if (COL_WIDTH == 2) COL_WIDTH = std::max(arr_c[0].size() / 20, static_cast<size_t>(2));
   Edge *edge;
   int cnt;
   /* Allocating heap structure */

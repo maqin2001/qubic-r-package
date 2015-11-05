@@ -587,13 +587,15 @@ std::vector<Block> main_d(const std::vector<std::vector<short>>& x, const std::v
                           const std::vector<std::string>& col_names, const std::string& tfile,
                           const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
 {
+  int k1;
+  if (k == 2) k1 = std::max(x[0].size() / 20, static_cast<size_t>(2)); else k1 = k;
   DiscreteArrayListWithSymbols all = make_charsets_d(x, verbose);
-  std::vector<Block> output = qubic::init_qubic(all, c, f, k, o, option, verbose);
+  std::vector<Block> output = qubic::init_qubic(all, c, f, k1, o, option, verbose);
   write_imported((tfile + ".chars").c_str(), all.list, row_names, col_names, all.symbols);
   if (verbose) fprintf(stdout, "Formatted data are written to %s\n", (tfile + ".chars").c_str());
   {
     FILE* fw = mustOpenWrite((tfile + ".blocks").c_str());
-    print_params(fw, tfile, k, f, c, o);
+    print_params(fw, tfile, k1, f, c, o);
     for (size_t i = 0; i < output.size(); i++)
       print_bc(fw, output[i], i, all.list, row_names, col_names, all.symbols);
     /* clean up */
