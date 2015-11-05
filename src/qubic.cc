@@ -7,6 +7,7 @@
 #include <cstring> // memset
 #include <cstddef> // size_t
 #include <algorithm>
+#include <list>
 
 namespace internal
 {
@@ -49,39 +50,41 @@ namespace internal
 
   /*************************************************************************/
 
-  static void update_colcand(std::vector<bool>& colcand, const DiscreteArray& g1, const DiscreteArray& g2)
+  static void update_colcand(std::list<size_t>& colcand, const DiscreteArray& g1, const DiscreteArray& g2)
   {
-    for (size_t i = 0; i < colcand.size(); i++)
-      if (colcand[i] && (g1[i] != g2[i]))
-        colcand[i] = false;
+    std::list<size_t>::iterator it = colcand.begin();
+    while (it != colcand.end())
+    {
+      if ((g1[*it] != g2[*it]))
+        colcand.erase(it++); // alternatively, it = colcand.erase(it);
+      else
+        ++it;
+    }
   }
 
   /*calculate the weight of the edge with two vertices g1 and g2*/
-  static int intersect_row(const std::vector<bool>& colcand, const DiscreteArray& g1, const DiscreteArray& g2)
+  static int intersect_row(const std::list<size_t>& colcand, const DiscreteArray& g1, const DiscreteArray& g2)
   {
     int cnt = 0;
-    for (size_t i = 0; i < colcand.size(); i++)
-      if (colcand[i] && (g1[i] == g2[i]) && (g1[i] != 0))
+    for (auto it = colcand.begin(); it != colcand.end(); ++it)
+      if ((g1[*it] == g2[*it]) && (g1[*it] != 0))
         cnt++;
     return cnt;
   }
 
   /*calculate the negative correlation between g1 and g2*/
-  inline int reverse_row(const std::vector<bool>& colcand, const DiscreteArray& g1, const DiscreteArray& g2,
-                                const std::vector<discrete>& symbols)
+  inline int reverse_row(const std::list<size_t>& colcand, const DiscreteArray& g1, const DiscreteArray& g2,
+                         const std::vector<discrete>& symbols)
   {
     int cnt = 0;
-    for (size_t i = 0; i < colcand.size(); i++)
-    {
-      if (colcand[i] && (symbols[g1[i]] == -symbols[g2[i]])) cnt++;
-    }
+    for (auto it = colcand.begin(); it != colcand.end(); ++it) if ((symbols[g1[*it]] == -symbols[g2[*it]])) cnt++;
     return cnt;
   }
 
   /* calculate the coverage of any row to the current consensus
     * cnt = # of valid consensus columns
     */
-  static int seed_current_modify(const DiscreteArray& s, std::vector<bool>& colcand, const int components,
+  static int seed_current_modify(const DiscreteArray& s, std::list<size_t>& colcand, const int components,
                                  std::vector<std::vector<bits16>>& profile, double TOLERANCE)
   {
     size_t n;
@@ -105,7 +108,7 @@ namespace internal
       if (flag)
       {
         cnt++;
-        colcand[i] = true;
+        colcand.push_back(i);
       }
     }
     return cnt;
@@ -184,14 +187,13 @@ namespace internal
     long double pvalue;
     int max_cnt, max_i;
     std::vector<int> arr_rows(rows), arr_rows_b(rows);
-    std::vector<bool> colcand(cols);
-    std::fill(colcand.begin(), colcand.end(), false);
+    std::list<size_t> colcand;
     DiscreteArray g1, g2;
     g1 = arr_c[genes[0]];
     g2 = arr_c[genes[1]];
     for (size_t i = 0; i < cols; i++)
       if ((g1[i] == g2[i]) && (g1[i] != 0))
-        colcand[i] = true;
+        colcand.push_back(i);
     for (size_t i = 0; i < rows; i++)
     {
       arr_rows[i] = intersect_row(colcand, arr_c[genes[0]], arr_c[i]);
@@ -315,7 +317,6 @@ namespace internal
                                     size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
                                     bool IS_pvalue, size_t SCH_BLOCK, int RPT_BLOCK, double FILTER, double f, bool verbose)
   {
-
     std::vector<Block> bb;
     size_t rows = all.list.size();
     size_t cols = all.list[0].size();
@@ -381,8 +382,7 @@ namespace internal
       }
       candidates[genes_order[k]] = false;
       genes_order.resize(k + 1);
-      std::vector<bool> colcand(cols);
-      std::fill(colcand.begin(), colcand.end(), false);
+      std::list<size_t> colcand;
       /* add columns satisfy the conservative r */
       int cnt = seed_current_modify(all.list[genes_order[k]], colcand, components, profile, TOLERANCE);
       /* add some new possible genes */
@@ -435,16 +435,6 @@ namespace internal
     }
     if (verbose) fprintf(stdout, "\n");
     return report_blocks(bb, RPT_BLOCK, FILTER);
-  }
-
-  static int intersect_rowE(const std::vector<bool>& colcand, std::vector<discrete>& g1, std::vector<discrete>& g2,
-                            const int cols)
-  {
-    int i, cnt = 0;
-    for (i = 0; i < cols; i++)
-      if (colcand[i] && (g1[i] == g2[i]) && g1[i] != 0)
-        cnt++;
-    return cnt;
   }
 }
 
