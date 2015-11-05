@@ -57,6 +57,18 @@
     <ClInclude Include="src\option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\charset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fopen_matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fstream_matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fib.c">
@@ -81,9 +93,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\charset.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\discrete.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\fopen_matrix.cc">

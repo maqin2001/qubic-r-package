@@ -1,6 +1,5 @@
 #include "qubic.h"
 
-#include <cassert>
 #include <cmath> // floor
 #include <cstring> // memset
 #include <cstddef> // size_t

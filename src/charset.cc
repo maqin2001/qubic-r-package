@@ -1,6 +1,6 @@
 #include "charset.h"
 
-#include <climits>
+#include <climits> // SHRT_MAX
 #include <cstdio>
 #include <cstddef> // size_t
 

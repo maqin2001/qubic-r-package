@@ -252,12 +252,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\block.h" />
+    <ClInclude Include="src\charset.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\discrete.h" />
     <ClInclude Include="src\discretize.h" />
     <ClInclude Include="src\edge_list.h" />
     <ClInclude Include="src\fib.h" />
     <ClInclude Include="src\fibpriv.h" />
+    <ClInclude Include="src\fopen_matrix.h" />
+    <ClInclude Include="src\fstream_matrix.h" />
+    <ClInclude Include="src\matrix.h" />
     <ClInclude Include="src\option.h" />
     <ClInclude Include="src\run_qubic.h" />
     <ClInclude Include="src\main_config.h" />
@@ -268,7 +272,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\charset.cc" />
-    <ClCompile Include="src\discrete.cc" />
     <ClCompile Include="src\discretize.cc" />
     <ClCompile Include="src\edge_list.cc" />
     <ClCompile Include="src\fib.c" />

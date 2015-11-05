@@ -4,7 +4,6 @@
 #include <cstddef> // size_t
 
 #include "discrete.h"
-#include "struct.h"
 
 /* edge between two genes */
 typedef struct Edge {

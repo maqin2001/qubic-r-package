@@ -74,9 +74,6 @@
     <ClCompile Include="src\charset.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\discrete.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\fopen_matrix.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
