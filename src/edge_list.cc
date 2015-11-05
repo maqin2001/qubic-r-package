@@ -1,18 +1,17 @@
 #include "edge_list.h"
-
-#include <cassert>
+#include "config.h"
+#include "fib.h"
+#include <cassert> // assert
 #include <cstdio>
 #include <algorithm>
 
-#include "fib.h"
-#include "config.h"
 
 int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
   assert(s1.size() == s2.size());
   int common_cnt = 0;
   /* s1 and s2 of equal length, so we check s1 only */
   for (size_t i = 0; i < s1.size(); i++)
-    if ((s1[i] != 0) && (s1[i] == s2[i])) // Changed order by ZHANG Yu
+    if ((s1[i] != 0) && (s1[i] == s2[i])) // Changed order by zy26
       common_cnt++;
   return common_cnt;
 }
