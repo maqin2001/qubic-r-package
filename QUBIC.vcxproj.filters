@@ -42,9 +42,6 @@
     <ClInclude Include="src\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\main_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\run_qubic.h">
       <Filter>Header Files</Filter>
     </ClInclude>

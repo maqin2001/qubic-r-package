@@ -557,12 +557,10 @@ static void print_bc(FILE* fw, const Block& b, const int& num,
   fputc('\n', fw);*/
 }
 
-void print_params(FILE* fw, const std::string& FN, const size_t COL_WIDTH, double FILTER,
-                  double TOLERANCE,
-                  int RPT_BLOCK)
+void print_params(FILE* fw, const size_t COL_WIDTH, double FILTER, double TOLERANCE, int RPT_BLOCK)
 {
   fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
-  fprintf(fw, "# Datafile %s: type\n", FN.c_str());
+  fprintf(fw, "# \n");
   fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
           static_cast<unsigned int>(COL_WIDTH), FILTER, TOLERANCE, RPT_BLOCK);
   fprintf(fw, "\n\n");
@@ -582,7 +580,7 @@ std::vector<Block> main_d(const std::vector<std::vector<short>>& x, const std::v
   if (verbose) fprintf(stdout, "Formatted data are written to %s\n", (tfile + ".chars").c_str());
   {
     FILE* fw = mustOpenWrite((tfile + ".blocks").c_str());
-    print_params(fw, tfile, k1, f, c, o);
+    print_params(fw, k1, f, c, o);
     for (size_t i = 0; i < output.size(); i++)
       print_bc(fw, output[i], i, all.list, row_names, col_names, all.symbols);
     /* clean up */
