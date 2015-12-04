@@ -71,7 +71,7 @@ qunetwork <- function(x, BicRes, number = 1:BicRes@Number,
   rowidlist[["Others"]] <-
     match(setdiff(allrownames, union(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]])), rownames(un))
 
-  cort <- cor(t(un), method = method)
+  cort <- stats::cor(t(un), method = method)
 
   return(list(cort, rowidlist))
 }

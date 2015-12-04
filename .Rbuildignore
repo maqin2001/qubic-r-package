@@ -2,6 +2,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+# vignettes cache.
+^vignettes/qubic_vignette_files
+^vignettes/qubic_vignette_cache
+
 # todo file
 TODO
 

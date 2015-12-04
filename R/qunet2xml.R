@@ -3,7 +3,7 @@
 #' This function can convert the constructed co-expression networks into XGMML format, which can be used to do further network analysis in Cytoscape, Biomax and JNets.
 #' @param net Result of \code{\link{qunetwork}}
 #' @param minimum cutoff, default: 0.6
-#' @param color default: cbind(rainbow(length(net[[2]]) - 1), "gray")
+#' @param color default: cbind(grDevices::rainbow(length(net[[2]]) - 1), "gray")
 #' @return Text of XGMML
 #' @examples
 #' # Load microarray matrix
@@ -13,12 +13,12 @@
 #' net <- qunetwork(BicatYeast[1:50, ], res, group = c(4, 13), method = "spearman")
 #' # Save the network to a XGMML file
 #' sink("tempnetworkresult.gr")
-#' qunet2xml(net, minimum = 0.6, color = cbind(rainbow(length(net[[2]]) - 1), "gray"))
+#' qunet2xml(net, minimum = 0.6, color = cbind(grDevices::rainbow(length(net[[2]]) - 1), "gray"))
 #' sink()
 #' # You can use Cytoscape, Biomax or JNets open file named tempnetworkresult.gr
 #' @seealso \code{\link{qunetwork}} \code{\link{QUBIC}}
 qunet2xml <-
-  function(net, minimum = 0.6, color = cbind(rainbow(length(net[[2]]) - 1), "gray")) {
+  function(net, minimum = 0.6, color = cbind(grDevices::rainbow(length(net[[2]]) - 1), "gray")) {
     cat('<?xml version="1.0" encoding="utf-8"?>')
     cat("\n")
     cat('<!DOCTYPE graph SYSTEM "http://www.cs.rpi.edu/~puninj/XGMML/xgmml.dtd">')

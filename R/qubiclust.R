@@ -3,7 +3,7 @@
                         type = "default", P = FALSE, C = FALSE, verbose = TRUE) {
   MYCALL <- match.call()
   S <- (type == "area")
-  res <- qubic(x, r, q, c, o, f, k, P, S, C, verbose)
+  res <- .qubic(x, r, q, c, o, f, k, P, S, C, verbose)
   return(BiclustResult(
     as.list(MYCALL),
     matrix(unlist(res["RowxNumber"]), ncol = as.numeric(res["Number"]), byrow = FALSE),
@@ -17,7 +17,7 @@
                           type = "default", P = FALSE, C = FALSE, verbose = TRUE) {
   MYCALL <- match.call()
   S <- (type == "area")
-  res <- qubic_d(x, c, o, f, k, P, S, C, verbose)
+  res <- .qubic_d(x, c, o, f, k, P, S, C, verbose)
   return(BiclustResult(
     as.list(MYCALL),
     matrix(unlist(res["RowxNumber"]), ncol = as.numeric(res["Number"]), byrow = FALSE),

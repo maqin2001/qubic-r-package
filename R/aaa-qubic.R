@@ -28,12 +28,12 @@
 #'
 #' @name QUBIC
 #'
-#' @aliases QUBIC qubic BCQU bcqu BCQU.d bcqu.d biclust method
-#'
+#' @aliases QUBIC qubic BCQU bcqu biclust,matrix,BCQU-method
+#' @param method \code{BCQU()} or \code{BCQUD()}, to perform QUBIC algorithm
 #' @param x the input data matrix, which could be the normalized gene expression matrix or its qualitative representation from Qdiscretization or other discretization ways.
 #' (for example: a qualitative representation of gene expression data) \cr
 #' For \code{BCQU()}, the data matrix should be real \cr
-#' For \code{BCQU.d()}, the data matrix should be discretized as integer.
+#' For \code{BCQUD()}, the data matrix should be discretized as integer.
 #' Zeros in the matrix will be treated as non-relevant value.
 #' @param r Affect the granularity of the biclusters. The range of possible ranks.
 #' A user can start with a small value of \code{r}
@@ -63,7 +63,7 @@
 #' @param verbose If '\code{TRUE}', prints extra information on progress.
 #' @return Returns an Biclust object, which contains bicluster candidates
 #'
-#' @seealso \code{\link{qudiscretize}} \code{\link{qunetwork}} \code{\link{qunet2xml}} \code{\link{biclust}}
+#' @seealso \code{\link{BCQU-class}} \code{\link{qudiscretize}} \code{\link{qunetwork}} \code{\link{qunet2xml}} \code{\link{biclust}}
 #'
 #' @references Li G, Ma Q, Tang H, Paterson AH, Xu Y.
 #' QUBIC: a qualitative biclustering algorithm for analyses of gene expression data.
@@ -73,16 +73,9 @@
 #' \emph{PLoS ONE}. 2012;\bold{7(3)}:e32660. doi: 10.1371/journal.pone.0032660
 #'
 #' @keywords qubic biclust bicluster bi-cluster biclustering bi-clustering
-NULL
-
-#' \code{BCQU} performs a QUalitative BIClustering.
-#'
-#' @name BCQU
-#'
-#' @rdname QUBIC
 #'
 #' @examples
-#' # Random matrix with embedded bicluster
+#' # Random matrix with one embedded bicluster
 #' test <- matrix(rnorm(5000),100,50)
 #' test[11:20,11:20] <- rnorm(100,3,0.3)
 #' res<-biclust(test, method = BCQU())
@@ -192,7 +185,17 @@ NULL
 #' heatmapBC(x = BicatYeast, bicResult = res, number = 0)
 #'
 #' }
-setClass('BCQU',
+NULL
+
+#' Class BCQU.
+#'
+#' Class \code{BCQU} define a QUalitative BIClustering calcuator.
+#'
+#' @name BCQU-class
+#' @rdname BCQU-class
+#' @seealso \code{\link{BCQU}} \code{\link{qudiscretize}} \code{\link{qunetwork}} \code{\link{qunet2xml}} \code{\link{biclust}}
+
+setClass(Class = "BCQU",
          contains = 'BiclustMethod',
          prototype = prototype(
            biclustFunction = function(x,...) {
@@ -201,8 +204,10 @@ setClass('BCQU',
          ))
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
-#' @usage ## S4 method for class 'matrix,BCQU':
-#' biclust(x, method = BCQU(), r = 1, q = 0.06, c = 0.95, o = 100, f = 1, k = max(ncol(x) \%/\% 20, 2),
+#' @usage \S4method{biclust}{matrix,BCQU}(x, method = BCQU(),
+#'         r = 1, q = 0.06,
+#'         c = 0.95, o = 100, f = 1,
+#'         k = max(ncol(x) \%/\% 20, 2),
 #'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
 BCQU <- function() {
   return(new('BCQU'))
@@ -210,11 +215,11 @@ BCQU <- function() {
 
 #' QUBICD
 #'
-#' \code{BCQU.d} performs a QUalitative BIClustering for a discret matrix.
+#' \code{BCQUD} performs a QUalitative BIClustering for a discret matrix.
 #'
-#' @name BCQU.d-class
+#' @name BCQUD-class
 #'
-#' @aliases qubic_d QUBICD QUD BCQU.d-class biclust,matrix,BCQU.d-method
+#' @aliases qubic_d QUBICD QUD BCQUD-class biclust,matrix,BCQUD-method
 #'
 #' @rdname QUBIC
 #'
@@ -222,8 +227,8 @@ BCQU <- function() {
 #' # Biclustering of discretized yeast microarray data
 #' data(BicatYeast)
 #' disc<-qudiscretize(BicatYeast[1:10,1:10])
-#' biclust(disc, method=BCQU.d())
-setClass('BCQU.d',
+#' biclust(disc, method=BCQUD())
+setClass('BCQUD',
          contains = 'BiclustMethod',
          prototype = prototype(
            biclustFunction = function(x,...) {
@@ -233,9 +238,10 @@ setClass('BCQU.d',
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering for a discret matrix.
 #'
-#' @usage ## S4 method for class 'matrix,BCQU.d':
-#' biclust(x, method = BCQU.d(), c = 0.95, o = 100, f = 1, k = max(ncol(x) \%/\% 20, 2),
+#' @usage \S4method{biclust}{matrix,BCQUD}(x, method = BCQUD(),
+#'         c = 0.95, o = 100, f = 1,
+#'         k = max(ncol(x) \%/\% 20, 2),
 #'         type = "default", P = FALSE, C = FALSE, verbose = TRUE)
-BCQU.d <- function() {
-  return(new('BCQU.d'))
+BCQUD <- function() {
+  return(new('BCQUD'))
 }
