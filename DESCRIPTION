@@ -36,4 +36,4 @@ SystemRequirements: C++11, Rtools (>= 3.1)
 VignetteBuilder: knitr
 biocViews: StatisticalMethod, Microarray, DifferentialExpression,
     MultipleComparison, Clustering, Visualization, GeneExpression, Network
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1

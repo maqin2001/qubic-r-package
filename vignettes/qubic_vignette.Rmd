@@ -34,7 +34,6 @@ Until now, QUBIC has been cited over 90 times (via Google Scholar) and its web s
 The unique features of our R package include (1) updated and more stable back-end resource code (re-written by C++), which has better memory control and is more efficient than the one published in 2009. For an input dataset in Arabidopsis, with 25,698 genes and 208 samples, we observed more than 40% time saving; and (2) comprehensive functions and examples, including discretize function, heatmap drawing and network analysis. 
 
 
-
 # Other languages
 
 If R is not your thing, there is also a C version of [`QUBIC`](https://github.com/maqin2001/QUBIC).
@@ -68,23 +67,87 @@ Load `QUBIC`
 library("QUBIC")
 ```
 
-# Random matrix with one embedded bicluster
+# Example of a random matrix with one embedded bicluster
 
+We can manually create a big bicluster block inside a random matrix:
 
 ```{r}
 test <- matrix(rnorm(5000),100,50)
 test[11:20,11:20] <- rnorm(100,3,0.3)
 res<-biclust(test, method = BCQU())
+```
+
+We can use `biclust()` function with `BCQU()` as the method parameter. `res` should be the result.
+
+```{r}
 summary(res)
+```
+
+We can use `summary()` function to show the number, size, rows and columns of clusters in `res`. 
+
+```{r}
 show(res)
+```
+
+We can use `show()` function to show a brief version. 
+
+```{r}
 names(attributes(res))
 ```
 
-Functions and examples
+We can see the attributes of `res`, which could use for further processing.
+
+# Example of a random matrix with three diferent embedded biclusters
+
+```{r}
+library(QUBIC)
+set.seed(1);
+# Create a random matrix
+test <- matrix(rnorm(10000), 100, 100)
+colnames(test) <- paste("gene", 1:100, sep="_")
+rownames(test) <- paste("cond", 1:100, sep="_")
+
+# Fill bicluster blocks
+t1 <- runif(10, 0.8, 1)
+t2 <- runif(10, 0.8, 1) * (-1)
+t3 <- runif(10, 0.8, 1) * sample(c(-1, 1), 10, replace = TRUE)
+test[11:20, 11:20] <- t(rep(t1, 10) * rnorm(100, 3, 0.3))
+test[31:40, 31:40] <- t(rep(t2, 10) * rnorm(100, 3, 0.3))
+test[51:60, 51:60] <- t(rep(t3, 10) * rnorm(100, 3, 0.3))
+
+# QUBIC
+res <- biclust(test, method = BCQU())
+summary(res)
+
+# Show heatmap
+hmcols <-  colorRampPalette(rev(c("#D73027", "#FC8D59", "#FEE090", "#FFFFBF", "#E0F3F8", "#91BFDB", "#4575B4")))(100)
+# Specify colors
+
+par(mar=c(1,5,5,1)+0.1)
+heatmapBC(x = test, bicResult = res, number = c(1, 2, 3), local = FALSE,
+          col = hmcols, xaxt="n", xlab="", ylab="")
+
+mycolnames1 <- colnames(test)[res@RowxNumber[,1]]
+mycolnames2 <- colnames(test)[res@RowxNumber[,2]]
+mycolnames3 <- colnames(test)[res@RowxNumber[,3]]
+mycolnames <- c(mycolnames1, mycolnames2, mycolnames3)
+
+axis(2, at = length(mycolnames):1, labels = mycolnames, cex.axis = 1.0, las=1)
+myrownames1 <- rownames(test)[res@NumberxCol[1,]]
+myrownames2 <- rownames(test)[res@NumberxCol[2,]]
+myrownames3 <- rownames(test)[res@NumberxCol[3,]]
+myrownames <- c(myrownames1, myrownames2, myrownames3)
+
+axis(3, at = 1:length(myrownames), labels = myrownames, las=2)
+
+```
+
+Functions
 ======================
 
 There are three functions provide by QUBIC package. ```BCQU()``` makes
-following...
+following example showed biclusters in Yeast.
+
 ```{r, cache=TRUE}
 library(QUBIC);
 data(BicatYeast)

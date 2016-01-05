@@ -1,0 +1,154 @@
+---
+title: 'QUBIC for R: an R package for qualitative biclustering in support of gene
+  co-expression analyses'
+csl: bioinformatics.csl
+output:
+  pdf_document:
+    keep_tex: yes
+    latex_engine: xelatex
+  html_document: default
+  word_document:
+    md_extensions: -autolink_bare_uris
+    reference_docx: Bioinformatics.docx
+bibliography: bibliography.bib
+---
+
+Yu Zhang^1^, Qin Ma^2,\#^
+
+^1^College of Computer Science and Technology, Jilin University,
+Changchun, 130012, China
+
+^2^Department of Plant Science, South Dakota State University,
+Brookings, SD, 57007, USA
+
+^\#^ Corresponding author: qin.ma@sdstate.edu
+
+**Running title:** An R package for biclustering of gene expression data
+
+Abstract
+========
+
+**Summary**: 
+
+**Availability**:<!---张禹。请参考这个文章的摘要把摘要中的summary和availabillity完成。-->
+
+**Contact**: qin.ma@sdstate.edu
+
+**Supplementary information:** Supplementary data are available at *Bioinformatics* online.
+
+Introduction
+============
+
+QUBIC is a qualitative biclustering algorithm for analyses of gene
+expression data authored by @li09. We now give the new
+implementation in R.
+
+1.  Gene expression data is very important in experimental molecular biology [@brazma00], especially for cancer study [@fehrmann15].<!---Try to find some description in QUBIC paper and other related papers. 注意引用相关文献。最好有些最新的。-->
+
+2.  Large-scale microarray data and RNA-seq data provide good
+    opportunity to do gene co-expression analyses; meanwhile the
+    effective and efficient algorithms are needed to implement such
+    analysis.
+
+3.  Substantial efforts have been made in this field, such as @cheng00, Plaid [@lazzeroni02], Bayesian Biclustering (BCC) [@gu08]<!---列举出主要的几个双聚类软件。具体的可以参见这个review：http://bib.oxfordjournals.org/content/early/2012/07/06/bib.bbs032.full-->, among them Cheng and Church and Plaid has the R package implementation. It is worth
+    noting that our in-house algorithm, QUBIC, is reviewed as one of the
+    best programs in terms of their prediction performance on benchmark
+    datasets. Most importantly, it is the best one regarding real
+    biological data [@eren12].
+
+4.  Currently, QUBIC is already cited for 88 times (via Google Scholar) and in 2012 we also
+    developed a web server, QServer, to facilitate the users without
+    comprehensive computational background [@zhou12]. As the
+    scale of gene expression data keeps increasing, we developed this R
+    package of QUBIC to void submitting large data to a webserver.
+
+5.  The unique features of our R package:
+
+    a.  Updated and more stable back-end resource code, written by C++,
+        which has better memory control and is more efficient than the
+        one published in 2009. 
+        For a input with 50M (arabidopsis-leaf), we observed more than 40% time saving.
+        <!--- you may want to explain why it is more efficient. 也就是你对源程序的关键改动和具体提高的程度百分比。 -->
+
+    b.  Comprehensive functions and examples, including discretize function, heatmap drawing and network analysis.<!---please enrich this part,这里要突出我们所有的功能，譬如离散化，图形化，网络分析以及围绕bicluster的各种小功能。-->
+
+Implementation
+==============
+
+QUBIC (QUBIC 1.0) original written in C using POSIX apis. The
+portability is limited. Some memory leak will be occur if trying to call
+the primarily functions more than once.
+
+We did refactoring and rewrote most part of QUBIC 1.0 and try to keep
+the result is the same. We changed most data structures to avoid memory leak. 
+Most of C pointers are replaced with std containers. 
+We rewrote and optimized core functions with the result of profiling,
+<!--- 这个可以更加具体，到底怎样改的，譬如更换了fibunaqie 堆等等。同时提一下这个版本非常方便进一步的功能开发和更新。-->
+
+The performance is increased. We found average 41,4% time saving. (Windows 8 x64， Memory 8G，Intel Core i7-3770 3.4G)
+
+Input Data          Before (s)      After (s)
+----------------  ------------   ------------
+Arabidopsis-leaf         24.29          16.41
+E_coli_v4               181.38          89.58
+BRCA_tumor              944.25         481.60
+
+Table:  Performance increased.
+
+
+<!--- 要有具体的百分比。这里建议在附件中加上一个图或者表格，在几套不同的数据上比较一下原来版本和目前版本的时间。
+同时可以引用QUBIC的原文，在附件中我当时比较了时间，QUBIC是最快的。所以这里你只要说明Rpackage比QUBIC更快就好了。-->
+
+The R package could be working with biclust<!---除了这个，我们还要提我们可以和cytoscape结合做后续的网络化分析。 --> written by @kaiser09.
+The R package also provide output which could use as input for software such as Cytoscape [@smoot11].
+
+We also give examples of heat map and overlapping networks.
+
+Functions and examples
+======================
+
+There are three functions<!---初步计划我们这里应该是四步：
+1.	里散化
+2.	双聚类：不同的参数设置，以及结果的简单分析
+3.	heatmap：突出我们能画单个，两个及多个
+4.	network：突出能花一个，多个，以及不同格式的输出来在cytoscape中作后续分析。
+
+具体的形式可参见这篇文章：http://bioinformatics.oxfordjournals.org/content/26/7/976.full.pdf-->
+ provide by QUBIC package. ```BCQU()``` makes
+following...
+```{r}
+    library(QUBIC);
+
+    test <- matrix(rnorm(5000),100,50)
+    test[11:20,11:20] <- rnorm(100,3,0.3)
+    res<-biclust(test, method = BCQU())
+    summary(res)
+```
+
+
+We can also draw heat maps.
+<!---全文我们应该只有一张图。大概的设计可以是这样：分成四个子图，A。放上一个表达矩阵的示意图，行代表gene，列代表条件。B。双聚类的结果，可以放上heatmap的图表示（这里选用比较有代表性的图，最好用ggplot画。可以多试几个数据或参数，找到比较好的图）。C。网络实现。D。链接到其他软件-->
+
+```{r, echo=FALSE}
+# draw a single bicluster using drawHeatmap {bicust}
+data(BicatYeast)
+res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
+# Draw heatmap of the first cluster
+drawHeatmap(BicatYeast, res, 1)
+
+
+```
+
+Conclusions
+===========
+
+QUBIC is a well-known qualitative biclustering algorithm. QUBIC package
+should serve and save time for bioinformatics scientists.
+
+Acknowledgements
+================
+
+This work was supported by xxx<!---如果你那边有funding，可以加在这里。-->.
+
+References
+==========
