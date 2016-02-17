@@ -21,6 +21,7 @@
 @set PATH=%R%\bin\x64;%RTOOLS%\gcc-4.6.3\bin;%PATH%
 @REM set PATH=%MinGW%\bin;%PATH%
 @set PATH=%RTOOLS%\bin;%PATH%
+@set PATH=%LOCALAPPDATA%\Pandoc;%PATH%
 
 @goto end
 

@@ -35,8 +35,9 @@
 #'        color = cbind(rainbow(length(net[[2]]) - 1),'gray'), edge.label = FALSE)
 #' }
 #' @seealso \code{\link{qunet2xml}} \code{\link{QUBIC}} \code{\link{cor}}
-qunetwork <- function(x, BicRes, number = 1:BicRes@Number, groups = c(number[[1]]),
-                      method = c("pearson", "kendall", "spearman")) {
+qunetwork <-  function(x, BicRes, number = 1:BicRes@Number,
+                       groups = c(number[[1]]),
+                       method = c("pearson", "kendall", "spearman")) {
   if (length(number) < 1)
     stop("at least 1 bicluster needed.")
   if (is.null(rownames(x)))
@@ -59,17 +60,27 @@ qunetwork <- function(x, BicRes, number = 1:BicRes@Number, groups = c(number[[1]
   un <- x[allrownames, allcolnames]
   rowidlist <- list()
 
-  if (length(groups) != 2)
-    stop("length(group) != 2")
-  rowidlist[[paste(names(bics)[index[[1]]], " & ", names(bics)[index[[2]]],
-                   sep = "")]] <- match(intersect(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]]),
-                                        rownames(un))
-  rowidlist[[names(bics)[index[[1]]]]] <- match(setdiff(rownamelist[[index[[1]]]],
-                                                        rownamelist[[index[[2]]]]), rownames(un))
-  rowidlist[[names(bics)[index[[2]]]]] <- match(setdiff(rownamelist[[index[[2]]]],
-                                                        rownamelist[[index[[1]]]]), rownames(un))
-  rowidlist[["Others"]] <- match(setdiff(allrownames, union(rownamelist[[index[[1]]]],
-                                                            rownamelist[[index[[2]]]])), rownames(un))
+  if (length(groups) > 2)
+    stop("length(group) > 2")
+  if (length(groups) == 1) {
+    rowidlist[[names(bics)[index[[1]]]]] <-
+      match(rownamelist[[index[[1]]]],
+            rownames(un))
+  } else if (length(groups) == 2) {
+    rowidlist[[paste(names(bics)[index[[1]]], " & ", names(bics)[index[[2]]],
+                     sep = "")]] <-
+      match(intersect(rownamelist[[index[[1]]]], rownamelist[[index[[2]]]]),
+            rownames(un))
+    rowidlist[[names(bics)[index[[1]]]]] <-
+      match(setdiff(rownamelist[[index[[1]]]],
+                    rownamelist[[index[[2]]]]), rownames(un))
+    rowidlist[[names(bics)[index[[2]]]]] <-
+      match(setdiff(rownamelist[[index[[2]]]],
+                    rownamelist[[index[[1]]]]), rownames(un))
+    rowidlist[["Others"]] <-
+      match(setdiff(allrownames, union(rownamelist[[index[[1]]]],
+                                       rownamelist[[index[[2]]]])), rownames(un))
+  }
 
   cort <- stats::cor(t(un), method = method)
 
