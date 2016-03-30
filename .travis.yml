@@ -1,0 +1,11 @@
+dist: trusty
+language: r
+bioc_required: true
+cache: packages
+
+r_packages:
+  - nlme
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y tcl8.5 tcl8.5-dev tk8.5 tk8.5-dev
