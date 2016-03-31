@@ -2,7 +2,7 @@ Package: QUBIC
 Type: Package
 Title: An R package for qualitative biclustering in support of gene co-
         expression analyses
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: c(person("Yu", "Zhang", role = c("aut", "cre"), email = "zy26@jlu.edu.cn"),
              person("Qin", "Ma", role = "aut", email = "qin.ma@sdstate.edu"))
 Author: Yu Zhang <zy26@jlu.edu.cn>,
