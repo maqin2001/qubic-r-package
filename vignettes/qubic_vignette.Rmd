@@ -17,10 +17,10 @@ output:
     md_extensions: -autolink_bare_uris
 bibliography: bibliography.bib
 ---
-<!--
+
 %\VignetteEngine{knitr::rmarkdown}
 %\VignetteIndexEntry{QUBIC vignette}
--->
+
 
 ```{r, echo=FALSE}
 #Sys.setenv(BIBINPUTS=getwd()); #Set correct path for bibliohraphy file #     citation_package: biblatex

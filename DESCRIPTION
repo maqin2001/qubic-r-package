@@ -1,7 +1,6 @@
 Package: QUBIC
 Type: Package
-Title: An R package for qualitative biclustering in support of gene co-
-        expression analyses
+Title: An R package for qualitative biclustering in support of gene co-expression analyses
 Version: 0.99.3
 Authors@R: c(person("Yu", "Zhang", role = c("aut", "cre"), email = "zy26@jlu.edu.cn"),
              person("Qin", "Ma", role = "aut", email = "qin.ma@sdstate.edu"))
@@ -23,6 +22,8 @@ Description: The core function of this R package is to provide the
     output format of biclusters and corresponding network can be freely downloaded
     so that a user can easily do following comprehensive functional enrichment
     analysis (e.g. DAVID) and advanced network visualization (e.g. cytoscape).
+URL: http://github.com/zy26/QUBIC
+BugReports: http://github.com/zy26/QUBIC/issues
 License: CC BY-NC-ND 4.0
 Imports: Rcpp (>= 0.11.0), methods
 LinkingTo: Rcpp
