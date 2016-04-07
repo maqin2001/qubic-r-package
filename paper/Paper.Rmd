@@ -121,7 +121,7 @@ following...
 
     test <- matrix(rnorm(5000),100,50)
     test[11:20,11:20] <- rnorm(100,3,0.3)
-    res<-biclust(test, method = BCQU())
+    res <- biclust::biclust(test, method = BCQU())
     summary(res)
 ```
 
@@ -132,7 +132,7 @@ We can also draw heat maps.
 ```{r, echo=FALSE}
 # draw a single bicluster using drawHeatmap {bicust}
 data(BicatYeast)
-res <- biclust(BicatYeast, BCQU(), verbose = FALSE)
+res <- biclust::biclust(BicatYeast, BCQU(), verbose = FALSE)
 # Draw heatmap of the first cluster
 drawHeatmap(BicatYeast, res, 1)
 

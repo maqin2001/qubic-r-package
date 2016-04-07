@@ -183,7 +183,7 @@ if (file.exists(rdata_file)) {
     unlink("E_coli_v4_Build_6", recursive=TRUE)
   }
   x <- as.matrix(read.table(file, row.names = 1, header=T))
-  system.time(res <- biclust(x, method = BCQU()))
+  system.time(res <- biclust::biclust(x, method = BCQU()))
   save(x, res, file= rdata_file)
 }
 
@@ -199,7 +199,7 @@ We can also draw heat maps.
 drawHeatmap(x, res, 1)
 
 # Draw overlapping heatmap
-heatmapBC(x = x, bicResult = res, number = c(1, 2), local = TRUE)
+biclust::heatmapBC(x = x, bicResult = res, number = c(1, 2), local = TRUE)
 net <- qunetwork(x, res, number = c(1, 2), group = c(1, 2), method = "spearman")
 ```
 
