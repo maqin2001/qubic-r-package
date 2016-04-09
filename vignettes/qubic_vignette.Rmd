@@ -169,7 +169,7 @@ We can draw network for single bicluster.
 
 # Construct the network for the 2th identified bicluster in BicatYeast
 net <- qunetwork(x, res, number = 2, group = 2, method = "spearman")
-if(require("qgraph"))
+if (require("qgraph"))
     qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6, 
         color = cbind(rainbow(length(net[[2]]) -  1), "gray"), edge.label = FALSE)
 
@@ -180,7 +180,7 @@ We can also draw network for overlapped biclusters.
 ```{r yeast network2, cache = TRUE, message = FALSE, fig.cap = 'Network for the second and third biclusters identified in the BicatYeast data.', fig.show = 'asis'}
 
 net <- qunetwork(x, res, number = c(2, 3), group = c(2, 3), method = "spearman")
-if(require("qgraph"))
+if (require("qgraph"))
     qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6, 
         legend.cex = 0.5, color = c("red", "blue", "gold", "gray"), edge.label = FALSE)
 
@@ -203,8 +203,19 @@ The E.coli data consists of 4,297 genes and 466 conditions.
 library(QUBIC)
 
 # Load E.coli data
-library(QUBICdata)
-data("ecoli")
+if (require("QUBICdata")) {
+    data("ecoli")
+} else {
+    warning("Could not load QUBICdata. Bioconductor version <= 3.2? ", call. = FALSE)
+    print("Downloading fallback file.")
+    x <- read.table(
+        "https://www.sdstate.edu/ps/research/bioinformatics/upload/ecoli_466_4297.txt", 
+        header = TRUE)
+
+    # Convert data frame to matrix
+    ecoli <- as.matrix(x[, -1])
+    rownames(ecoli) <- x[, 1]
+}
 
 # Discretization
 matrix1 <- ecoli[1:7, 1:4]
@@ -247,7 +258,7 @@ quheatmap(ecoli, res, number = c(4, 8), showlabel = TRUE, col = paleta)
 
 # construct the network for the 5th identified bicluster in E.coli data
 net <- qunetwork(ecoli, res, number = 5, group = 5, method = "spearman")
-if(require("qgraph"))
+if (require("qgraph"))
     qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6, 
         color = cbind(rainbow(length(net[[2]]) - 1), "gray"), edge.label = FALSE)
 
@@ -258,7 +269,7 @@ if(require("qgraph"))
 
 # construct the network for the 4th and 8th identified bicluster in E.coli data
 net <- qunetwork(ecoli, res, number = c(4, 8), group = c(4, 8), method = "spearman")
-if(require("qgraph"))
+if (require("qgraph"))
     qgraph(net[[1]], groups = net[[2]], legend.cex = 0.5, layout = "spring", 
         minimum = 0.6, color = c("red", "blue", "gold", "gray"), edge.label = FALSE)
 
