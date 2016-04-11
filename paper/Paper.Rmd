@@ -134,7 +134,7 @@ We can also draw heat maps.
 data(BicatYeast)
 res <- biclust::biclust(BicatYeast, BCQU(), verbose = FALSE)
 # Draw heatmap of the first cluster
-drawHeatmap(BicatYeast, res, 1)
+biclust::drawHeatmap(BicatYeast, res, 1)
 
 
 ```
