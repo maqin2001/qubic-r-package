@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
   double q = getCommand(argc, argv, "-q", 0.06);
   double c = getCommand(argc, argv, "-c", 0.95);
   int    o = getCommand(argc, argv, "-o", 10);
-  double f = getCommand(argc, argv, "-f", 1.0);
-  int    k = getCommand(argc, argv, "-k", 2);
+  double filter = getCommand(argc, argv, "-f", 1.0);
+  int    col_width = getCommand(argc, argv, "-k", 2);
 
   bool   d = cmdOptionExists(argv, argv + argc, "-d");
 
@@ -93,10 +93,10 @@ int main(int argc, char* argv[]) {
 
   if (d) {
     Matrix<short> matrix = FopenMatrix::load_matrix<short>(file_name);
-    main_d(matrix.get_data(), matrix.get_row_names(), matrix.get_col_names(), file_name, c, o, f, k, Option(), true);
+    main_d(matrix.get_data(), matrix.get_row_names(), matrix.get_col_names(), file_name, c, o, filter, col_width, Option(), true);
   } else {
     Matrix<float> matrix = FopenMatrix::load_matrix<float>(file_name);
-    main_c(matrix.get_data(), matrix.get_row_names(), matrix.get_col_names(), file_name, r, q, c, o, f, k, Option(), true);
+    main_c(matrix.get_data(), matrix.get_row_names(), matrix.get_col_names(), file_name, r, q, c, o, filter, col_width, Option(), true);
   }
 
   return 0;

@@ -13,8 +13,7 @@ typedef struct Edge {
 
 class EdgeList {
 private:
-  std::vector<Edge *> edge_list; int col_width;
-  int get_key(const Edge* s);
+  std::vector<Edge *> edge_list;
 public:
   const std::vector<Edge *> &get_edge_list() const;
   EdgeList(const DiscreteArrayList &, size_t&, bool verbose);

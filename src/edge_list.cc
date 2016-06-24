@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <algorithm>
 
-
 int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
   assert(s1.size() == s2.size());
   int common_cnt = 0;
@@ -17,9 +16,8 @@ int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
 }
 
 static int edge_cmpr(void *a, void *b) {
-  int score_a, score_b;
-  score_a = ((Edge *)a)->score;
-  score_b = ((Edge *)b)->score;
+  int score_a = static_cast<Edge *>(a)->score;
+  int score_b = static_cast<Edge *>(b)->score;
   if (score_a < score_b) return -1;
   if (score_a == score_b) return 0;
   return 1;
@@ -34,7 +32,7 @@ static int fh_insert_fixed(fibheap *h, Edge *data, int cur_min) {
       fh_extractmin(h);
       fh_insert(h, data);
       /* Keep a memory of the current min */
-      cur_min = ((Edge *)fh_min(h))->score;
+      cur_min = static_cast<Edge *>(fh_min(h))->score;
     }
   }
   return cur_min;
@@ -44,21 +42,13 @@ static void fh_dump(fibheap *h, std::vector<Edge *> &data_array, int min_score) 
   int i;
   int n = h->fh_n;
   for (i = n - 1; i >= 0; i--) {
-    Edge *t = (Edge *)fh_min(h);
+    Edge *t = static_cast<Edge *>(fh_min(h));
     if (t->score > min_score) break;
     fh_extractmin(h);
   }
   data_array.resize(i + 1);
   for (; i >= 0; i--)
-    data_array[i] = (Edge *)fh_extractmin(h);
-}
-
-int EdgeList::get_key(const Edge *s) {
-  return s->score - col_width;
-}
-
-int get_key1(const Edge &s) {
-  return s.score;
+    data_array[i] = static_cast<Edge *>(fh_extractmin(h));
 }
 
 struct CompEventByPtr {
@@ -70,15 +60,16 @@ struct CompEventByPtr {
 const std::vector<Edge *> &EdgeList::get_edge_list() const {
   return edge_list;
 }
-EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &COL_WIDTH, bool verbose) {
+
+EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &col_width, bool verbose) {
   Edge *edge;
   int cnt;
   /* Allocating heap structure */
   fibheap *heap = fh_makeheap();
   fh_setcmp(heap, edge_cmpr);
   /* Generating seed list and push into heap */
-  if (verbose) fprintf(stdout, "Generating seed list (minimum weight %d)\n", static_cast<unsigned int>(COL_WIDTH));
-  int min_score = COL_WIDTH - 1;
+  if (verbose) fprintf(stdout, "Generating seed list (minimum weight %d)\n", static_cast<unsigned int>(col_width));
+  int min_score = col_width - 1;
   /* iterate over all genes to retrieve all edges */
   for (size_t i = 0; i < arr_c.size(); i++)
     for (size_t j = i + 1; j < arr_c.size(); j++) {
