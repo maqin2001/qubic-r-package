@@ -42,9 +42,6 @@
     <ClInclude Include="src\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\run_qubic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\discretize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -81,9 +78,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\struct.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\run_qubic.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\discretize.cc">

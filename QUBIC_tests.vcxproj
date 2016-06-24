@@ -269,7 +269,6 @@
     <ClCompile Include="src\fib.c" />
     <ClCompile Include="src\fopen_matrix.cc" />
     <ClCompile Include="src\qubic.cc" />
-    <ClCompile Include="src\run_qubic.cc" />
     <ClCompile Include="src\struct.cc" />
     <ClCompile Include="tests\test_qubic.cc" />
     <ClCompile Include="tests\test_main.cc" />

@@ -1,6 +1,6 @@
-#include "../src/run_qubic.h"
 #include "../src/fopen_matrix.h"
 #include <algorithm> // std::find
+#include "qubic.h"
 
 const char USAGE[] =
 "===================================================================\n"
@@ -50,36 +50,54 @@ const char USAGE[] =
 //"-s : expansion flag\n"
 "===================================================================\n";
 
-char* getCmdOption(char** begin, char** end, const std::string& option)
-{
+char* getCmdOption(char** begin, char** end, const std::string& option) {
   char** itr = std::find(begin, end, option);
   if (itr != end && ++itr != end) return *itr;
   return nullptr;
 }
 
-bool cmdOptionExists(char** begin, char** end, const std::string& option)
-{
+bool cmdOptionExists(char** begin, char** end, const std::string& option) {
   return std::find(begin, end, option) != end;
 }
 
-int main(int argc, char* argv[])
-{
+double getCommand(int argc, char* argv[], const const char* option, double defaultValue) {
+  return cmdOptionExists(argv, argv + argc, option) ? std::atof(getCmdOption(argv, argv + argc, option)) : defaultValue;
+}
+
+int getCommand(int argc, char* argv[], const const char* option, int defaultValue) {
+  return cmdOptionExists(argv, argv + argc, option) ? std::atoi(getCmdOption(argv, argv + argc, option)) : defaultValue;
+}
+
+int main(int argc, char* argv[]) {
   if (cmdOptionExists(argv, argv + argc, "-h")) printf(USAGE);
-  if (!cmdOptionExists(argv, argv + argc, "-i"))
-  {
+
+  const char* file_name = getCmdOption(argv, argv + argc, "-i");
+
+  if (!file_name) {
+    printf("Input file needed.");
     printf(USAGE);
     return-1;
   }
-  const char* file_name = getCmdOption(argv, argv + argc, "-i");
-  short r = static_cast<short>((cmdOptionExists(argv, argv + argc, "-r") ? std::atoi(getCmdOption(argv, argv + argc,
-                                                                                                  "-r")) : 1));
-  double q = cmdOptionExists(argv, argv + argc, "-q") ? std::atof(getCmdOption(argv, argv + argc, "-q")) : 0.06;
-  double c = cmdOptionExists(argv, argv + argc, "-c") ? std::atof(getCmdOption(argv, argv + argc, "-c")) : 0.95;
-  int    o = cmdOptionExists(argv, argv + argc, "-o") ? std::atoi(getCmdOption(argv, argv + argc, "-o")) : 10;
-  double f = cmdOptionExists(argv, argv + argc, "-f") ? std::atof(getCmdOption(argv, argv + argc, "-f")) : 1.0;
-  int    k = cmdOptionExists(argv, argv + argc, "-k") ? std::atoi(getCmdOption(argv, argv + argc, "-k")) : 2;
+
+  short  r = static_cast<short>(getCommand(argc, argv, "-r", 1));
+  double q = getCommand(argc, argv, "-q", 0.06);
+  double c = getCommand(argc, argv, "-c", 0.95);
+  int    o = getCommand(argc, argv, "-o", 10);
+  double f = getCommand(argc, argv, "-f", 1.0);
+  int    k = getCommand(argc, argv, "-k", 2);
+
   bool   d = cmdOptionExists(argv, argv + argc, "-d");
-  if (d) run_qubic_d(FopenMatrix::load_matrix<short>(file_name), file_name, c, o, f, k);
-  else   run_qubic_c(FopenMatrix::load_matrix<float>(file_name), file_name, r, q, c, o, f, k);
+
+  const char* w_file_name = getCmdOption(argv, argv + argc, "-w");
+  const char* b_file_name = getCmdOption(argv, argv + argc, "-b");
+
+  if (d) {
+    Matrix<short> matrix = FopenMatrix::load_matrix<short>(file_name);
+    main_d(matrix.get_data(), matrix.get_row_names(), matrix.get_col_names(), file_name, c, o, f, k, Option(), true);
+  } else {
+    Matrix<float> matrix = FopenMatrix::load_matrix<float>(file_name);
+    main_c(matrix.get_data(), matrix.get_row_names(), matrix.get_col_names(), file_name, r, q, c, o, f, k, Option(), true);
+  }
+
   return 0;
 }

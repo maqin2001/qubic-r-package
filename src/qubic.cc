@@ -21,7 +21,7 @@ namespace internal
      * "fuzziness" of the block is controlled by TOLERANCE (-c)
      */
   static void scan_block(const DiscreteArrayList& arr_c, const Symbols& symbols, const std::vector<int>& gene_set,
-                         Block& b, std::vector<std::vector<bits16>>& profile, double TOLERANCE)
+    Block& b, std::vector<std::vector<bits16>>& profile, double TOLERANCE)
   {
     size_t i, j;
     size_t block_rows, cur_rows;
@@ -74,7 +74,7 @@ namespace internal
 
   /*calculate the negative correlation between g1 and g2*/
   inline int reverse_row(const std::list<size_t>& colcand, const DiscreteArray& g1, const DiscreteArray& g2,
-                         const std::vector<discrete>& symbols)
+    const std::vector<discrete>& symbols)
   {
     int cnt = 0;
     for (auto it = colcand.begin(); it != colcand.end(); ++it) if ((symbols[g1[*it]] == -symbols[g2[*it]])) cnt++;
@@ -85,7 +85,7 @@ namespace internal
     * cnt = # of valid consensus columns
     */
   static int seed_current_modify(const DiscreteArray& s, std::list<size_t>& colcand, const int components,
-                                 std::vector<std::vector<bits16>>& profile, double TOLERANCE)
+    std::vector<std::vector<bits16>>& profile, double TOLERANCE)
   {
     size_t n;
     int threshold = static_cast<int>(ceil(components * TOLERANCE));
@@ -175,9 +175,9 @@ namespace internal
   }
 
   static void block_init(const DiscreteArrayList& arr_c, Block& b,
-                         std::vector<int>& genes, std::vector<int>& scores,
-                         std::vector<bool>& candidates, const int& cand_threshold,
-                         size_t& components, std::vector<long double>& pvalues, bool IS_cond, size_t COL_WIDTH, bool IS_area)
+    std::vector<int>& genes, std::vector<int>& scores,
+    std::vector<bool>& candidates, const int& cand_threshold,
+    size_t& components, std::vector<long double>& pvalues, bool IS_cond, size_t COL_WIDTH, bool IS_area)
   {
     size_t rows = arr_c.size();
     size_t cols = arr_c[0].size();
@@ -241,8 +241,7 @@ namespace internal
       if (IS_cond)
       {
         if (max_cnt < static_cast<int>(COL_WIDTH) || max_i < 0 || max_cnt < b.cond_low_bound) break;
-      }
-      else
+      } else
       {
         if (max_cnt < static_cast<int>(COL_WIDTH) || max_i < 0) break;
       }
@@ -314,8 +313,8 @@ namespace internal
 
   /************************************************************************/
   static std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::vector<Edge *>& el,
-                                    size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
-                                    bool IS_pvalue, size_t SCH_BLOCK, int RPT_BLOCK, double FILTER, double f, bool verbose)
+    size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
+    bool IS_pvalue, size_t SCH_BLOCK, int RPT_BLOCK, double FILTER, double f, bool verbose)
   {
     std::vector<Block> bb;
     size_t rows = all.list.size();
@@ -334,8 +333,7 @@ namespace internal
         if (allincluster.find(e->gene_one) != allincluster.end()
           && allincluster.find(e->gene_two) != allincluster.end())
           flag = false;
-      }
-      else flag = check_seed(e, bb, rows);
+      } else flag = check_seed(e, bb, rows);
       if (!flag) continue;
       std::vector<std::vector<bits16>> profile(cols, std::vector<bits16>(all.symbols.size(), 0));
       /*you must allocate a struct if you want to use the pointers related to it*/
@@ -364,7 +362,7 @@ namespace internal
       size_t components = 2;
       /* expansion step, generate a bicluster without noise */
       block_init(all.list, b, genes_order, scores, candidates, cand_threshold, components, pvalues, IS_cond, COL_WIDTH,
-                 IS_area);
+        IS_area);
       /* track back to find the genes by which we get the best score*/
       size_t k;
       for (k = 0; k < components; k++)
@@ -442,7 +440,7 @@ class qubic
 {
 public:
   static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, size_t k,
-                                       const int o, const Option& option, const bool verbose)
+    const int o, const Option& option, const bool verbose)
   {
     if (verbose) fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
     /* ensure enough searching space */
@@ -488,7 +486,7 @@ FILE* mustOpenWrite(const char* fileName)
 /**************************************************************************/
 
 static void write_imported(const char* stream_nm, const DiscreteArrayList& arr_c, const std::vector<std::string>& genes,
-                           const std::vector<std::string>& conds, const std::vector<discrete>& symbols)
+  const std::vector<std::string>& conds, const std::vector<discrete>& symbols)
 {
   FILE* fw = mustOpenWrite(stream_nm);
   fprintf(fw, "o");
@@ -509,8 +507,8 @@ static void write_imported(const char* stream_nm, const DiscreteArrayList& arr_c
 * putting the clustered vectors together, identify common column
 */
 static void print_bc(FILE* fw, const Block& b, const int& num,
-                     const DiscreteArrayList& arr_c, const std::vector<std::string>& genes, const std::vector<std::string>& conds,
-                     const std::vector<discrete>& symbols)
+  const DiscreteArrayList& arr_c, const std::vector<std::string>& genes, const std::vector<std::string>& conds,
+  const std::vector<discrete>& symbols)
 {
   int block_rows, block_cols;
   int num_1 = 0, num_2 = 0;
@@ -562,15 +560,15 @@ void print_params(FILE* fw, const size_t COL_WIDTH, double FILTER, double TOLERA
   fprintf(fw, "# QUBIC version %.1f output\n", 1.9);
   fprintf(fw, "# \n");
   fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %d",
-          static_cast<unsigned int>(COL_WIDTH), FILTER, TOLERANCE, RPT_BLOCK);
+    static_cast<unsigned int>(COL_WIDTH), FILTER, TOLERANCE, RPT_BLOCK);
   fprintf(fw, "\n\n");
 }
 
 /**************************************************************************/
 
 std::vector<Block> main_d(const std::vector<std::vector<short>>& x, const std::vector<std::string>& row_names,
-                          const std::vector<std::string>& col_names, const std::string& tfile,
-                          const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
+  const std::vector<std::string>& col_names, const std::string& tfile,
+  const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
 {
   int k1;
   if (k == 2) k1 = std::max(x[0].size() / 20, static_cast<size_t>(2)); else k1 = k;
@@ -587,14 +585,14 @@ std::vector<Block> main_d(const std::vector<std::vector<short>>& x, const std::v
     fclose(fw);
     if (verbose)
       fprintf(stdout, "%d clusters are written to %s\n", static_cast<unsigned int>(output.size()),
-                    (tfile + ".blocks").c_str());
+      (tfile + ".blocks").c_str());
   }
   return output;
 }
 
 std::vector<Block> main_c(const std::vector<std::vector<float>>& x, const std::vector<std::string>& row_names,
-                          const std::vector<std::string>& col_names, const std::string& tfile, const short r, const double q,
-                          const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
+  const std::vector<std::string>& col_names, const std::string& tfile, const short r, const double q,
+  const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
 {
   std::vector<rule> genes_rules;
   std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
@@ -603,8 +601,8 @@ std::vector<Block> main_c(const std::vector<std::vector<float>>& x, const std::v
     for (size_t row = 0; row < row_names.size(); row++)
     {
       fprintf(fw, "row %s :low=%2.5f, up=%2.5f; %d down-regulated,%d up-regulated\n", row_names[row].c_str(),
-              genes_rules[row].lower, genes_rules[row].upper, static_cast<unsigned int>(genes_rules[row].cntl),
-              static_cast<unsigned int>(genes_rules[row].cntu));
+        genes_rules[row].lower, genes_rules[row].upper, static_cast<unsigned int>(genes_rules[row].cntl),
+        static_cast<unsigned int>(genes_rules[row].cntu));
     }
     fclose(fw);
     if (verbose) fprintf(stdout, "Discretization rules are written to %s\n", (tfile + ".rules").c_str());
@@ -613,7 +611,7 @@ std::vector<Block> main_c(const std::vector<std::vector<float>>& x, const std::v
 }
 
 std::vector<Block> r_main_d(const std::vector<std::vector<short>>& x, const double c, const int o,
-                            const double f, const int k, const Option& option, const bool verbose)
+  const double f, const int k, const Option& option, const bool verbose)
 {
   if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", static_cast<unsigned long>(x.size()), static_cast<unsigned long>(x[0].size()));
   DiscreteArrayListWithSymbols all = make_charsets_d(x, verbose);
@@ -621,9 +619,11 @@ std::vector<Block> r_main_d(const std::vector<std::vector<short>>& x, const doub
 }
 
 std::vector<Block> r_main_c(const std::vector<std::vector<float>>& x, const short r, const double q,
-                            const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
+  const double c, const int o, const double f, const int k, const Option& option, const bool verbose)
 {
+  int k1;
+  if (k == 2) k1 = std::max(x[0].size() / 20, static_cast<size_t>(2)); else k1 = k;
   std::vector<rule> genes_rules;
   std::vector<std::vector<discrete>> arr_d = discretize(x, q, r, genes_rules);
-  return r_main_d(arr_d, c, o, f, k, option, verbose);
+  return r_main_d(arr_d, c, o, f, k1, option, verbose);
 }

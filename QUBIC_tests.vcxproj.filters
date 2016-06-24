@@ -62,9 +62,6 @@
     <ClCompile Include="tests\test_main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\run_qubic.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tests\test_qubic.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
