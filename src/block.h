@@ -2,7 +2,7 @@
 #define BLOCK_H
 
 #include <set>
-#include <cstddef> // size_t
+#include <cstddef> // std::size_t
 
 /* biclustering block */
 class Block {
@@ -11,8 +11,8 @@ public:
   std::set<int> genes_reverse;
   std::set<int> conds;
   int score;
-  const size_t block_rows() const { return genes_order.size() + genes_reverse.size(); }
-  const size_t block_cols() const { return conds.size(); }
+  const std::size_t block_rows() const { return genes_order.size() + genes_reverse.size(); }
+  const std::size_t block_cols() const { return conds.size(); }
   const bool contains(int gene) const {
     return (genes_order.find(gene) != genes_order.end()) || (genes_reverse.find(gene) != genes_reverse.end());
   }

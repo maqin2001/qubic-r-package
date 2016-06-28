@@ -73,4 +73,4 @@ node_modules/
 bower_components/
 
 # main file of this project
-main\.cc
+^src/main\.cxx$

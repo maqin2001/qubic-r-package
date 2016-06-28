@@ -274,7 +274,7 @@
     <ClCompile Include="src\edge_list.cc" />
     <ClCompile Include="src\fib.c" />
     <ClCompile Include="src\fopen_matrix.cc" />
-    <ClCompile Include="src\main.cc" />
+    <ClCompile Include="src\main.cxx" />
     <ClCompile Include="src\qubic.cc" />
     <ClCompile Include="src\struct.cc" />
   </ItemGroup>

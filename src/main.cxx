@@ -71,7 +71,7 @@ int getCommand(int argc, char* argv[], const const char* option, int defaultValu
 int main(int argc, char* argv[]) {
   if (cmdOptionExists(argv, argv + argc, "-h")) printf(USAGE);
 
-  const char* file_name = getCmdOption(argv, argv + argc, "-i");
+  const char*      file_name = getCmdOption(argv, argv + argc, "-i");
 
   if (!file_name) {
     printf("Input file needed.");
@@ -80,16 +80,16 @@ int main(int argc, char* argv[]) {
   }
 
   short  r = static_cast<short>(getCommand(argc, argv, "-r", 1));
-  double q = getCommand(argc, argv, "-q", 0.06);
-  double c = getCommand(argc, argv, "-c", 0.95);
-  int    o = getCommand(argc, argv, "-o", 10);
-  double filter = getCommand(argc, argv, "-f", 1.0);
-  int    col_width = getCommand(argc, argv, "-k", 2);
+  double                    q = getCommand(argc, argv, "-q", 0.06);
+  double                    c = getCommand(argc, argv, "-c", 0.95);
+  int                       o = getCommand(argc, argv, "-o", 10);
+  double               filter = getCommand(argc, argv, "-f", 1.0);
+  int               col_width = getCommand(argc, argv, "-k", 2);
 
-  bool   d = cmdOptionExists(argv, argv + argc, "-d");
+  bool                      d = cmdOptionExists(argv, argv + argc, "-d");
 
-  const char* w_file_name = getCmdOption(argv, argv + argc, "-w");
-  const char* b_file_name = getCmdOption(argv, argv + argc, "-b");
+  const char*     w_file_name = getCmdOption(argv, argv + argc, "-w");
+  const char*     b_file_name = getCmdOption(argv, argv + argc, "-b");
 
   if (d) {
     Matrix<short> matrix = FopenMatrix::load_matrix<short>(file_name);

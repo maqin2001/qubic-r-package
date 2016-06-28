@@ -4,13 +4,13 @@
 #include "matrix.h"
 
 namespace FstreamMatrix {
-  template<typename T> Matrix<T> load_matrix(const char* file_name, size_t reserved_count = 4096);
+  template<typename T> Matrix<T> load_matrix(const char* file_name, std::size_t reserved_count = 4096);
 
   namespace internal {
 #include <fstream>
 #include <cassert> 
 
-    template<typename T> Matrix<T> load_matrix_from_ifstream(std::ifstream &infile, size_t reserved_count) {
+    template<typename T> Matrix<T> load_matrix_from_ifstream(std::ifstream &infile, std::size_t reserved_count) {
       Matrix<T> matrix(reserved_count); // RVO
 
       std::string line;
@@ -48,7 +48,7 @@ namespace FstreamMatrix {
   }
 
   template<typename T>
-  Matrix<T> FstreamMatrix::load_matrix(const char* file_name, size_t reserved_count) {
+  Matrix<T> FstreamMatrix::load_matrix(const char* file_name, std::size_t reserved_count) {
     std::ifstream infile(file_name);
     Matrix<T> matrix = internal::load_matrix_from_ifstream(infile, reserved_count); // RVO
     return matrix; // RVO

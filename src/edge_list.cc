@@ -5,16 +5,6 @@
 #include <cstdio>
 #include <algorithm>
 
-int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
-  assert(s1.size() == s2.size());
-  int common_cnt = 0;
-  /* s1 and s2 of equal length, so we check s1 only */
-  for (size_t i = 0; i < s1.size(); i++)
-    if ((s1[i] != 0) && (s1[i] == s2[i])) // Changed order by zy26
-      common_cnt++;
-  return common_cnt;
-}
-
 static int edge_cmpr(void *a, void *b) {
   int score_a = static_cast<Edge *>(a)->score;
   int score_b = static_cast<Edge *>(b)->score;
@@ -58,10 +48,10 @@ struct CompEventByPtr {
 };
 
 const std::vector<Edge *> &EdgeList::get_edge_list() const {
-  return edge_list;
+  return edge_list_;
 }
 
-EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &col_width, bool verbose) {
+EdgeList::EdgeList(std::size_t &col_width, const CountHelper& countHelper, bool verbose) {
   Edge *edge;
   int cnt;
   /* Allocating heap structure */
@@ -71,9 +61,9 @@ EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &col_width, bool verbo
   if (verbose) fprintf(stdout, "Generating seed list (minimum weight %d)\n", static_cast<unsigned int>(col_width));
   int min_score = col_width - 1;
   /* iterate over all genes to retrieve all edges */
-  for (size_t i = 0; i < arr_c.size(); i++)
-    for (size_t j = i + 1; j < arr_c.size(); j++) {
-      cnt = str_intersect_r(arr_c[i], arr_c[j]);
+  for (std::size_t i = 0; i < countHelper.size(); i++)
+    for (std::size_t j = i + 1; j < countHelper.size(); j++) {
+      cnt = countHelper(i, j);
       if (cnt <= min_score) continue;
       edge = new Edge();
       edge->gene_one = i;
@@ -87,11 +77,11 @@ EdgeList::EdgeList(const DiscreteArrayList &arr_c, size_t &col_width, bool verbo
   }
   /* sort the seeds */
   if (verbose) fprintf(stdout, "%d seeds generated\n", heap->fh_n);
-  fh_dump(heap, edge_list, min_score);
-  if (verbose) fprintf(stdout, "%d seeds dumped\n", static_cast<unsigned int>(edge_list.size()));
+  fh_dump(heap, edge_list_, min_score);
+  if (verbose) fprintf(stdout, "%d seeds dumped\n", static_cast<unsigned int>(edge_list_.size()));
 }
 
 EdgeList::~EdgeList() {
-  for (size_t i = 0; i < edge_list.size(); i++)
-    delete(edge_list[i]);
+  for (std::size_t i = 0; i < edge_list_.size(); i++)
+    delete(edge_list_[i]);
 }

@@ -19,13 +19,13 @@ using namespace Rcpp;
 
 template<typename T>
 NumericMatrix from_vector(const std::vector<std::vector<T>> &result) {
-  size_t nr = result.size();
-  size_t nc = result[0].size();
+  std::size_t nr = result.size();
+  std::size_t nc = result[0].size();
   NumericMatrix m(nr, nc);
-  for (size_t i = 0; i < nr; i++) {
+  for (std::size_t i = 0; i < nr; i++) {
     const std::vector<T> &result_i = result[i];
     if (result_i.size() != nc) stop("QUBIC: incompatible size %d != %d", result_i.size(), nc);
-    for (size_t j = 0; j < nc; j++) m(i, j) = result_i[j];
+    for (std::size_t j = 0; j < nc; j++) m(i, j) = result_i[j];
   }
   return m;
 }
@@ -69,54 +69,55 @@ List from_blocks(const std::vector<Block> &blocks, const size_t nr, const size_t
       y(i, *it) = true;
   }
   return List::create(
-           Named("RowxNumber") = x,
-           Named("NumberxCol") = y,
-           Named("Number") = blocks.size(),
-           Named("info") = get_list());
-}
-
-//' @backref src/rcpp_qubic.cpp
-// [[Rcpp::export(.qubic)]]
-List qubic(const NumericMatrix matrix, const short r, const double q,
-           const double c, const int o, const double f, const int k,
-           const bool P, const bool S, const bool C,
-           const bool verbose) {
-  // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
-  signal(SIGABRT, &my_function_to_handle_aborts);
-  try {
-    auto x = to_vector<float, NumericMatrix>(matrix);
-    std::vector<Block> blocks = r_main_c(x, r, q, c, o, f, k, Option(P, S, C, true), verbose);
-    return from_blocks(blocks, matrix.nrow(), matrix.ncol());
-  } catch (double) {
-    stop("catch");
-  }
-  return List::create(); // avoid warning
+    Named("RowxNumber") = x,
+    Named("NumberxCol") = y,
+    Named("Number") = blocks.size(),
+    Named("info") = get_list());
 }
 
 //' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export(.qubic_d)]]
 List qubic_d(const IntegerMatrix matrix,
+  const double c, const int o, const double f, const int k,
+  const bool P, const bool S, const bool C,
+  const bool verbose) {
+  // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
+  signal(SIGABRT, &my_function_to_handle_aborts);
+  DiscreteArrayList arr_d = to_vector<short, IntegerMatrix>(matrix);
+  try {
+    std::vector<Block> result = r_main(arr_d, c, o, f, k, Option(P, S, C, true), verbose);
+    return from_blocks(result, matrix.nrow(), matrix.ncol());
+  }
+  catch (double) {
+    stop("Something wrong near r_main_d function, maybe out of memory");
+  }
+  return List::create(); // avoid warning
+}
+
+//' @backref src/rcpp_qubic.cpp
+// [[Rcpp::export(.qubic_dw)]]
+List qubic_dw(const IntegerMatrix matrix,
              const double c, const int o, const double f, const int k,
              const bool P, const bool S, const bool C,
-             const bool verbose) {
+             const bool verbose, const NumericMatrix weight) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {
-    auto x = to_vector<short, IntegerMatrix>(matrix);
-    std::vector<Block> result = r_main_d(x, c, o, f, k, Option(P, S, C, true), verbose);
+    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector<float, NumericMatrix>(weight));
     return from_blocks(result, matrix.nrow(), matrix.ncol());
-  } catch (double) {
-    stop("catch");
+  }
+  catch (double) {
+    stop("Something wrong near r_main_d function, maybe out of memory");
   }
   return List::create(); // avoid warning
 }
 
 //' Create a qualitative discrete matrix for a given gene expression matrix
 //'
-//' \code{qudiscretize} delivers a discret matrix. It is useful if we just want to get a discretized matrix.
+//' \code{qudiscretize} delivers a discrete matrix. It is useful if we just want to get a discretized matrix.
 //'
 //' @details
-//' \code{qudiscretize} convert a given gene expression matrix to a discret matrix.
+//' \code{qudiscretize} convert a given gene expression matrix to a discrete matrix.
 //' It's implimented in C++, providing a increase in speed over the C equivalent.
 //'
 //' @usage qudiscretize(x, r = 1L, q = 0.06)
@@ -139,7 +140,7 @@ List qubic_d(const IntegerMatrix matrix,
 NumericMatrix qudiscretize(const NumericMatrix x, const short r = 1, const double q = 0.06) {
   std::vector<rule> genes_rules;
   auto x1 = to_vector<float, NumericMatrix>(x);
-  std::vector<std::vector<discrete>> arr_d = discretize(x1, q, r, genes_rules);
+  DiscreteArrayList arr_d = discretize(x1, r, q);
   NumericMatrix result = from_vector(arr_d);
   result.attr("dimnames") = x.attr("dimnames");
   return result;

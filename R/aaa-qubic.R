@@ -192,8 +192,8 @@ NULL
 #' @rdname BCQU-class
 #' @seealso \code{\link{BCQU}} \code{\link{qudiscretize}} \code{\link{qunetwork}} \code{\link{qunet2xml}} \code{\link{biclust}}
 
-setClass(Class = "BCQU", contains = "BiclustMethod", prototype = prototype(biclustFunction = function(x,
-                                                                                                      ...) {
+setClass(Class = "BCQU", contains = "BiclustMethod",
+         prototype = prototype(biclustFunction = function(x, ...) {
   .qubiclust(x, ...)
 }))
 
@@ -222,8 +222,8 @@ BCQU <- function() {
 #' data(BicatYeast)
 #' disc<-qudiscretize(BicatYeast[1:10,1:10])
 #' biclust::biclust(disc, method=BCQUD())
-setClass("BCQUD", contains = "BiclustMethod", prototype = prototype(biclustFunction = function(x,
-                                                                                               ...) {
+setClass("BCQUD", contains = "BiclustMethod",
+         prototype = prototype(biclustFunction = function(x, ...) {
   .qubiclust_d(x, ...)
 }))
 
