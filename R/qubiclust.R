@@ -6,6 +6,7 @@
   if(is.null(weight)) res <- .qubic_d(x, c, o, f, k, P, S, C, verbose, ...)
   else {
     w <- matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(rownames(x), rownames(x)))
+    weight[] <- rank(weight, ties.method = "average")
     for (i in rownames(x))
       for (j in rownames(x))
         if((i %in% rownames(weight)) && (j %in% rownames(weight)))

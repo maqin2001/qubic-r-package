@@ -6,11 +6,11 @@
 #include <cassert>
 
 /* edge between two genes */
-typedef struct Edge {
+struct Edge {
   std::size_t gene_one;
   std::size_t gene_two;
   int score;
-} Edge;
+};
 
 template <typename T>
 class AdjMatrix
@@ -64,23 +64,23 @@ public:
   }
 };
 
-class WeightedCountHelper : public CountHelper {
+class WeightedCountHelperUnused : public CountHelper {
   const AdjMatrix<double>& weights_;
 public:
-  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const AdjMatrix<double>& weights) : CountHelper(arr_c), weights_(weights) {}
+  explicit WeightedCountHelperUnused(const DiscreteArrayList& arr_c, const AdjMatrix<double>& weights) : CountHelper(arr_c), weights_(weights) {}
 
   int operator()(std::size_t i, std::size_t j) const override {
     return CountHelper::operator()(i, j) * weights_(i, j);
   }
 };
 
-class WeightedCountHelper2 : public CountHelper {
+class WeightedCountHelper : public CountHelper {
   const std::vector<std::vector<float>>& weights_;
 public:
-  explicit WeightedCountHelper2(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights) : CountHelper(arr_c), weights_(weights) {}
+  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights) : CountHelper(arr_c), weights_(weights) {}
 
   int operator()(std::size_t i, std::size_t j) const override {
-    return CountHelper::operator()(i, j) * weights_[i][j];
+    return CountHelper::operator()(i, j) + weights_[i][j];
   }
 };
 

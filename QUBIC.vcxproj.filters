@@ -89,11 +89,11 @@
     <ClCompile Include="src\main.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="expand.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="testdata\sample.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\main.cc" />
   </ItemGroup>
 </Project>

@@ -21,21 +21,19 @@ namespace internal
      */
   static void scan_block(const DiscreteArrayList& arr_c, const Symbols& symbols, const std::vector<int>& gene_set,
     Block& b, std::vector<std::vector<bits16>>& profile, double TOLERANCE) {
-    std::size_t i, j;
     std::size_t block_rows, cur_rows;
     block_rows = cur_rows = gene_set.size();
-    std::size_t k;
-    for (j = 0; j < profile.size(); j++)
-      for (k = 0; k < profile[j].size(); k++)
+    for (std::size_t j = 0; j < profile.size(); j++)
+      for (std::size_t k = 0; k < profile[j].size(); k++)
         profile[j][k] = 0;
-    for (j = 0; j < cur_rows; j++)
+    for (std::size_t j = 0; j < cur_rows; j++)
       seed_update(arr_c[gene_set[j]], profile);
     int btolerance = static_cast<int>(std::ceil(TOLERANCE * block_rows));
-    for (j = 0; j < profile.size(); j++) {
+    for (std::size_t j = 0; j < profile.size(); j++) {
       /* See if this column satisfies tolerance */
       /* here i start from 1 because symbols[0]=0 */
-      for (i = 1; i < symbols.size(); i++) {
-        if ((profile[j][i] >= btolerance)) {
+      for (std::size_t i = 1; i < symbols.size(); i++) {
+        if (profile[j][i] >= btolerance) {
           b.conds.insert(j);
           break;
         }
@@ -101,7 +99,7 @@ namespace internal
     int i, b1, b2, b3;
     b1 = b2 = -1;
     for (i = 0; i < block_id; i++)
-      if ((bb[i].contains(e->gene_one)) && (bb[i].contains(e->gene_two)))
+      if (bb[i].contains(e->gene_one) && bb[i].contains(e->gene_two))
         return false;
     std::vector<int> profiles(rows, 0);
     bool fg = false;
@@ -395,12 +393,12 @@ public:
 
   static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
     const int o, const Option& option, const bool verbose, const std::vector<std::vector<float>>& weights) {
-    return init_qubic(all, c, f, col_width, o, option, WeightedCountHelper2(all.list, weights), verbose);
+    return init_qubic(all, c, f, col_width, o, option, WeightedCountHelper(all.list, weights), verbose);
   }
 
   static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
     const int o, const Option& option, const AdjMatrix<double>& weights, const bool verbose) {
-    return init_qubic(all, c, f, col_width, o, option, WeightedCountHelper(all.list, weights), verbose);
+    return init_qubic(all, c, f, col_width, o, option, WeightedCountHelperUnused(all.list, weights), verbose);
   }
 };
 
@@ -522,7 +520,7 @@ std::vector<Block> r_main(const std::vector<std::vector<short>>& short_matrix, c
   std::size_t col_width = fix_col_width(short_matrix, k);
   if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", static_cast<unsigned long>(short_matrix.size()), static_cast<unsigned long>(short_matrix[0].size()));
   DiscreteArrayListWithSymbols all = make_charsets_d(short_matrix, verbose);
-  return qubic::init_qubic(all, c, filter, col_width, o, option, verbose);
+  return qubic::init_qubic(all, c, filter, col_width, o, option, verbose, weight_matrix);
 }
 
 std::vector<Block> main_d(const std::vector<std::vector<short>>& short_matrix, const std::vector<std::string>& row_names,

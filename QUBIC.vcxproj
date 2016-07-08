@@ -269,6 +269,7 @@
     <ClInclude Include="src\version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="expand.cc" />
     <ClCompile Include="src\charset.cc" />
     <ClCompile Include="src\discretize.cc" />
     <ClCompile Include="src\edge_list.cc" />
