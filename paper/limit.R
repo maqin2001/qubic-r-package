@@ -50,6 +50,7 @@ showinfo <- function(test, res) {
   cat(res@Number)
   cat("\n")
   bic <- biclust::bicluster(test, res, 1)[[1]]
+  bicall <- biclust::bicluster(test, res)
   cat("nrow of the first bicluster:")
   cat(nrow(bic))
   cat("\n")
@@ -65,13 +66,39 @@ showinfo <- function(test, res) {
   cat("ratio (nrow / ncol) of the matrix:")
   cat(nrow(test) / ncol(test))
   cat("\n")
-  # max nrow and coresponding bicluster
-  # max ncol and coresponding bicluster
-  # max area and coresponding bicluster
-  # union of genes, (# and %)
-  # union of conditionss, (# and %)
-
-  # max overlap of biclusters
+  maxnrow <- c(-1, -1)
+  maxncol <- c(-1, -1)
+  maxarea <- c(-1, -1)
+  for (i in 1:res@Number) {
+    nrow <- nrow(bicall[[i]])
+    ncol <- ncol(bicall[[i]])
+    area <- nrow * ncol
+    if (maxnrow[[1]] < nrow) maxnrow = c(nrow, i)
+    if (maxncol[[1]] < ncol) maxncol = c(ncol, i)
+    if (maxarea[[1]] < area) maxarea = c(area, i)
+  }
+  cat("max nrow and corresponding bicluster:")
+  cat(maxnrow)
+  cat("\n")
+  cat("max ncol and corresponding bicluster:")
+  cat(maxncol)
+  cat("\n")
+  cat("max area and corresponding bicluster:")
+  cat(maxarea)
+  cat("\n")
+  cat("union of rows, (# and %):")
+  genes_union <- sum(apply(res@RowxNumber, 1, max))
+  cat(c(genes_union, genes_union / nrow(res@RowxNumber) * 100))
+  cat("\n")
+  cat("union of columns, (# and %):")
+  conditions_union <- sum(apply(res@NumberxCol, 2, max))
+  cat(c(conditions_union, conditions_union / ncol(res@NumberxCol) * 100))
+  cat("\n")
+  cat("overlap of first two biclusters (row, col, area):")
+  rows_overlap <- sum(apply(res@RowxNumber[,1:2], 1, min))
+  cols_overlap <- sum(apply(res@NumberxCol[1:2,], 2, min))
+  cat(c(rows_overlap, cols_overlap, rows_overlap * cols_overlap))
+  cat("\n")
 }
 
 showinfo(test, res)
