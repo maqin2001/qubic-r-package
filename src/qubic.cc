@@ -395,11 +395,6 @@ public:
     const int o, const Option& option, const bool verbose, const std::vector<std::vector<float>>& weights) {
     return init_qubic(all, c, f, col_width, o, option, WeightedCountHelper(all.list, weights), verbose);
   }
-
-  static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
-    const int o, const Option& option, const AdjMatrix<double>& weights, const bool verbose) {
-    return init_qubic(all, c, f, col_width, o, option, WeightedCountHelperUnused(all.list, weights), verbose);
-  }
 };
 
 /* Open a file to write or die */

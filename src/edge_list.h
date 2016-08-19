@@ -4,6 +4,7 @@
 #include "discrete.h"
 #include <cstddef> // size_t
 #include <cassert>
+#include <algorithm>
 
 /* edge between two genes */
 struct Edge {
@@ -39,48 +40,92 @@ public:
   }
 };
 
+inline unsigned str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
+  assert(s1.size() == s2.size());
+  int common_cnt = 0;
+  /* s1 and s2 of equal length, so we check s1 only */
+  for (std::size_t i = 0; i < s1.size(); i++)
+    if (s1[i] != 0 && s1[i] == s2[i]) // Changed order by zy26
+      common_cnt++;
+  return common_cnt;
+}
+
 class CountHelper {
-  static int str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2) {
-    assert(s1.size() == s2.size());
-    int common_cnt = 0;
-    /* s1 and s2 of equal length, so we check s1 only */
-    for (std::size_t i = 0; i < s1.size(); i++)
-      if ((s1[i] != 0) && (s1[i] == s2[i])) // Changed order by zy26
-        common_cnt++;
-    return common_cnt;
-  }
   const DiscreteArrayList &arr_;
 public:
   virtual ~CountHelper()
   {
   }
 
-  explicit CountHelper(const DiscreteArrayList& arr_c) : arr_(arr_c) {}
+  explicit CountHelper(const DiscreteArrayList& arr_c) : arr_(arr_c) { }
+
   std::size_t size() const {
     return arr_.size();
   }
   virtual int operator()(std::size_t i, std::size_t j) const {
+    assert(i < j);
     return str_intersect_r(arr_[i], arr_[j]);
   }
 };
 
-class WeightedCountHelperUnused : public CountHelper {
-  const AdjMatrix<double>& weights_;
+class CountHelperRealTime : public CountHelper {
+  explicit CountHelperRealTime(const DiscreteArrayList& arr_c) : CountHelper(arr_c) { }
+};
+
+class CountHelperSaved : public CountHelper {
+protected:
+  std::vector<unsigned> intersects_;
 public:
-  explicit WeightedCountHelperUnused(const DiscreteArrayList& arr_c, const AdjMatrix<double>& weights) : CountHelper(arr_c), weights_(weights) {}
+  virtual ~CountHelperSaved()
+  {
+  }
+
+  explicit CountHelperSaved(const DiscreteArrayList& arr_c) : CountHelper(arr_c), intersects_(arr_c.size() * (arr_c.size() - 1)) {
+    for (std::size_t i = 0; i < arr_c.size(); i++)
+      for (std::size_t j = i + 1; j < arr_c.size(); j++)
+        intersects_[j * (j - 1) / 2 + i] = str_intersect_r(arr_c[i], arr_c[j]);
+  }
 
   int operator()(std::size_t i, std::size_t j) const override {
-    return CountHelper::operator()(i, j) * weights_(i, j);
+    assert(i < j);
+    return intersects_[j * (j - 1) / 2 + i];
   }
 };
 
-class WeightedCountHelper : public CountHelper {
+class CountHelperRanked : public CountHelperSaved {
+  struct mycomparison {
+    bool operator() (unsigned* lhs, unsigned* rhs) const {
+      return *lhs < *rhs;
+    }
+  };
+public:
+  virtual ~CountHelperRanked()
+  {
+  }
+
+  explicit CountHelperRanked(const DiscreteArrayList& arr_c) : CountHelperSaved(arr_c)
+  {
+    std::vector<unsigned*> pintArray(intersects_.size());
+    for (std::size_t i = 0; i < intersects_.size(); ++i) {
+      pintArray[i] = &intersects_[i];
+    }
+
+    std::sort(pintArray.begin(), pintArray.end(), mycomparison());
+
+    // Dereference the pointers and assign their sorted position. not deal tie
+    for (std::size_t i = 0; i < intersects_.size(); ++i) {
+      *pintArray[i] = i + 1;
+    }
+  }
+};
+
+class WeightedCountHelper : public CountHelperRanked {
   const std::vector<std::vector<float>>& weights_;
 public:
-  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights) : CountHelper(arr_c), weights_(weights) {}
+  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights) : CountHelperRanked(arr_c), weights_(weights) {}
 
   int operator()(std::size_t i, std::size_t j) const override {
-    return CountHelper::operator()(i, j) + weights_[i][j];
+    return CountHelperRanked::operator()(i, j) + weights_[i][j];
   }
 };
 
@@ -88,7 +133,7 @@ class EdgeList {
   std::vector<Edge *> edge_list_;
 public:
   const std::vector<Edge *> &get_edge_list() const;
-  EdgeList(std::size_t&, const CountHelper& countHelper, bool verbose);
+  EdgeList(std::size_t& col_width, const CountHelper& countHelper, bool verbose);
   ~EdgeList();
 };
 
