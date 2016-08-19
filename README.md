@@ -11,14 +11,17 @@ QUBIC is recognized as one of the best biclustering methods in terms of its effi
 
 Installation
 ------------
-First, you will need to install at least the following packages from CRAN
+
+Please follow the instructions mentioned in the URL: http://bioconductor.org/packages/QUBIC
+
+To install the development version of QUBIC, you will need to install at least the following packages from CRAN
 ```{r}
 install.packages("biclust")
 install.packages("Rcpp")
 ```
 For Windows users, Rtools(https://cran.r-project.org/bin/windows/Rtools/) should also be installed.
 
-To install the development version of QUBIC:
+Then,
 ```{r}
 install.packages("devtools")
 
