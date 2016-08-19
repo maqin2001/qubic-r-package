@@ -1,5 +1,6 @@
 #' Show report of biclusters
 #'
+#' This function can make a report for biclusters.
 #' @param matrix microarray matrix
 #' @param bic array of biclusters
 #'

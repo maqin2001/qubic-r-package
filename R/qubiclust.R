@@ -1,4 +1,10 @@
-.qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
+#' @describeIn QUBIC Performs a QUalitative BIClustering for a discret matrix.
+#'
+#' @usage qubiclust_d(x, c = 0.95, o = 100, f = 1,
+#'         k = max(ncol(x) \%/\% 20, 2),
+#'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
+#'         weight = NULL, seedbicluster = NULL, ...)
+qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
                          k = max(ncol(x)%/%20, 2), type = "default",
                          P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL, ...) {
   MYCALL <- match.call()
@@ -29,9 +35,15 @@
                                 res["info"]))
 }
 
-.qubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
+#' @describeIn QUBIC Performs a QUalitative BIClustering.
+#'
+#' @usage qubiclust(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
+#'         k = max(ncol(x) \%/\% 20, 2),
+#'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
+#'         weight = NULL, seedbicluster = NULL, ...)
+qubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
                        k = max(ncol(x)%/%20, 2), type = "default",
                        P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL, ...) {
   x_d <- qudiscretize(x, r, q)
-  return(.qubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster, ...))
+  return(qubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster, ...))
 }

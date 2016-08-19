@@ -194,7 +194,7 @@ NULL
 
 setClass(Class = "BCQU", contains = "BiclustMethod",
          prototype = prototype(biclustFunction = function(x, ...) {
-  .qubiclust(x, ...)
+  qubiclust(x, ...)
 }))
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
@@ -224,7 +224,7 @@ BCQU <- function() {
 #' biclust::biclust(disc, method=BCQUD())
 setClass("BCQUD", contains = "BiclustMethod",
          prototype = prototype(biclustFunction = function(x, ...) {
-  .qubiclust_d(x, ...)
+  qubiclust_d(x, ...)
 }))
 
 #' @describeIn QUBIC Performs a QUalitative BIClustering for a discret matrix.
