@@ -30,13 +30,13 @@ Imports:
     Rcpp (>= 0.11.0)
 LinkingTo: Rcpp
 Suggests:
+    QUBICdata,
+    qgraph,
     knitr,
     rmarkdown
 SystemRequirements: C++11, Rtools (>= 3.1)
 Enhances:
-    QUBICdata,
     RColorBrewer,
-    qgraph,
     methods,
     fields
 URL: http://github.com/zy26/QUBIC
