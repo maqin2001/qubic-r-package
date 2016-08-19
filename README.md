@@ -33,4 +33,4 @@ install.packages("RcolorBrewer")
 
 Vignette
 ------------
-You can find the tutorial for QUBIC at https://bioconductor.org/packages/devel/bioc/vignettes/QUBIC/inst/doc/qubic_vignette.pdf
+You can find the tutorial for QUBIC at https://bioconductor.org/packages/release/bioc/vignettes/QUBIC/inst/doc/qubic_vignette.pdf
