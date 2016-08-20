@@ -12,6 +12,9 @@ TODO
 # idea files.
 ^.idea/
 
+# vscode files.
+^.vscode/
+
 # data and paper files.
 ^testdata/
 ^paper/
