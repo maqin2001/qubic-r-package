@@ -18,13 +18,15 @@ namespace internal {
   /* scan through all columns and identify the set within threshold,
      * "fuzziness" of the block is controlled by TOLERANCE (-c)
      */
-  static void scan_block(const DiscreteArrayList& arr_c, const Symbols& symbols, const std::vector<int>& gene_set,
+  void scan_block(const DiscreteArrayList& arr_c, const Symbols& symbols, const std::vector<int>& gene_set, const std::vector<int>& reversed_gene_set,
     Block& b, double TOLERANCE) {
-    std::size_t block_rows, cur_rows;
-    block_rows = cur_rows = gene_set.size();
+    std::size_t block_rows;
+    block_rows = gene_set.size() + reversed_gene_set.size();
     std::vector<std::vector<bits16>> profile(arr_c[0].size(), std::vector<bits16>(symbols.size(), 0));
-    for (std::size_t j = 0; j < cur_rows; j++)
+    for (std::size_t j = 0; j < gene_set.size(); j++)
       seed_update(arr_c[gene_set[j]], profile);
+    for (std::size_t j = 0; j < reversed_gene_set.size(); j++)
+      seed_update(arr_c[reversed_gene_set[j]], profile);
     int btolerance = static_cast<int>(std::ceil(TOLERANCE * block_rows));
     for (std::size_t j = 0; j < profile.size(); j++) {
       /* See if this column satisfies tolerance */
@@ -341,7 +343,7 @@ namespace internal {
         candidates[i] = false;
       }
       /* store gene arrays inside block */
-      scan_block(all.list, all.symbols, genes_order, b, TOLERANCE);
+      scan_block(all.list, all.symbols, genes_order, genes_reverse, b, TOLERANCE);
       if (b.block_cols() == 0) continue;
       if (IS_pvalue) b.score = static_cast<int>(-(100 * log(b.pvalue)));
       else b.score = components * b.block_cols();
