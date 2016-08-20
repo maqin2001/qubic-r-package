@@ -150,7 +150,7 @@ namespace internal {
     std::size_t rows = arr_c.size();
     std::size_t cols = arr_c[0].size();
     int score, top;
-    int cnt = 0, cnt_all = 0, pid = 0;
+    int cnt = 0, cnt_all = 0;
     continuous cnt_ave = 0, row_all = static_cast<continuous>(rows);
     long double pvalue;
     int max_cnt, max_i;
@@ -212,7 +212,7 @@ namespace internal {
       if (pvalue < b.pvalue) b.pvalue = pvalue;
       genes.push_back(max_i);
       scores.push_back(score);
-      pvalues[pid++] = pvalue;
+      pvalues.push_back(pvalue);
       update_colcand(colcand, arr_c[genes[0]], arr_c[max_i]);
       candidates[max_i] = false;
     }
@@ -269,8 +269,7 @@ namespace internal {
     std::vector<Block> bb;
     std::size_t rows = all.list.size();
     std::size_t cols = all.list[0].size();
-    std::vector<long double> pvalues(rows);
-    std::vector<bool> candidates(rows);
+
     std::set<int> allincluster;
     for (std::vector<Edge *>::const_iterator it = el.begin(); it != el.end(); ++it) {
       const Edge* e = *it;
@@ -301,10 +300,12 @@ namespace internal {
       int cand_threshold = static_cast<int>(std::floor(COL_WIDTH * TOLERANCE));
       if (cand_threshold < 2) cand_threshold = 2;
       /* maintain a candidate list to avoid looping through all rows */
-      for (std::size_t j = 0; j < rows; j++) candidates[j] = true;
+      std::vector<bool> candidates(rows, true);
       candidates[e->gene_one] = candidates[e->gene_two] = false;
       std::size_t components = 2;
       /* expansion step, generate a bicluster without noise */
+      std::vector<long double> pvalues;
+      pvalues.reserve(rows);
       block_init(all.list, b, genes_order, scores, candidates, cand_threshold, components, pvalues, IS_cond, COL_WIDTH,
         IS_area);
       /* track back to find the genes by which we get the best score*/
