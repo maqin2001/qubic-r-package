@@ -264,6 +264,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\charset.cc" />
+    <ClCompile Include="src\cluster.cc" />
     <ClCompile Include="src\discretize.cc" />
     <ClCompile Include="src\edge_list.cc" />
     <ClCompile Include="src\fib.c" />

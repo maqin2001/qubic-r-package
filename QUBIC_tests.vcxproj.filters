@@ -74,5 +74,8 @@
     <ClCompile Include="src\fopen_matrix.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cluster.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

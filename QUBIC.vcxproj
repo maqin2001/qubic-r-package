@@ -253,6 +253,7 @@
   <ItemGroup>
     <ClInclude Include="src\block.h" />
     <ClInclude Include="src\charset.h" />
+    <ClInclude Include="src\cluster.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\discrete.h" />
     <ClInclude Include="src\discretize.h" />
@@ -269,8 +270,8 @@
     <ClInclude Include="src\version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="expand.cc" />
     <ClCompile Include="src\charset.cc" />
+    <ClCompile Include="src\cluster.cc" />
     <ClCompile Include="src\discretize.cc" />
     <ClCompile Include="src\edge_list.cc" />
     <ClCompile Include="src\fib.c" />

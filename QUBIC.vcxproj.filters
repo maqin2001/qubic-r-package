@@ -63,6 +63,9 @@
     <ClInclude Include="src\matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\cluster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fib.c">
@@ -89,7 +92,7 @@
     <ClCompile Include="src\main.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="expand.cc">
+    <ClCompile Include="src\cluster.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
