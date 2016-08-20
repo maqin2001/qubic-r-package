@@ -103,7 +103,7 @@ List qubic_de(const IntegerMatrix matrix,
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector<bool, LogicalMatrix>(RowxNumber), to_vector<bool, LogicalMatrix>(NumberxCol));
+    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector<char, LogicalMatrix>(RowxNumber), to_vector<char, LogicalMatrix>(NumberxCol));
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   }
   catch (double) {

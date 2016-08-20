@@ -145,7 +145,7 @@ namespace internal {
 
   static void block_init(const DiscreteArrayList& arr_c, Block& b,
     std::vector<int>& genes, std::vector<int>& scores,
-    std::vector<bool>& candidates, const int& cand_threshold,
+    std::vector<char>& candidates, const int& cand_threshold,
     std::size_t& components, std::vector<long double>& pvalues, bool IS_cond, std::size_t COL_WIDTH, bool IS_area) {
     std::size_t rows = arr_c.size();
     std::size_t cols = arr_c[0].size();
@@ -300,7 +300,7 @@ namespace internal {
       int cand_threshold = static_cast<int>(std::floor(COL_WIDTH * TOLERANCE));
       if (cand_threshold < 2) cand_threshold = 2;
       /* maintain a candidate list to avoid looping through all rows */
-      std::vector<bool> candidates(rows, true);
+      std::vector<char> candidates(rows, true);
       candidates[e->gene_one] = candidates[e->gene_two] = false;
       std::size_t components = 2;
       /* expansion step, generate a bicluster without noise */
@@ -395,7 +395,7 @@ public:
   }
 
   static std::vector<Block> init_qubic_e(DiscreteArrayListWithSymbols all, const double c, const double f, std::size_t col_width,
-    const int o, const Option option, const bool verbose, const std::vector<std::vector<bool>> RowxNumber, const std::vector<std::vector<bool>> NumberxCol) {
+    const int o, const Option option, const bool verbose, const std::vector<std::vector<char>> RowxNumber, const std::vector<std::vector<char>> NumberxCol) {
     return init_qubic(all, c, f, col_width, o, option, CountHelper(all.list), verbose);
   }
 };
@@ -523,7 +523,7 @@ std::vector<Block> r_main(const std::vector<std::vector<short>>& short_matrix, c
 
 std::vector<Block> r_main(const std::vector<std::vector<short>> &short_matrix,
   const double c, const int o, const double filter, const int k, const Option &option, const bool verbose,
-  const std::vector<std::vector<bool>> &RowxNumber, const std::vector<std::vector<bool>> &NumberxCol) {
+  const std::vector<std::vector<char>> &RowxNumber, const std::vector<std::vector<char>> &NumberxCol) {
   std::size_t col_width = fix_col_width(short_matrix, k);
   if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", static_cast<unsigned long>(short_matrix.size()), static_cast<unsigned long>(short_matrix[0].size()));
   DiscreteArrayListWithSymbols all = make_charsets_d(short_matrix, verbose);

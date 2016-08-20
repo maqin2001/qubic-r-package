@@ -24,6 +24,6 @@ std::vector<Block> r_main(const std::vector<std::vector<short>> &x,
 
 std::vector<Block> r_main(const std::vector<std::vector<short>> &x,
   const double c, const int o, const double f, const int k, const Option &option, const bool verbose,
-  const std::vector<std::vector<bool>> &RowxNumber, const std::vector<std::vector<bool>> &NumberxCol);
+  const std::vector<std::vector<char>> &RowxNumber, const std::vector<std::vector<char>> &NumberxCol);
 
 #endif
