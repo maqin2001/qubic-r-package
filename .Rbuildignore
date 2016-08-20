@@ -15,6 +15,9 @@ TODO
 # vscode files.
 ^.vscode/
 
+## Ignore travis config file
+^\.travis\.yml$
+
 # data and paper files.
 ^testdata/
 ^paper/
