@@ -8,8 +8,7 @@ typedef std::vector<DiscreteArray> DiscreteArrayList;
 
 typedef std::vector<short> Symbols;
 
-class DiscreteArrayListWithSymbols
-{
+class DiscreteArrayListWithSymbols {
 public:
   DiscreteArrayList list;
   Symbols symbols;

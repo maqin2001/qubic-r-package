@@ -9,8 +9,7 @@
 #include <algorithm>
 #include <list>
 
-namespace internal
-{
+namespace internal {
   static void seed_update(const DiscreteArray& s, std::vector<std::vector<bits16>>& profile) {
     for (std::size_t i = 0; i < s.size(); i++)
       profile[i][s[i]]++;
@@ -373,8 +372,7 @@ namespace internal
 
 class qubic {
   static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
-    const int o, const Option& option, const CountHelper& count_helper, const bool verbose)
-  {
+    const int o, const Option& option, const CountHelper& count_helper, const bool verbose) {
     if (verbose) fprintf(stdout, "\nQUBIC %s: greedy biclustering\n\n", VER);
     /* ensure enough searching space */
     int SCH_BLOCK = 2 * o;

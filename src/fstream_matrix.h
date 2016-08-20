@@ -8,7 +8,7 @@ namespace FstreamMatrix {
 
   namespace internal {
 #include <fstream>
-#include <cassert> 
+#include <cassert>
 
     template<typename T> Matrix<T> load_matrix_from_ifstream(std::ifstream &infile, std::size_t reserved_count) {
       Matrix<T> matrix(reserved_count); // RVO
@@ -30,7 +30,9 @@ namespace FstreamMatrix {
 
       while (std::getline(infile, line)) {
         std::istringstream iss(line);
-        if (!(iss >> value)) { break; } // error
+        if (!(iss >> value)) {
+          break;  // error
+        }
         matrix.row_names.push_back(value);
 
         std::vector<float> line_data;

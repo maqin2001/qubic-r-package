@@ -14,8 +14,7 @@ struct Edge {
 };
 
 template <typename T>
-class AdjMatrix
-{
+class AdjMatrix {
   std::vector<T> matrix_;
   unsigned int size_;
 
@@ -53,8 +52,7 @@ inline unsigned str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2
 class CountHelper {
   const DiscreteArrayList &arr_;
 public:
-  virtual ~CountHelper()
-  {
+  virtual ~CountHelper() {
   }
 
   explicit CountHelper(const DiscreteArrayList& arr_c) : arr_(arr_c) { }
@@ -76,8 +74,7 @@ class CountHelperSaved : public CountHelper {
 protected:
   std::vector<unsigned> intersects_;
 public:
-  virtual ~CountHelperSaved()
-  {
+  virtual ~CountHelperSaved() {
   }
 
   explicit CountHelperSaved(const DiscreteArrayList& arr_c) : CountHelper(arr_c), intersects_(arr_c.size() * (arr_c.size() - 1)) {
@@ -99,12 +96,10 @@ class CountHelperRanked : public CountHelperSaved {
     }
   };
 public:
-  virtual ~CountHelperRanked()
-  {
+  virtual ~CountHelperRanked() {
   }
 
-  explicit CountHelperRanked(const DiscreteArrayList& arr_c) : CountHelperSaved(arr_c)
-  {
+  explicit CountHelperRanked(const DiscreteArrayList& arr_c) : CountHelperSaved(arr_c) {
     std::vector<unsigned*> pintArray(intersects_.size());
     for (std::size_t i = 0; i < intersects_.size(); ++i) {
       pintArray[i] = &intersects_[i];
