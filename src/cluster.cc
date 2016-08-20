@@ -257,8 +257,9 @@ static std::vector<Block> report_blocks(std::vector<Block> bb, int RPT_BLOCK, do
 }
 }
 
-int add_intersect(const DiscreteArrayListWithSymbols& all, std::size_t rows, std::vector<int>& genes_order, std::vector<char>& candidates,
-  const std::list<std::size_t>& colcand, const DiscreteArray& first, double threadshold) {
+int add_intersect(const DiscreteArrayListWithSymbols& all, std::vector<int>& genes_order, std::vector<char>& candidates,
+                  const std::list<std::size_t>& colcand, const DiscreteArray& first, double threadshold) {
+  std::size_t rows = all.list.size();
   int count = 0;
   for (std::size_t i = 0; i < rows; i++) {
     if (!candidates[i]) continue;
@@ -271,9 +272,9 @@ int add_intersect(const DiscreteArrayListWithSymbols& all, std::size_t rows, std
   return count;
 }
 
-int add_reverse(const DiscreteArrayListWithSymbols& all, std::size_t rows, std::vector<int>& genes_reverse, std::vector<char>& candidates,
-  const std::list<std::size_t>& colcand, const DiscreteArray& first, double threadshold)
-{
+int add_reverse(const DiscreteArrayListWithSymbols& all, std::vector<int>& genes_reverse, std::vector<char>& candidates,
+                const std::list<std::size_t>& colcand, const DiscreteArray& first, double threadshold) {
+  std::size_t rows = all.list.size();
   int count = 0;
   for (std::size_t i = 0; i < rows; i++) {
     if (!candidates[i]) continue;
@@ -353,9 +354,9 @@ std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::v
     const DiscreteArray& first = all.list[e->gene_one];
     double threadshold = std::floor(cnt * TOLERANCE);
     /* add some new possible genes */
-    components += add_intersect(all, rows, genes_order, candidates, colcand, first, threadshold);
+    components += add_intersect(all, genes_order, candidates, colcand, first, threadshold);
     /* add genes that negative regulated to the consensus */
-    components += add_reverse(all, rows, genes_reverse, candidates, colcand, first, threadshold);
+    components += add_reverse(all, genes_reverse, candidates, colcand, first, threadshold);
     /* store gene arrays inside block */
     internal::scan_block(all.list, all.symbols, genes_order, genes_reverse, b, TOLERANCE);
     if (b.block_cols() == 0) continue;
@@ -380,4 +381,69 @@ std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::v
   }
   if (verbose) fprintf(stdout, "\n");
   return internal::report_blocks(bb, RPT_BLOCK, FILTER);
+}
+
+std::vector<Block> read_and_solve_blocks(const DiscreteArrayListWithSymbols& all,
+    std::size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
+    bool IS_pvalue, std::size_t SCH_BLOCK, int RPT_BLOCK, double FILTER, double f, bool verbose,
+    const std::vector<std::vector<char>>& RowxNumber, const std::vector<std::vector<char>>& NumberxCol) {
+  std::size_t rows = all.list.size();
+  std::size_t cols = all.list[0].size();
+
+  std::vector<Block> bb;
+
+  for (std::size_t number = 0; number < RowxNumber[0].size(); number++) {
+    Block b;
+    for (std::size_t row = 0; row < RowxNumber.size(); row++) {
+      if (RowxNumber[row][number]) b.genes_order.insert(row);
+    }
+    for (std::size_t col = 0; col < NumberxCol[number].size(); col++) {
+      if (NumberxCol[number][col]) b.conds.insert(col);
+    }
+
+    {
+      std::vector<int> genes_order, genes_reverse;
+      genes_order.reserve(rows);
+      genes_reverse.reserve(rows);
+      /* maintain a candidate list to avoid looping through all rows */
+      std::vector<char> candidates(rows, true);
+      for (std::size_t row = 0; row < RowxNumber.size(); row++) {
+        if (RowxNumber[row][number]) {
+          candidates[row] = false;
+          genes_order.push_back(row);
+        }
+      }
+
+      std::list<std::size_t> colcand;
+      for (std::size_t col = 0; col < NumberxCol[number].size(); col++) {
+        if (NumberxCol[number][col]) {
+          colcand.push_back(col);
+        }
+      }
+
+      double threadshold = std::floor(colcand.size() * TOLERANCE);
+
+      const DiscreteArray& first = all.list[*b.genes_order.begin()];
+      
+      /* add some new possible genes */
+      add_intersect(all, genes_order, candidates, colcand, first, threadshold);
+      /* add genes that negative regulated to the consensus */
+      add_reverse(all, genes_reverse, candidates, colcand, first, threadshold);
+
+      for (auto it = genes_order.begin(); it != genes_order.end(); ++it) {
+        b.genes_order.insert(*it);
+      }   
+      for (auto it = genes_reverse.begin(); it != genes_reverse.end(); ++it) {
+        b.genes_reverse.insert(*it);
+      }
+
+      for (auto it = colcand.begin(); it != colcand.end(); ++it) {
+        b.conds.insert(*it);
+      }
+    }
+
+    bb.push_back(b);
+  }
+
+  return bb;// internal::report_blocks(bb, RPT_BLOCK, FILTER);
 }

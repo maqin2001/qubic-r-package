@@ -33,8 +33,10 @@ public:
   }
 
   static std::vector<Block> init_qubic_e(DiscreteArrayListWithSymbols all, const double c, const double f, std::size_t col_width,
-    const int o, const Option option, const bool verbose, const std::vector<std::vector<char>> RowxNumber, const std::vector<std::vector<char>> NumberxCol) {
-    return init_qubic(all, c, f, col_width, o, option, CountHelper(all.list), verbose);
+    const int o, const Option option, const bool verbose, const std::vector<std::vector<char>>& RowxNumber, const std::vector<std::vector<char>>& NumberxCol) {
+    /* ensure enough searching space */
+    int SCH_BLOCK = 2 * o;
+    return read_and_solve_blocks(all, col_width, c, option.cond_, option.area_, option.pvalue_, SCH_BLOCK, o, f, option.filter_1xn_nx1, verbose, RowxNumber, NumberxCol);
   }
 };
 
