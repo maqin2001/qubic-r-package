@@ -256,6 +256,36 @@ static std::vector<Block> report_blocks(std::vector<Block> bb, int RPT_BLOCK, do
   return output;
 }
 }
+
+int add_intersect(const DiscreteArrayListWithSymbols& all, std::size_t rows, std::vector<int>& genes_order, std::vector<char>& candidates,
+  const std::list<std::size_t>& colcand, const DiscreteArray& first, double threadshold) {
+  int count = 0;
+  for (std::size_t i = 0; i < rows; i++) {
+    if (!candidates[i]) continue;
+    int m_cnt = internal::intersect_row(colcand, first, all.list[i]);
+    if (m_cnt < threadshold) continue;
+    genes_order.push_back(i);
+    count++;
+    candidates[i] = false;
+  }
+  return count;
+}
+
+int add_reverse(const DiscreteArrayListWithSymbols& all, std::size_t rows, std::vector<int>& genes_reverse, std::vector<char>& candidates,
+  const std::list<std::size_t>& colcand, const DiscreteArray& first, double threadshold)
+{
+  int count = 0;
+  for (std::size_t i = 0; i < rows; i++) {
+    if (!candidates[i]) continue;
+    int m_cnt = internal::reverse_row(colcand, first, all.list[i], all.symbols);
+    if (m_cnt < threadshold) continue;
+    genes_reverse.push_back(i);
+    count++;
+    candidates[i] = false;
+  }
+  return count;
+}
+
 /************************************************************************/
 std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::vector<Edge *>& el,
                            std::size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
@@ -319,24 +349,13 @@ std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::v
     std::list<std::size_t> colcand;
     /* add columns satisfy the conservative r */
     int cnt = internal::seed_current_modify(all.list[genes_order[k]], colcand, components, profile, TOLERANCE);
+
+    const DiscreteArray& first = all.list[e->gene_one];
+    double threadshold = std::floor(cnt * TOLERANCE);
     /* add some new possible genes */
-    for (std::size_t i = 0; i < rows; i++) {
-      if (!candidates[i]) continue;
-      int m_cnt = internal::intersect_row(colcand, all.list[genes_order[0]], all.list[i]);
-      if (m_cnt < std::floor(cnt * TOLERANCE)) continue;
-      genes_order.push_back(i);
-      components++;
-      candidates[i] = false;
-    }
+    components += add_intersect(all, rows, genes_order, candidates, colcand, first, threadshold);
     /* add genes that negative regulated to the consensus */
-    for (std::size_t i = 0; i < rows; i++) {
-      if (!candidates[i]) continue;
-      int m_cnt = internal::reverse_row(colcand, all.list[genes_order[0]], all.list[i], all.symbols);
-      if (m_cnt < std::floor(cnt * TOLERANCE)) continue;
-      genes_reverse.push_back(i);
-      components++;
-      candidates[i] = false;
-    }
+    components += add_reverse(all, rows, genes_reverse, candidates, colcand, first, threadshold);
     /* store gene arrays inside block */
     internal::scan_block(all.list, all.symbols, genes_order, genes_reverse, b, TOLERANCE);
     if (b.block_cols() == 0) continue;
