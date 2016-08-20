@@ -150,7 +150,6 @@ namespace internal {
     std::size_t rows = arr_c.size();
     std::size_t cols = arr_c[0].size();
     int score, top;
-    int cnt = 0, cnt_all = 0;
     continuous cnt_ave = 0, row_all = static_cast<continuous>(rows);
     long double pvalue;
     int max_cnt, max_i;
@@ -183,14 +182,14 @@ namespace internal {
       max_cnt = -1;
       max_i = -1;
       components++;
-      cnt_all = 0;
+      int cnt_all = 0;
       cnt_ave = 0;
       /******************************************************/
       /*add a function of controlling the bicluster by pvalue*/
       /******************************************************/
       for (std::size_t i = 0; i < rows; i++) {
         if (!candidates[i]) continue;
-        cnt = intersect_row(colcand, arr_c[genes[0]], arr_c[i]);
+        int cnt = intersect_row(colcand, arr_c[genes[0]], arr_c[i]); // TODO (Qin): Yu want to find out why not reverse intersect rows are considered.
         cnt_all += cnt;
         if (cnt < cand_threshold)
           candidates[i] = false;
@@ -201,11 +200,8 @@ namespace internal {
       }
       cnt_ave = cnt_all / row_all;
       pvalue = get_pvalue(cnt_ave, max_cnt);
-      if (IS_cond) {
-        if (max_cnt < static_cast<int>(COL_WIDTH) || max_i < 0 || max_cnt < b.cond_low_bound) break;
-      } else {
-        if (max_cnt < static_cast<int>(COL_WIDTH) || max_i < 0) break;
-      }
+      if (max_cnt < static_cast<int>(COL_WIDTH) || max_i < 0) break;
+      if (IS_cond && max_cnt < b.cond_low_bound) break;
       if (IS_area) score = components * max_cnt;
       else score = std::min(static_cast<int>(components), max_cnt);
       if (score > b.score) b.score = score;
