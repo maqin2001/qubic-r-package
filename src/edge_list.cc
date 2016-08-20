@@ -47,7 +47,7 @@ struct CompEventByPtr {
   }
 };
 
-const std::vector<Edge *> &EdgeList::get_edge_list() const {
+const std::vector<Edge *> &EdgeList::get_seeds() const {
   return edge_list_;
 }
 

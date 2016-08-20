@@ -69,18 +69,18 @@ List from_blocks(const std::vector<Block> &blocks, const size_t nr, const size_t
       y(i, *it) = true;
   }
   return List::create(
-    Named("RowxNumber") = x,
-    Named("NumberxCol") = y,
-    Named("Number") = blocks.size(),
-    Named("info") = get_list());
+           Named("RowxNumber") = x,
+           Named("NumberxCol") = y,
+           Named("Number") = blocks.size(),
+           Named("info") = get_list());
 }
 
 //' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export(.qubic_d)]]
 List qubic_d(const IntegerMatrix matrix,
-  const double c, const int o, const double f, const int k,
-  const bool P, const bool S, const bool C,
-  const bool verbose) {
+             const double c, const int o, const double f, const int k,
+             const bool P, const bool S, const bool C,
+             const bool verbose) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT, &my_function_to_handle_aborts);
   DiscreteArrayList arr_d = to_vector<short, IntegerMatrix>(matrix);
@@ -95,11 +95,29 @@ List qubic_d(const IntegerMatrix matrix,
 }
 
 //' @backref src/rcpp_qubic.cpp
+// [[Rcpp::export(.qubic_de)]]
+List qubic_de(const IntegerMatrix matrix,
+              const double c, const int o, const double f, const int k,
+              const bool P, const bool S, const bool C,
+              const bool verbose, const LogicalMatrix RowxNumber, const LogicalMatrix NumberxCol) {
+  // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
+  signal(SIGABRT, &my_function_to_handle_aborts);
+  try {
+    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector<bool, LogicalMatrix>(RowxNumber), to_vector<bool, LogicalMatrix>(NumberxCol));
+    return from_blocks(result, matrix.nrow(), matrix.ncol());
+  }
+  catch (double) {
+    stop("Something wrong near r_main_d function, maybe out of memory");
+  }
+  return List::create(); // avoid warning
+}
+
+//' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export(.qubic_dw)]]
 List qubic_dw(const IntegerMatrix matrix,
-             const double c, const int o, const double f, const int k,
-             const bool P, const bool S, const bool C,
-             const bool verbose, const NumericMatrix weight) {
+              const double c, const int o, const double f, const int k,
+              const bool P, const bool S, const bool C,
+              const bool verbose, const NumericMatrix weight) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {

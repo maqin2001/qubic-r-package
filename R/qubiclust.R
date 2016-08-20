@@ -20,15 +20,7 @@ qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
           w[i,j] <- 0
     res <- .qubic_dw(x, c, o, f, k, P, S, C, verbose, w, ...)
   } else if(!is.null(seedbicluster)) {
-    w <- matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(rownames(x), rownames(x)))
-    weight[] <- rank(weight, ties.method = "average")
-    for (i in rownames(x))
-      for (j in rownames(x))
-        if((i %in% rownames(weight)) && (j %in% rownames(weight)))
-          w[i,j] <- weight[i,j]
-    else
-      w[i,j] <- 0
-    res <- .qubic_dw(x, c, o, f, k, P, S, C, verbose, w, ...)
+    res <- .qubic_de(x, c, o, f, k, P, S, C, verbose, seedbicluster@RowxNumber, seedbicluster@NumberxCol,...)
   } else res <- .qubic_d(x, c, o, f, k, P, S, C, verbose, ...)
   return(biclust::BiclustResult(as.list(MYCALL), matrix(unlist(res["RowxNumber"]), ncol = as.numeric(res["Number"]), byrow = FALSE),
                                 matrix(unlist(res["NumberxCol"]), nrow = as.numeric(res["Number"]), byrow = FALSE), as.numeric(res["Number"]),

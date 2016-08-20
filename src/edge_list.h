@@ -127,7 +127,7 @@ public:
 class EdgeList {
   std::vector<Edge *> edge_list_;
 public:
-  const std::vector<Edge *> &get_edge_list() const;
+  const std::vector<Edge *> &get_seeds() const;
   EdgeList(std::size_t& col_width, const CountHelper& countHelper, bool verbose);
   ~EdgeList();
 };

@@ -19,6 +19,11 @@ std::vector<Block> r_main(const std::vector<std::vector<short>> &x,
   const double c, const int o, const double f, const int k, const Option &option, const bool verbose);
 
 std::vector<Block> r_main(const std::vector<std::vector<short>> &x,
-  const double c, const int o, const double f, const int k, const Option &option, const bool verbose, const std::vector<std::vector<float>> &w);
+  const double c, const int o, const double f, const int k, const Option &option, const bool verbose,
+  const std::vector<std::vector<float>> &w);
+
+std::vector<Block> r_main(const std::vector<std::vector<short>> &x,
+  const double c, const int o, const double f, const int k, const Option &option, const bool verbose,
+  const std::vector<std::vector<bool>> &RowxNumber, const std::vector<std::vector<bool>> &NumberxCol);
 
 #endif

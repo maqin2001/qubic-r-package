@@ -19,12 +19,10 @@ namespace internal {
      * "fuzziness" of the block is controlled by TOLERANCE (-c)
      */
   static void scan_block(const DiscreteArrayList& arr_c, const Symbols& symbols, const std::vector<int>& gene_set,
-    Block& b, std::vector<std::vector<bits16>>& profile, double TOLERANCE) {
+    Block& b, double TOLERANCE) {
     std::size_t block_rows, cur_rows;
     block_rows = cur_rows = gene_set.size();
-    for (std::size_t j = 0; j < profile.size(); j++)
-      for (std::size_t k = 0; k < profile[j].size(); k++)
-        profile[j][k] = 0;
+    std::vector<std::vector<bits16>> profile(arr_c[0].size(), std::vector<bits16>(symbols.size(), 0));
     for (std::size_t j = 0; j < cur_rows; j++)
       seed_update(arr_c[gene_set[j]], profile);
     int btolerance = static_cast<int>(std::ceil(TOLERANCE * block_rows));
@@ -325,26 +323,25 @@ namespace internal {
       /* add columns satisfy the conservative r */
       int cnt = seed_current_modify(all.list[genes_order[k]], colcand, components, profile, TOLERANCE);
       /* add some new possible genes */
-      int m_cnt;
-      for (std::size_t ki = 0; ki < rows; ki++) {
-        m_cnt = intersect_row(colcand, all.list[genes_order[0]], all.list[ki]);
-        if (candidates[ki] && m_cnt >= std::floor(cnt * TOLERANCE)) {
-          genes_order.push_back(ki);
-          components++;
-          candidates[ki] = false;
-        }
+      for (std::size_t i = 0; i < rows; i++) {
+        if (!candidates[i]) continue;
+        int m_cnt = intersect_row(colcand, all.list[genes_order[0]], all.list[i]);
+        if (m_cnt < std::floor(cnt * TOLERANCE)) continue;
+        genes_order.push_back(i);
+        components++;
+        candidates[i] = false;
       }
       /* add genes that negative regulated to the consensus */
-      for (std::size_t ki = 0; ki < rows; ki++) {
-        m_cnt = reverse_row(colcand, all.list[genes_order[0]], all.list[ki], all.symbols);
-        if (candidates[ki] && m_cnt >= std::floor(cnt * TOLERANCE)) {
-          genes_reverse.push_back(ki);
-          components++;
-          candidates[ki] = false;
-        }
+      for (std::size_t i = 0; i < rows; i++) {
+        if (!candidates[i]) continue;
+        int m_cnt = reverse_row(colcand, all.list[genes_order[0]], all.list[i], all.symbols);
+        if (m_cnt < std::floor(cnt * TOLERANCE)) continue;
+        genes_reverse.push_back(i);
+        components++;
+        candidates[i] = false;
       }
       /* store gene arrays inside block */
-      scan_block(all.list, all.symbols, genes_order, b, profile, TOLERANCE);
+      scan_block(all.list, all.symbols, genes_order, b, TOLERANCE);
       if (b.block_cols() == 0) continue;
       if (IS_pvalue) b.score = static_cast<int>(-(100 * log(b.pvalue)));
       else b.score = components * b.block_cols();
@@ -380,18 +377,23 @@ class qubic {
     EdgeList EdgeList(col_width, count_helper, verbose);
     /* bi-clustering */
     if (verbose) fprintf(stdout, "Clustering started");
-    return internal::cluster(all, EdgeList.get_edge_list(), col_width, c, option.cond_, option.area_, option.pvalue_, SCH_BLOCK, o, f, option.filter_1xn_nx1, verbose);
+    return internal::cluster(all, EdgeList.get_seeds(), col_width, c, option.cond_, option.area_, option.pvalue_, SCH_BLOCK, o, f, option.filter_1xn_nx1, verbose);
   }
 
 public:
-  static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
+  static std::vector<Block> init_qubic_n(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
     const int o, const Option& option, const bool verbose) {
     return init_qubic(all, c, f, col_width, o, option, CountHelper(all.list), verbose);
   }
 
-  static std::vector<Block> init_qubic(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
+  static std::vector<Block> init_qubic_w(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
     const int o, const Option& option, const bool verbose, const std::vector<std::vector<float>>& weights) {
     return init_qubic(all, c, f, col_width, o, option, WeightedCountHelper(all.list, weights), verbose);
+  }
+
+  static std::vector<Block> init_qubic_e(DiscreteArrayListWithSymbols all, const double c, const double f, std::size_t col_width,
+    const int o, const Option option, const bool verbose, const std::vector<std::vector<bool>> RowxNumber, const std::vector<std::vector<bool>> NumberxCol) {
+    return init_qubic(all, c, f, col_width, o, option, CountHelper(all.list), verbose);
   }
 };
 
@@ -505,7 +507,7 @@ std::vector<Block> r_main(const std::vector<std::vector<short>>& short_matrix, c
   std::size_t col_width = fix_col_width(short_matrix, k);
   if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", static_cast<unsigned long>(short_matrix.size()), static_cast<unsigned long>(short_matrix[0].size()));
   DiscreteArrayListWithSymbols all = make_charsets_d(short_matrix, verbose);
-  return qubic::init_qubic(all, c, filter, col_width, o, option, verbose);
+  return qubic::init_qubic_n(all, c, filter, col_width, o, option, verbose);
 }
 
 std::vector<Block> r_main(const std::vector<std::vector<short>>& short_matrix, const double c, const int o,
@@ -513,7 +515,16 @@ std::vector<Block> r_main(const std::vector<std::vector<short>>& short_matrix, c
   std::size_t col_width = fix_col_width(short_matrix, k);
   if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", static_cast<unsigned long>(short_matrix.size()), static_cast<unsigned long>(short_matrix[0].size()));
   DiscreteArrayListWithSymbols all = make_charsets_d(short_matrix, verbose);
-  return qubic::init_qubic(all, c, filter, col_width, o, option, verbose, weight_matrix);
+  return qubic::init_qubic_w(all, c, filter, col_width, o, option, verbose, weight_matrix);
+}
+
+std::vector<Block> r_main(const std::vector<std::vector<short>> &short_matrix,
+  const double c, const int o, const double filter, const int k, const Option &option, const bool verbose,
+  const std::vector<std::vector<bool>> &RowxNumber, const std::vector<std::vector<bool>> &NumberxCol) {
+  std::size_t col_width = fix_col_width(short_matrix, k);
+  if (verbose) fprintf(stdout, "Size of matrix is (%lu, %lu)\n", static_cast<unsigned long>(short_matrix.size()), static_cast<unsigned long>(short_matrix[0].size()));
+  DiscreteArrayListWithSymbols all = make_charsets_d(short_matrix, verbose);
+  return qubic::init_qubic_e(all, c, filter, col_width, o, option, verbose, RowxNumber, NumberxCol);
 }
 
 std::vector<Block> main_d(const std::vector<std::vector<short>>& short_matrix, const std::vector<std::string>& row_names,
@@ -521,7 +532,7 @@ std::vector<Block> main_d(const std::vector<std::vector<short>>& short_matrix, c
   const double c, const int o, const double filter, const int k, const Option& option, const bool verbose) {
   std::size_t col_width = fix_col_width(short_matrix, k);
   DiscreteArrayListWithSymbols all = make_charsets_d(short_matrix, verbose);
-  std::vector<Block> output = qubic::init_qubic(all, c, filter, col_width, o, option, verbose);
+  std::vector<Block> output = qubic::init_qubic_n(all, c, filter, col_width, o, option, verbose);
   write_chars(tfile, row_names, col_names, all, verbose);
   write_blocks(tfile, row_names, col_names, c, o, filter, col_width, all, output, verbose);
   return output;
