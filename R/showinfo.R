@@ -16,31 +16,35 @@
 #' showinfo(matrix, c(res1, res2, res3))
 #' @seealso \code{\link{QUBIC}}
 showinfo <- function(matrix, bic) {
-  cat("number of detected biclusters")
-  cat("\t")
-  cat("nrow of the first bicluster")
-  cat("\t")
-  cat("ncol of the first bicluster")
-  cat("\t")
-  cat("area of the first bicluster")
-  cat("\t")
-  cat("ratio (nrow / ncol) of the first bicluster")
-  cat("\t")
-  cat("ratio (nrow / ncol) of the matrix")
-  cat("\t")
-  cat("max nrow and corresponding bicluster")
-  cat("\t")
-  cat("max ncol and corresponding bicluster")
-  cat("\t")
-  cat("max area and corresponding bicluster")
-  cat("\t")
-  cat("union of rows, (# and %)")
-  cat("\t")
-  cat("union of columns, (# and %)")
-  cat("\t")
-  cat("overlap of first two biclusters (row, col, area)")
+  headers <- c("Call and Parameter",
+  "number of detected biclusters",
+  "nrow of the first bicluster",
+  "ncol of the first bicluster",
+  "area of the first bicluster",
+  "ratio (nrow / ncol) of the first bicluster",
+  "ratio (nrow / ncol) of the matrix",
+  "max nrow and corresponding bicluster",
+  "max ncol and corresponding bicluster",
+  "max area and corresponding bicluster",
+  "union of rows, (# and %)",
+  "union of columns, (# and %)",
+  "overlap of first two biclusters (row, col, area)")
+  for (i in 1:length(headers)) {
+    cat(i)
+    cat(": ")
+    cat(headers[[i]])
+    cat("\n")
+  }
+  cat("\n")
+  cat("\n")
+  for (i in 1:length(headers)) {
+    cat(i)
+    cat("\t")
+  }
   cat("\n")
   for (biclust in bic) {
+    cat(deparse(biclust@Parameters$Call))
+    cat("\t")
     cat(biclust@Number)
     cat("\t")
     bic <- biclust::bicluster(matrix, biclust, 1)[[1]]
