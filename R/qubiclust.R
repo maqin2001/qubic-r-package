@@ -10,14 +10,10 @@ qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
   MYCALL <- match.call()
   S <- (type == "area")
   if(!is.null(weight)) {
-    w <- matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(rownames(x), rownames(x)))
+    w <- Matrix::Matrix(data = 0, nrow = nrow(x), ncol = nrow(x), dimnames = list(rownames(x), rownames(x)))
     weight[] <- rank(weight, ties.method = "average")
-    for (i in rownames(x))
-      for (j in rownames(x))
-        if((i %in% rownames(weight)) && (j %in% rownames(weight)))
-          w[i,j] <- weight[i,j]
-        else
-          w[i,j] <- 0
+    intersect_rows <- intersect(rownames(x), rownames(weight))
+    w[intersect_rows, intersect_rows] <- weight[intersect_rows, intersect_rows]
     res <- .qubic_dw(x, c, o, f, k, P, S, C, verbose, w)
   } else if(!is.null(seedbicluster)) {
     if (seedbicluster@Number >= 1)

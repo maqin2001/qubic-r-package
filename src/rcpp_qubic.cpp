@@ -5,15 +5,16 @@
 #include "fopen_matrix.h"
 #include "matrix_float.h"
 #include "option.h"
-
-#include <Rcpp.h>
-
 #include <csignal>
 #include <algorithm>
 #include <iostream>
 #include <list>
 #include <string>
 #include <vector>
+
+// [[Rcpp::depends(RcppArmadillo)]]
+
+#include <RcppArmadillo.h>
 
 using namespace Rcpp;
 
@@ -37,6 +38,17 @@ std::vector<std::vector<T>> to_vector(const TMatrix &matrix) {
   std::vector<std::vector<T>> result(nr);
   for (int i = 0; i < nr; i++) {
     for (int j = 0; j < nc; j++) result[i].push_back(matrix(i, j));
+  }
+  return result;
+}
+
+template<typename T>
+std::vector<std::vector<T>> to_vector2(const arma::sp_mat &matrix) {
+  auto nc = matrix.n_cols;
+  auto nr = matrix.n_rows;
+  std::vector<std::vector<T>> result(nr);
+  for (std::size_t i = 0; i < nr; i++) {
+    for (std::size_t j = 0; j < nc; j++) result[i].push_back(matrix(i, j));
   }
   return result;
 }
@@ -117,11 +129,11 @@ List qubic_de(const IntegerMatrix matrix,
 List qubic_dw(const IntegerMatrix matrix,
               const double c, const int o, const double f, const int k,
               const bool P, const bool S, const bool C,
-              const bool verbose, const NumericMatrix weight) {
+              const bool verbose, const arma::sp_mat weight) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector<float, NumericMatrix>(weight));
+    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector2<float>(weight));
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   }
   catch (double) {

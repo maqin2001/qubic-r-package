@@ -204,7 +204,8 @@ setClass(Class = "BCQU", contains = "BiclustMethod",
 #'         r = 1, q = 0.06,
 #'         c = 0.95, o = 100, f = 1,
 #'         k = max(ncol(x) \%/\% 20, 2),
-#'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL)
+#'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
+#'         weight = NULL, seedbicluster = NULL)
 BCQU <- function() {
   return(methods::new("BCQU"))
 }
@@ -234,7 +235,8 @@ setClass("BCQUD", contains = "BiclustMethod",
 #' @usage \S4method{biclust}{matrix,BCQUD}(x, method = BCQUD(),
 #'         c = 0.95, o = 100, f = 1,
 #'         k = max(ncol(x) \%/\% 20, 2),
-#'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL)
+#'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
+#'         weight = NULL, seedbicluster = NULL)
 BCQUD <- function() {
   return(methods::new("BCQUD"))
 }
