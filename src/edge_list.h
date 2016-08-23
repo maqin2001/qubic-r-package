@@ -53,6 +53,9 @@ class CountHelper {
   const DiscreteArrayList &arr_;
   const std::size_t col_width_;
 public:
+  std::size_t col_width() const {
+    return col_width_;
+  }
   virtual ~CountHelper() {
   }
 
@@ -129,7 +132,7 @@ class EdgeList {
   std::vector<Edge *> edge_list_;
 public:
   const std::vector<Edge *> &get_seeds() const;
-  EdgeList(std::size_t& col_width, const CountHelper& countHelper, bool verbose);
+  EdgeList(const CountHelper& countHelper, bool verbose);
   ~EdgeList();
 };
 

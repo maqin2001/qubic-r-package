@@ -15,7 +15,7 @@ class qubic {
     /* ensure enough searching space */
     int SCH_BLOCK = 2 * o;
     /* the file that stores all blocks */
-    EdgeList EdgeList(col_width, count_helper, verbose);
+    EdgeList EdgeList(count_helper, verbose);
     /* bi-clustering */
     if (verbose) fprintf(stdout, "Clustering started");
     return cluster(all, EdgeList.get_seeds(), col_width, c, option.cond_, option.area_, option.pvalue_, SCH_BLOCK, o, f, option.filter_1xn_nx1, verbose);

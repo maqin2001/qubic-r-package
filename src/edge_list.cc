@@ -51,7 +51,8 @@ const std::vector<Edge *> &EdgeList::get_seeds() const {
   return edge_list_;
 }
 
-EdgeList::EdgeList(std::size_t &col_width, const CountHelper& countHelper, bool verbose) {
+EdgeList::EdgeList(const CountHelper& countHelper, bool verbose) {
+  std::size_t col_width = countHelper.col_width();
   Edge *edge;
   int cnt;
   /* Allocating heap structure */
