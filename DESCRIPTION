@@ -27,7 +27,9 @@ Depends:
     R (>= 3.1),
     biclust
 Imports:
-    Rcpp (>= 0.11.0)
+    Rcpp (>= 0.11.0),
+    methods,
+    Matrix
 LinkingTo: Rcpp,
     RcppArmadillo
 Suggests:
@@ -38,7 +40,6 @@ Suggests:
 SystemRequirements: C++11, Rtools (>= 3.1)
 Enhances:
     RColorBrewer,
-    methods,
     fields
 URL: http://github.com/zy26/QUBIC
 BugReports: http://github.com/zy26/QUBIC/issues
