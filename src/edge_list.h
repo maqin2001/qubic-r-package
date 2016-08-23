@@ -51,11 +51,12 @@ inline unsigned str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2
 
 class CountHelper {
   const DiscreteArrayList &arr_;
+  const std::size_t col_width_;
 public:
   virtual ~CountHelper() {
   }
 
-  explicit CountHelper(const DiscreteArrayList& arr_c) : arr_(arr_c) { }
+  explicit CountHelper(const DiscreteArrayList& arr_c, std::size_t col_width) : arr_(arr_c), col_width_(col_width){ }
 
   std::size_t size() const {
     return arr_.size();
@@ -67,7 +68,7 @@ public:
 };
 
 class CountHelperRealTime : public CountHelper {
-  explicit CountHelperRealTime(const DiscreteArrayList& arr_c) : CountHelper(arr_c) { }
+  explicit CountHelperRealTime(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelper(arr_c, col_width) { }
 };
 
 class CountHelperSaved : public CountHelper {
@@ -77,7 +78,7 @@ public:
   virtual ~CountHelperSaved() {
   }
 
-  explicit CountHelperSaved(const DiscreteArrayList& arr_c) : CountHelper(arr_c), intersects_(arr_c.size() * (arr_c.size() - 1)) {
+  explicit CountHelperSaved(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelper(arr_c, col_width), intersects_(arr_c.size() * (arr_c.size() - 1)) {
     for (std::size_t i = 0; i < arr_c.size(); i++)
       for (std::size_t j = i + 1; j < arr_c.size(); j++)
         intersects_[j * (j - 1) / 2 + i] = str_intersect_r(arr_c[i], arr_c[j]);
@@ -99,7 +100,7 @@ public:
   virtual ~CountHelperRanked() {
   }
 
-  explicit CountHelperRanked(const DiscreteArrayList& arr_c) : CountHelperSaved(arr_c) {
+  explicit CountHelperRanked(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelperSaved(arr_c, col_width) {
     std::vector<unsigned*> pintArray(intersects_.size());
     for (std::size_t i = 0; i < intersects_.size(); ++i) {
       pintArray[i] = &intersects_[i];
@@ -117,7 +118,7 @@ public:
 class WeightedCountHelper : public CountHelperRanked {
   const std::vector<std::vector<float>>& weights_;
 public:
-  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights) : CountHelperRanked(arr_c), weights_(weights) {}
+  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights, std::size_t col_width) : CountHelperRanked(arr_c, col_width), weights_(weights) {}
 
   int operator()(std::size_t i, std::size_t j) const override {
     return CountHelperRanked::operator()(i, j) + weights_[i][j];
