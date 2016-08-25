@@ -67,7 +67,7 @@ TEST_CASE("run_ecoli_test") {
 
   std::clock_t begin = std::clock();
   DiscreteArrayList vectors = discretize(matrix.get_data(), 1, 0.06);
-  std::vector<Block> result2 = r_main(vectors, 0.95, 100, 0.25, 466 % 20, Option(), true);
+  std::vector<Block> result2 = r_main(vectors, 0.95, 100, 1.0, 466 / 20, Option(), true);
   std::clock_t end = std::clock();
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
@@ -76,6 +76,8 @@ TEST_CASE("run_ecoli_test") {
   if (elapsed_secs <= 16) WARN("Less than 16 sec.");
   else if (elapsed_secs >= 17) WARN("More than 17 sec.");
 
-  REQUIRE(result2.size() == 20);
+  REQUIRE(result2.size() == 100);
   REQUIRE(result2[0].genes_order.size() == 131);
+  REQUIRE(result2[0].block_rows() == 437);
+  REQUIRE(result2[0].block_cols() == 29);
 }

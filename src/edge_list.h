@@ -50,9 +50,10 @@ inline unsigned str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2
 }
 
 class CountHelper {
-  const std::size_t col_width_;
 protected:
   const DiscreteArrayList &arr_;
+private:
+  const std::size_t col_width_;
 public:
   virtual std::size_t col_width() const {
     return col_width_;
@@ -60,16 +61,18 @@ public:
   virtual ~CountHelper() {
   }
 
-  explicit CountHelper(const DiscreteArrayList& arr_c, std::size_t col_width) : arr_(arr_c), col_width_(col_width){ }
+  explicit CountHelper(const DiscreteArrayList& arr_c, std::size_t col_width) : arr_(arr_c), col_width_(col_width) { }
 
   std::size_t size() const {
     return arr_.size();
   }
-  // I want to change following function form virtual to abstract (=0), but unfortunately it will slow down the program under ms windows (other platform untested). 
+  // I want to change following function form virtual to abstract (=0), but unfortunately it will slow down the program under ms windows (other platform untested).
   // I don't known why.
-  virtual int operator()(std::size_t i, std::size_t j) const {
+  virtual int get_weight(std::size_t i, std::size_t j) const {
     return str_intersect_r(arr_[i], arr_[j]);
   }
+
+  virtual void Update(std::vector<Edge*>& /*edges*/) const {};
 };
 
 class CountHelperRealTime : public CountHelper {
@@ -89,7 +92,7 @@ public:
         intersects_[j * (j - 1) / 2 + i] = str_intersect_r(arr_c[i], arr_c[j]);
   }
 
-  int operator()(std::size_t i, std::size_t j) const override {
+  int get_weight(std::size_t i, std::size_t j) const override {
     assert(i < j);
     return intersects_[j * (j - 1) / 2 + i];
   }
@@ -102,6 +105,8 @@ class CountHelperRanked : public CountHelperSaved {
     }
   };
   std::size_t col_width_;
+protected:
+  std::vector<unsigned> weight_;
 public:
   std::size_t col_width() const override {
     return col_width_;
@@ -110,33 +115,42 @@ public:
   virtual ~CountHelperRanked() {
   }
 
-  explicit CountHelperRanked(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelperSaved(arr_c, col_width) {
-    std::vector<unsigned*> pintArray(intersects_.size());
-    for (std::size_t i = 0; i < intersects_.size(); ++i) {
-      pintArray[i] = &intersects_[i];
+  explicit CountHelperRanked(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelperSaved(arr_c, col_width), weight_(intersects_) {
+    std::vector<unsigned*> pintArray(weight_.size());
+    for (std::size_t i = 0; i < weight_.size(); ++i) {
+      pintArray[i] = &weight_[i];
     }
 
     std::sort(pintArray.begin(), pintArray.end(), mycomparison());
 
     // Dereference the pointers and assign their sorted position. not deal tie
-    for (std::size_t i = 0; i < intersects_.size(); ++i) {
-      printf("%d\t", i);
-      printf("%d\t", (*pintArray[i]));
-      //if (*pintArray[i] == col_width) col_width_ = i + 1;
+    for (std::size_t i = 0; i < weight_.size(); ++i) {
       *pintArray[i] = i + 1;
     }
     col_width_ = col_width;
   }
+
+  void Update(std::vector<Edge*>& edges) const override {
+    for (auto it = edges.begin(); it != edges.end(); ++it) {
+      int i = (*it)->gene_one;
+      int j = (*it)->gene_two;
+      (*it)->score = weight_[j * (j - 1) / 2 + i];
+    }
+  };
 };
 
 class WeightedCountHelper : public CountHelperRanked {
-  const std::vector<std::vector<float>>& weights_;
+  const std::vector<std::vector<float>>& input_weights_;
 public:
-  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights, std::size_t col_width) : CountHelperRanked(arr_c, col_width), weights_(weights) {}
+  explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights, std::size_t col_width) : CountHelperRanked(arr_c, col_width), input_weights_(weights) {}
 
-  int operator()(std::size_t i, std::size_t j) const override {
-    return CountHelperRanked::operator()(i, j) + static_cast<int>(weights_[i][j]);
-  }
+  void Update(std::vector<Edge*>& edges) const override {
+    for (auto it = edges.begin(); it != edges.end(); ++it) {
+      int i = (*it)->gene_one;
+      int j = (*it)->gene_two;
+      (*it)->score = weight_[j * (j - 1) / 2 + i] + static_cast<int>(input_weights_[i][j]);;
+    }
+  };
 };
 
 class EdgeList {

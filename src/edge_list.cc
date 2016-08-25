@@ -64,7 +64,7 @@ EdgeList::EdgeList(const CountHelper& countHelper, bool verbose) {
   /* iterate over all genes to retrieve all edges */
   for (std::size_t i = 0; i < countHelper.size(); i++)
     for (std::size_t j = i + 1; j < countHelper.size(); j++) {
-      cnt = countHelper(i, j);
+      cnt = countHelper.get_weight(i, j);
       if (cnt <= min_score) continue;
       edge = new Edge();
       edge->gene_one = i;
@@ -79,6 +79,7 @@ EdgeList::EdgeList(const CountHelper& countHelper, bool verbose) {
   /* sort the seeds */
   if (verbose) fprintf(stdout, "%d seeds generated\n", heap->fh_n);
   fh_dump(heap, edge_list_, min_score);
+  countHelper.Update(edge_list_);
   if (verbose) fprintf(stdout, "%d seeds dumped\n", static_cast<unsigned int>(edge_list_.size()));
 }
 
