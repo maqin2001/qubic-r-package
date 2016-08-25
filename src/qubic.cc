@@ -24,7 +24,7 @@ class qubic {
 public:
   static std::vector<Block> init_qubic_n(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,
     const int o, const Option& option, const bool verbose) {
-    return init_qubic(all, c, f, col_width, o, option, CountHelper(all.list, col_width), verbose);
+    return init_qubic(all, c, f, col_width, o, option, CountHelperSaved(all.list, col_width), verbose);
   }
 
   static std::vector<Block> init_qubic_w(DiscreteArrayListWithSymbols& all, const double c, const double f, std::size_t col_width,

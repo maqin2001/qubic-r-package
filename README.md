@@ -18,6 +18,7 @@ To install the development version of QUBIC, you will need to install at least t
 ```{r}
 install.packages("biclust")
 install.packages("Rcpp")
+install.packages("RcppArmadillo")
 ```
 For Windows users, Rtools(https://cran.r-project.org/bin/windows/Rtools/) should also be installed.
 

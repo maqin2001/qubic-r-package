@@ -50,10 +50,11 @@ inline unsigned str_intersect_r(const DiscreteArray &s1, const DiscreteArray &s2
 }
 
 class CountHelper {
-  const DiscreteArrayList &arr_;
   const std::size_t col_width_;
+protected:
+  const DiscreteArrayList &arr_;
 public:
-  std::size_t col_width() const {
+  virtual std::size_t col_width() const {
     return col_width_;
   }
   virtual ~CountHelper() {
@@ -64,8 +65,9 @@ public:
   std::size_t size() const {
     return arr_.size();
   }
+  // I want to change following function form virtual to abstract (=0), but unfortunately it will slow down the program under ms windows (other platform untested). 
+  // I don't known why.
   virtual int operator()(std::size_t i, std::size_t j) const {
-    assert(i < j);
     return str_intersect_r(arr_[i], arr_[j]);
   }
 };
@@ -81,7 +83,7 @@ public:
   virtual ~CountHelperSaved() {
   }
 
-  explicit CountHelperSaved(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelper(arr_c, col_width), intersects_(arr_c.size() * (arr_c.size() - 1)) {
+  explicit CountHelperSaved(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelper(arr_c, col_width), intersects_(arr_c.size() * (arr_c.size() - 1)/2) {
     for (std::size_t i = 0; i < arr_c.size(); i++)
       for (std::size_t j = i + 1; j < arr_c.size(); j++)
         intersects_[j * (j - 1) / 2 + i] = str_intersect_r(arr_c[i], arr_c[j]);
@@ -99,7 +101,12 @@ class CountHelperRanked : public CountHelperSaved {
       return *lhs < *rhs;
     }
   };
+  std::size_t col_width_;
 public:
+  std::size_t col_width() const override {
+    return col_width_;
+  }
+
   virtual ~CountHelperRanked() {
   }
 
@@ -113,8 +120,12 @@ public:
 
     // Dereference the pointers and assign their sorted position. not deal tie
     for (std::size_t i = 0; i < intersects_.size(); ++i) {
+      printf("%d\t", i);
+      printf("%d\t", (*pintArray[i]));
+      //if (*pintArray[i] == col_width) col_width_ = i + 1;
       *pintArray[i] = i + 1;
     }
+    col_width_ = col_width;
   }
 };
 
@@ -124,7 +135,7 @@ public:
   explicit WeightedCountHelper(const DiscreteArrayList& arr_c, const std::vector<std::vector<float>>& weights, std::size_t col_width) : CountHelperRanked(arr_c, col_width), weights_(weights) {}
 
   int operator()(std::size_t i, std::size_t j) const override {
-    return CountHelperRanked::operator()(i, j) + weights_[i][j];
+    return CountHelperRanked::operator()(i, j) + static_cast<int>(weights_[i][j]);
   }
 };
 
