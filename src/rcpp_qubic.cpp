@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+// [[Rcpp::plugins(openmp)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 
 #include <RcppArmadillo.h>
