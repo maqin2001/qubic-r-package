@@ -33,7 +33,7 @@ The unique features of our R package include (1) updated and more stable back-en
 
 # Other languages
 
-If R is not your thing, there is also a C version of [`QUBIC`](https://github.com/maqin2001/QUBIC).
+If R is not your thing, there is also [a C version of `QUBIC`](https://github.com/maqin2001/QUBIC).
 
 # Help 
 
