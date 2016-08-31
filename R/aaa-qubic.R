@@ -206,8 +206,16 @@ setClass(Class = "BCQU", contains = "BiclustMethod",
 #'         k = max(ncol(x) \%/\% 20, 2),
 #'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
 #'         weight = NULL, seedbicluster = NULL)
-BCQU <- function() {
-  return(methods::new("BCQU"))
+BCQU <- function(x = NULL, r = 1, q = 0.06, c = 0.95, o = 100, f = 1,
+                 k = max(ncol(x) %/% 20, 2),
+                 type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
+                 weight = NULL, seedbicluster = NULL) {
+  if (is.null(x)) return(methods::new("BCQU"))
+  res <- biclust(x = x, method = BCQU(), r = r, q = q, c = c, o = o, f = f,
+                        k = k, type = type, P = P, C = C, verbose = verbose,
+                        weight = weight, seedbicluster = seedbicluster)
+  res@Parameters$Call = match.call()
+  return(res)
 }
 
 #' QUBICD
@@ -237,6 +245,14 @@ setClass("BCQUD", contains = "BiclustMethod",
 #'         k = max(ncol(x) \%/\% 20, 2),
 #'         type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
 #'         weight = NULL, seedbicluster = NULL)
-BCQUD <- function() {
-  return(methods::new("BCQUD"))
+BCQUD <- function(x = NULL, c = 0.95, o = 100, f = 1,
+                  k = max(ncol(x) %/% 20, 2),
+                  type = 'default', P = FALSE, C = FALSE, verbose = TRUE,
+                  weight = NULL, seedbicluster = NULL) {
+  if (is.null(x)) return(methods::new("BCQUD"))
+  res <- biclust(x = x, method = BCQUD(), c = c, o = o, f = f,
+                          k = k, type = type, P = P, C = C, verbose = verbose,
+                          weight = weight, seedbicluster = seedbicluster)
+  res@Parameters$Call = match.call()
+  return(res)
 }
