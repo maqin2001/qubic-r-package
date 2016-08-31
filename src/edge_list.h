@@ -8,8 +8,8 @@
 
 /* edge between two genes */
 struct Edge {
-  std::size_t gene_one;
-  std::size_t gene_two;
+  unsigned int gene_one;
+  unsigned int gene_two;
   int score;
 };
 
@@ -86,14 +86,19 @@ public:
   virtual ~CountHelperSaved() {
   }
 
-  explicit CountHelperSaved(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelper(arr_c, col_width), intersects_(arr_c.size() * (arr_c.size() - 1)/2) {
-    for (std::size_t i = 0; i < arr_c.size(); i++)
+  explicit CountHelperSaved(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelper(arr_c, col_width), intersects_(arr_c.size() * (arr_c.size() - 1) / 2) {
+#ifdef _OPENMP
+#pragma omp parallel for schedule(dynamic)
+#endif
+    for (int i = 0; static_cast<std::size_t>(i) < arr_c.size(); i++)
       for (std::size_t j = i + 1; j < arr_c.size(); j++)
-        intersects_[j * (j - 1) / 2 + i] = str_intersect_r(arr_c[i], arr_c[j]);
+        intersects_[j * (j - 1) / 2 + i] = str_intersect_r(arr_c[i], arr_c[j]); // if not compress, it will save some time, but memory cannot be alloc sometimes.
   }
 
   int get_weight(std::size_t i, std::size_t j) const override {
+#ifdef _DEBUG
     assert(i < j);
+#endif
     return intersects_[j * (j - 1) / 2 + i];
   }
 };
