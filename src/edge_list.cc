@@ -43,7 +43,7 @@ static void fh_dump(fibheap *h, std::vector<Edge *> &data_array, int min_score) 
 
 struct CompEventByPtr {
   bool operator()(const Edge *pEvent1, const Edge *pEvent2) const {
-    return pEvent1->score >= pEvent2->score;
+    return pEvent1->score > pEvent2->score;
   }
 };
 
@@ -80,6 +80,7 @@ EdgeList::EdgeList(const CountHelper& countHelper, bool verbose) {
   if (verbose) fprintf(stdout, "%d seeds generated\n", heap->fh_n);
   fh_dump(heap, edge_list_, min_score);
   countHelper.Update(edge_list_);
+  std::stable_sort(edge_list_.begin(), edge_list_.end(), CompEventByPtr()); // I guess we can remove stable sort or fib someday
   if (verbose) fprintf(stdout, "%d seeds dumped\n", static_cast<unsigned int>(edge_list_.size()));
 }
 
