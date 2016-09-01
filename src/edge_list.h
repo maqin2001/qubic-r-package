@@ -2,6 +2,7 @@
 #define EDGE_LIST_H
 
 #include "discrete.h"
+#include <limits>
 #include <cstddef> // size_t
 #include <cassert>
 #include <algorithm>
@@ -96,9 +97,7 @@ public:
   }
 
   int get_weight(std::size_t i, std::size_t j) const override {
-#ifdef _DEBUG
     assert(i < j);
-#endif
     return intersects_[j * (j - 1) / 2 + i];
   }
 };
@@ -121,15 +120,17 @@ public:
   }
 
   explicit CountHelperRanked(const DiscreteArrayList& arr_c, std::size_t col_width) : CountHelperSaved(arr_c, col_width), weight_(intersects_) {
-    std::vector<unsigned*> pintArray(weight_.size());
-    for (std::size_t i = 0; i < weight_.size(); ++i) {
+    assert(weight_.size() <= std::numeric_limits<unsigned int>::max());
+    unsigned int size = static_cast<unsigned int>(weight_.size());
+    std::vector<unsigned*> pintArray((size));
+    for (unsigned int i = 0; i < size; ++i) {
       pintArray[i] = &weight_[i];
     }
 
     std::sort(pintArray.begin(), pintArray.end(), mycomparison());
 
     // Dereference the pointers and assign their sorted position. not deal tie
-    for (std::size_t i = 0; i < weight_.size(); ++i) {
+    for (unsigned int i = 0; i < size; ++i) {
       *pintArray[i] = i + 1;
     }
     col_width_ = col_width;

@@ -18,16 +18,20 @@ static void seed_update(const DiscreteArray& s, std::vector<std::vector<bits16>>
 */
 void scan_block(const DiscreteArrayList& arr_c, const Symbols& symbols, const std::vector<int>& gene_set,
                 Block& b, double TOLERANCE) {
+  assert(symbols.size() <= std::numeric_limits<unsigned int>::max());
+  assert(arr_c[0].size() <= std::numeric_limits<unsigned int>::max());
+  unsigned int size = static_cast<unsigned int>(arr_c[0].size());
+  unsigned int count = static_cast<unsigned int>(symbols.size());
   std::size_t block_rows;
   block_rows = gene_set.size();
-  std::vector<std::vector<bits16>> profile(arr_c[0].size(), std::vector<bits16>(symbols.size(), 0));
+  std::vector<std::vector<bits16>> profile((size), std::vector<bits16>(count, 0));
   for (std::size_t j = 0; j < gene_set.size(); j++)
     seed_update(arr_c[gene_set[j]], profile);
   int btolerance = static_cast<int>(std::ceil(TOLERANCE * block_rows));
-  for (std::size_t j = 0; j < profile.size(); j++) {
+  for (unsigned int j = 0; j < size; j++) {
     /* See if this column satisfies tolerance */
     /* here i start from 1 because symbols[0]=0 */
-    for (std::size_t i = 1; i < symbols.size(); i++) {
+    for (unsigned int i = 1; i < count; i++) {
       if (profile[j][i] >= btolerance) {
         b.conds.insert(j);
         break;
@@ -90,8 +94,9 @@ static int seed_current_modify(const DiscreteArray& s, std::list<std::size_t>& c
 
 /*check whether current edge can be treat as a seed*/
 static bool check_seed(const Edge* e, const std::vector<Block>& bb, std::size_t rows) {
-  int block_id = bb.size();
-  int i, b1, b2, b3;
+  std::size_t block_id = bb.size();
+  int i, b1, b2;
+  std::size_t b3;
   b1 = b2 = -1;
   for (i = 0; i < block_id; i++)
     if (bb[i].contains(e->gene_one) && bb[i].contains(e->gene_two))
@@ -195,12 +200,13 @@ static void block_init(const DiscreteArrayList& arr_c, Block& b,
       }
     }
     cnt_ave = cnt_all / row_all;
-    pvalue = get_pvalue(cnt_ave, max_cnt);
-    if (max_cnt < static_cast<int>(COL_WIDTH) || max_i < 0) break;
+    if (max_i < 0) break;
+    if (max_cnt < static_cast<int>(COL_WIDTH)) break;
     if (IS_cond && max_cnt < b.cond_low_bound) break;
     if (IS_area) score = components * max_cnt;
     else score = std::min(static_cast<int>(components), max_cnt);
     if (score > b.score) b.score = score;
+    pvalue = get_pvalue(cnt_ave, max_cnt); 
     if (pvalue < b.pvalue) b.pvalue = pvalue;
     genes.push_back(max_i);
     scores.push_back(score);
