@@ -12,13 +12,13 @@ namespace FopenMatrix {
 #define MAX_LINE 100000
 #define LABEL_LEN 64
 
-    void fscanf2(FILE *file, short *x);
+    int fscanf2(FILE *file, short *x);
 
-    void fscanf2(FILE *file, int *x);
+    int fscanf2(FILE *file, int *x);
 
-    void fscanf2(FILE *file, float *x);
+    int fscanf2(FILE *file, float *x);
 
-    void fscanf2(FILE *file, double *x);
+    int fscanf2(FILE *file, double *x);
 
     template<typename T>
     Matrix<T> load_matrix_from_file(FILE *fp, std::size_t reserved_count, bool ignore_first) {
