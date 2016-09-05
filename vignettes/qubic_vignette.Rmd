@@ -205,15 +205,9 @@ library(QUBIC)
 if (requireNamespace("QUBICdata", quietly = TRUE)) {
     data("ecoli", package = "QUBICdata")
 } else {
-    warning("Could not load QUBICdata. Bioconductor version <= 3.2? ", call. = FALSE)
-    print("Downloading fallback file.")
-    x <- read.table(
-        "https://www.sdstate.edu/ps/research/bioinformatics/upload/ecoli_466_4297.txt", 
-        header = TRUE)
-
-    # Convert data frame to matrix
-    ecoli <- as.matrix(x[, -1])
-    rownames(ecoli) <- x[, 1]
+    # Fake ecoli, all result below 
+    ecoli <- BicatYeast
+    warning("All results below are BicatYeast, not ecoli")
 }
 
 # Discretization

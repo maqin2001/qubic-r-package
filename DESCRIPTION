@@ -35,12 +35,12 @@ LinkingTo: Rcpp,
 Suggests:
     QUBICdata,
     qgraph,
+    fields,
     knitr,
     rmarkdown
 SystemRequirements: C++11, Rtools (>= 3.1)
 Enhances:
-    RColorBrewer,
-    fields
+    RColorBrewer
 URL: http://github.com/zy26/QUBIC
 BugReports: http://github.com/zy26/QUBIC/issues
 RoxygenNote: 5.0.1

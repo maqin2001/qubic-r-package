@@ -6,6 +6,9 @@
 #include "charset.h"
 #include "discretize.h"
 
+#include <string>
+#include <sstream>
+#include <iostream>
 #include <vector>
 #include <cstring> // strcmp
 class qubic {
