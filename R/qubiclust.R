@@ -17,7 +17,7 @@ qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
     res <- .qubic_dw(x, c, o, f, k, P, S, C, verbose, w)
   } else if(!is.null(seedbicluster)) {
     if (seedbicluster@Number >= 1)
-      res <- .qubic_de(x, c, o, f, k, P, S, C, verbose, seedbicluster@RowxNumber, seedbicluster@NumberxCol)
+      res <- .qubic_de(x, c, verbose, seedbicluster@RowxNumber, seedbicluster@NumberxCol)
     else
       return(seedbicluster)
   } else res <- .qubic_d(x, c, o, f, k, P, S, C, verbose)

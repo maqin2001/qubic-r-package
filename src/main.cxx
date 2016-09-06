@@ -60,11 +60,11 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option) {
   return std::find(begin, end, option) != end;
 }
 
-double getCommand(int argc, char* argv[], const const char* option, double defaultValue) {
+double getCommand(int argc, char* argv[], const char* option, double defaultValue) {
   return cmdOptionExists(argv, argv + argc, option) ? std::atof(getCmdOption(argv, argv + argc, option)) : defaultValue;
 }
 
-int getCommand(int argc, char* argv[], const const char* option, int defaultValue) {
+int getCommand(int argc, char* argv[], const char* option, int defaultValue) {
   return cmdOptionExists(argv, argv + argc, option) ? std::atoi(getCmdOption(argv, argv + argc, option)) : defaultValue;
 }
 
@@ -87,9 +87,6 @@ int main(int argc, char* argv[]) {
   int               col_width = getCommand(argc, argv, "-k", 2);
 
   bool                      d = cmdOptionExists(argv, argv + argc, "-d");
-
-  const char*     w_file_name = getCmdOption(argv, argv + argc, "-w");
-  const char*     b_file_name = getCmdOption(argv, argv + argc, "-b");
 
   if (d) {
     Matrix<short> matrix = FopenMatrix::load_matrix<short>(file_name);

@@ -76,9 +76,9 @@ List from_blocks(const std::vector<Block> &blocks, const size_t nr, const size_t
   auto x = LogicalMatrix(nr, number);
   auto y = LogicalMatrix(number, nc);
   for (int i = 0; i < number; i++) {
-    for (auto it = blocks[i].genes_order.begin(); it != blocks[i].genes_order.end(); it++) x(*it, i) = true;
-    for (auto it = blocks[i].genes_reverse.begin(); it != blocks[i].genes_reverse.end(); it++) x(*it, i) = true;
-    for (auto it = blocks[i].conds.begin(); it != blocks[i].conds.end(); it++)
+    for (auto it = blocks[i].genes_order.begin(); it != blocks[i].genes_order.end(); ++it) x(*it, i) = true;
+    for (auto it = blocks[i].genes_reverse.begin(); it != blocks[i].genes_reverse.end(); ++it) x(*it, i) = true;
+    for (auto it = blocks[i].conds.begin(); it != blocks[i].conds.end(); ++it)
       y(i, *it) = true;
   }
   return List::create(
@@ -109,14 +109,12 @@ List qubic_d(const IntegerMatrix matrix,
 
 //' @backref src/rcpp_qubic.cpp
 // [[Rcpp::export(.qubic_de)]]
-List qubic_de(const IntegerMatrix matrix,
-              const double c, const int o, const double f, const int k,
-              const bool P, const bool S, const bool C,
+List qubic_de(const IntegerMatrix matrix, const double c, 
               const bool verbose, const LogicalMatrix RowxNumber, const LogicalMatrix NumberxCol) {
   // may treat abort() more friendly, see http://stackoverflow.com/a/3911102
   signal(SIGABRT, &my_function_to_handle_aborts);
   try {
-    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, o, f, k, Option(P, S, C, true), verbose, to_vector<char, LogicalMatrix>(RowxNumber), to_vector<char, LogicalMatrix>(NumberxCol));
+    std::vector<Block> result = r_main(to_vector<short, IntegerMatrix>(matrix), c, verbose, to_vector<char, LogicalMatrix>(RowxNumber), to_vector<char, LogicalMatrix>(NumberxCol));
     return from_blocks(result, matrix.nrow(), matrix.ncol());
   }
   catch (double) {

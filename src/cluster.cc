@@ -95,31 +95,28 @@ static int seed_current_modify(const DiscreteArray& s, std::list<std::size_t>& c
 /*check whether current edge can be treat as a seed*/
 static bool check_seed(const Edge* e, const std::vector<Block>& bb, std::size_t rows) {
   std::size_t block_id = bb.size();
-  int i, b1, b2;
+  std::size_t b1, b2;
   std::size_t b3;
-  b1 = b2 = -1;
-  for (i = 0; i < block_id; i++)
+  for (std::size_t i = 0; i < block_id; i++)
     if (bb[i].contains(e->gene_one) && bb[i].contains(e->gene_two))
       return false;
   std::vector<int> profiles(rows, 0);
   bool fg = false;
-  for (i = 0; i < block_id; i++)
+  for (std::size_t i = 0; i < block_id; i++)
     if (bb[i].contains(e->gene_one)) {
       fg = true;
+      b1 = i;
       break;
     }
-  if (fg)
-    b1 = i;
+  if (!fg) return true;
   fg = false;
-  for (i = 0; i < block_id; i++)
+  for (std::size_t i = 0; i < block_id; i++)
     if (bb[i].contains(e->gene_two)) {
       fg = true;
+      b2 = i;
       break;
     }
-  if (fg)
-    b2 = i;
-  if (b1 == -1 || b2 == -1)
-    return true;
+  if (!fg) return true;
   for (std::set<int>::iterator it = bb[b1].genes_order.begin(); it != bb[b1].genes_order.end(); ++it)
     profiles[*it]++;
   for (std::set<int>::iterator it = bb[b1].genes_reverse.begin(); it != bb[b1].genes_reverse.end(); ++it)
@@ -131,7 +128,7 @@ static bool check_seed(const Edge* e, const std::vector<Block>& bb, std::size_t 
   for (std::size_t index = 0; index < rows; index++)
     if (profiles[index] > 1) return false;
   b3 = std::max(bb[b1].block_cols(), bb[b2].block_cols());
-  return !(e->score < b3/* (bb[b1]->block_cols + bb[b2]->block_cols) / 2*/);
+  return e->score - b3 >= 0;
 }
 
 static long double get_pvalue(const continuous& a, const int& b) {
@@ -206,7 +203,7 @@ static void block_init(const DiscreteArrayList& arr_c, Block& b,
     if (IS_area) score = components * max_cnt;
     else score = std::min(static_cast<int>(components), max_cnt);
     if (score > b.score) b.score = score;
-    pvalue = get_pvalue(cnt_ave, max_cnt); 
+    pvalue = get_pvalue(cnt_ave, max_cnt);
     if (pvalue < b.pvalue) b.pvalue = pvalue;
     genes.push_back(max_i);
     scores.push_back(score);
@@ -387,12 +384,9 @@ std::vector<Block> cluster(const DiscreteArrayListWithSymbols& all, const std::v
   return internal::report_blocks(bb, RPT_BLOCK, FILTER);
 }
 
-std::vector<Block> read_and_solve_blocks(const DiscreteArrayListWithSymbols& all,
-    std::size_t COL_WIDTH, double TOLERANCE, bool IS_cond, bool IS_area,
-    bool IS_pvalue, std::size_t SCH_BLOCK, int RPT_BLOCK, double FILTER, double f, bool verbose,
+std::vector<Block> read_and_solve_blocks(const DiscreteArrayListWithSymbols& all, double TOLERANCE,
     const std::vector<std::vector<char>>& RowxNumber, const std::vector<std::vector<char>>& NumberxCol) {
   std::size_t rows = all.list.size();
-  std::size_t cols = all.list[0].size();
 
   std::vector<Block> bb;
 
@@ -428,7 +422,7 @@ std::vector<Block> read_and_solve_blocks(const DiscreteArrayListWithSymbols& all
       double threadshold = std::floor(colcand.size() * TOLERANCE);
 
       const DiscreteArray& first = all.list[*b.genes_order.begin()];
-      
+
       /* add some new possible genes */
       add_intersect(all, genes_order, candidates, colcand, first, threadshold);
       /* add genes that negative regulated to the consensus */
@@ -436,7 +430,7 @@ std::vector<Block> read_and_solve_blocks(const DiscreteArrayListWithSymbols& all
 
       for (auto it = genes_order.begin(); it != genes_order.end(); ++it) {
         b.genes_order.insert(*it);
-      }   
+      }
       for (auto it = genes_reverse.begin(); it != genes_reverse.end(); ++it) {
         b.genes_reverse.insert(*it);
       }

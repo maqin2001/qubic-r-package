@@ -19,13 +19,13 @@ To install the development version of QUBIC, you will need to install at least t
 install.packages("biclust")
 install.packages("Rcpp")
 install.packages("RcppArmadillo")
+source("http://bioconductor.org/biocLite.R") # install BiocInstaller
 ```
 For Windows users, Rtools(https://cran.r-project.org/bin/windows/Rtools/) should also be installed.
 
 Then,
 ```{r}
 install.packages("devtools")
-
 devtools::install_github("zy26/QUBIC")
 ```
 
