@@ -61,7 +61,7 @@
 #' @param C The flag to set the lower bound of the condition number in a bicluster as 5\% of the total condition number in the input data.
 #' Only suggested to use when the input data has a few conditions (e.g. less than \code{20}). Default: \code{FALSE}.
 #' @param verbose If '\code{TRUE}', prints extra information on progress.
-#' @param weight Alternative weight matrix provided by user, will append to default weight.
+#' @param weight Alternative weight matrix provided by user, will append to default weight. \code{o}, \code{f}, \code{k}, \code{P}, \code{type}, \code{C} will be ignored if using this parameter.
 #' @param seedbicluster Seed provided by user, normally should be a result of function \code{biclust}.
 #' @return Returns an Biclust object, which contains bicluster candidates
 #'
