@@ -4,31 +4,10 @@ author:
 - Yu Zhang
 - Juan Xie
 - Qin Ma
-header-includes:
-  - \usepackage{xcolor}
-  - \lstset{
-      backgroundcolor=\color[RGB]{248,248,248},
-      basewidth=0.5em,
-      basicstyle=\small\ttfamily, 
-      breakatwhitespace=true,
-      breakautoindent=true,
-      breaklines=true, 
-      captionpos=b,
-      columns=flexible,
-      commentstyle=\color[rgb]{0.56,0.35,0.01}\itshape,
-      escapeinside={\%*}{*)},
-      frame=tb,
-      keepspaces=true,
-      keywordstyle=\color[rgb]{0.13,0.29,0.53}\bfseries,
-      linewidth=\textwidth,
-      numberstyle=\footnotesize,
-      showspaces=false,
-      showstringspaces=false,
-      showtabs=false,
-      stringstyle=\color[rgb]{0.31,0.60,0.02},
-      tabsize=2,
-    }
 classoption: hyperref,
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{QUBIC Tutorial}
 output:
   pdf_document:
     fig_caption: yes
@@ -38,13 +17,17 @@ output:
     theme: flatly
   word_document:
     fig_caption: yes
-    fig_height: 5
-    fig_width: 5
     highlight: tango
     md_extensions: -autolink_bare_uris
+header-includes:
+- \usepackage{xcolor}
+- \lstset{ backgroundcolor=\color[RGB]{248,248,248}, basewidth=0.5em, basicstyle=\small\ttfamily,
+  breakatwhitespace=true, breakautoindent=true, breaklines=true, captionpos=b, columns=flexible,
+  commentstyle=\color[rgb]{0.56,0.35,0.01}\itshape, escapeinside={\%*}{*)}, frame=tb,
+  keepspaces=true, keywordstyle=\color[rgb]{0.13,0.29,0.53}\bfseries, linewidth=\textwidth,
+  numberstyle=\footnotesize, showspaces=false, showstringspaces=false, showtabs=false,
+  stringstyle=\color[rgb]{0.31,0.60,0.02}, tabsize=2, }
 bibliography: bibliography.bib
-vignette: |
-  %\VignetteEngine{knitr::rmarkdown} %\VignetteIndexEntry{QUBIC Tutorial}
 ---
 
 ```{r setup, include=FALSE}
@@ -100,14 +83,18 @@ library("QUBIC")
 Functions
 ======================
 
-There are six functions provided by QUBIC package. 
+There are nine functions provided by QUBIC package. 
 
 * ```qudiscretize()```creates a discrete matrix for a given gene expression matrix;
 * ```BCQU()```performs a qualitative biclustering for real matrix;
 * ```BCQUD()```performs a qualitative biclustering for discretized matrix;
 * ```quheatmap()```can draw heatmap for singe bicluster or overlapped biclusters;
 * ```qunetwork()``` can automatically create co-expression networks based on the identified biclusters by QUBIC;
-* ```qunet2xml()```can convert the constructed co-expression networks into XGMML format for further network analysis in Cytoscape, Biomax and JNets. 
+* ```qunet2xml()```can convert the constructed co-expression networks into XGMML format for further network analysis in Cytoscape, Biomax and JNets; 
+* *query-based biclustering* allows users to input additional biological information to guide the biclustering progress;
+* *bicluster* expanding expands existing biclusters under specified consistency level;
+* *biclusters comparison* compares biclusters obtained via different algorithms or parameters.
+
 The following examples illustrate how these functions work.
 
 # Example of a random matrix with two diferent embedded biclusters
@@ -171,7 +158,7 @@ summary(res)
 
 We can draw heatmap for single bicluster.
 
-```{r yeast heatmap, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the second bicluster identified in the *Saccharomyces cerevisiae* data. The bicluster consists of 53 genes and 5 conditions', fig.show = 'asis'}
+```{r yeast-heatmap, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the second bicluster identified in the *Saccharomyces cerevisiae* data. The bicluster consists of 53 genes and 5 conditions', fig.show = 'asis'}
 
 # Draw heatmap for the second bicluster identified in Saccharomyces cerevisiae data
 
@@ -185,9 +172,9 @@ quheatmap(x, res, number = 2, showlabel = TRUE, col = paleta)
 
 We can draw heatmap for overlapped biclusters.
 
-```{r yeast heatmap2, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the second and third biclusters identified in the *Saccharomyces cerevisiae* data. Bicluster #2 (topleft) consists of 53 genes and 5 conditions, and bicluster #3 (bottom right) consists of 37 genes and 7 conditions.', fig.show = 'asis'}
+```{r yeast-heatmap2, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the second and third biclusters identified in the *Saccharomyces cerevisiae* data. Bicluster #2 (topleft) consists of 53 genes and 5 conditions, and bicluster #3 (bottom right) consists of 37 genes and 7 conditions.', fig.show = 'asis'}
 
-# Draw for the second and third biclusters identified in *Saccharomyces cerevisiae* data
+# Draw for the second and third biclusters identified in Saccharomyces cerevisiae data
 
 par(mar = c(5, 5, 5, 5), cex.lab = 1.1, cex.axis = 0.5, cex.main = 1.1)
 paleta <- colorRampPalette(rev(brewer.pal(11, "RdYlBu")))(11)
@@ -197,9 +184,9 @@ quheatmap(x, res, number = c(2, 3), showlabel = TRUE, col = paleta)
 
 We can draw network for single bicluster.
 
-```{r yeast network1, cache = TRUE, message = FALSE, fig.cap = 'Network for the second bicluster identified in the *Saccharomyces cerevisiae* data.', fig.show = 'asis'}
+```{r yeast-network1, cache = TRUE, message = FALSE, fig.cap = 'Network for the second bicluster identified in the *Saccharomyces cerevisiae* data.', fig.show = 'asis'}
 
-# Construct the network for the second identified bicluster in *Saccharomyces cerevisiae*
+# Construct the network for the second identified bicluster in Saccharomyces cerevisiae
 net <- qunetwork(x, res, number = 2, group = 2, method = "spearman")
 if (requireNamespace("qgraph", quietly = TRUE))
     qgraph::qgraph(net[[1]], groups = net[[2]], layout = "spring", minimum = 0.6, 
@@ -209,7 +196,7 @@ if (requireNamespace("qgraph", quietly = TRUE))
 
 We can also draw network for overlapped biclusters.
 
-```{r yeast network2, cache = TRUE, message = FALSE, fig.cap = 'Network for the second and third biclusters identified in the *Saccharomyces cerevisiae* data.', fig.show = 'asis'}
+```{r yeast-network2, cache = TRUE, message = FALSE, fig.cap = 'Network for the second and third biclusters identified in the *Saccharomyces cerevisiae* data.', fig.show = 'asis'}
 
 net <- qunetwork(x, res, number = c(2, 3), group = c(2, 3), method = "spearman")
 if (requireNamespace("qgraph", quietly = TRUE))
@@ -233,15 +220,8 @@ The *Escherichia coli* data consists of 4,297 genes and 466 conditions.
 
 ```{r ecoli, cache = TRUE}
 library(QUBIC)
-
-# Load Escherichia coli data
-if (requireNamespace("QUBICdata", quietly = TRUE)) {
-    data("ecoli", package = "QUBICdata")
-} else {
-    # Fake Escherichia coli, all result below 
-    ecoli <- BicatYeast
-    warning("All results below are Saccharomyces cerevisiae, not Escherichia coli")
-}
+library(QUBICdata)
+data("ecoli", package = "QUBICdata")
 
 # Discretization
 matrix1 <- ecoli[1:7, 1:4]
@@ -259,7 +239,7 @@ summary(res)
 
 ```
 
-```{r ecoli heatmap, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the fifth bicluster identified in the *Escherichia coli* data. The bicluster consists of 103 genes and 38 conditions', fig.show = 'asis'}
+```{r ecoli-heatmap, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the fifth bicluster identified in the *Escherichia coli* data. The bicluster consists of 103 genes and 38 conditions', fig.show = 'asis'}
 
 # Draw heatmap for the 5th bicluster identified in Escherichia coli data
 
@@ -271,7 +251,7 @@ quheatmap(ecoli, res, number = 5, showlabel = TRUE, col = paleta)
 
 ```
 
-```{r ecoli heatmap2, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the fourth and eighth biclusters identified in the *Escherichia coli* data. Bicluster #4 (topleft) consists of 108 genes and 44 conditions, and bicluster #8 (bottom right) consists of 26 genes and 33 conditions', fig.show = 'asis'}
+```{r ecoli-heatmap2, cache = TRUE, message = FALSE, fig.cap = 'Heatmap for the fourth and eighth biclusters identified in the *Escherichia coli* data. Bicluster #4 (topleft) consists of 108 genes and 44 conditions, and bicluster #8 (bottom right) consists of 26 genes and 33 conditions', fig.show = 'asis'}
 
 library(RColorBrewer)
 paleta <- colorRampPalette(rev(brewer.pal(11, "RdYlBu")))(11)
@@ -280,7 +260,7 @@ quheatmap(ecoli, res, number = c(4, 8), showlabel = TRUE, col = paleta)
 
 ```
 
-```{r ecoli network, cache = TRUE, message = FALSE, fig.cap = 'Network for the fifth bicluster identified in the *Escherichia coli* data.', fig.show = 'asis' }
+```{r ecoli-network, cache = TRUE, message = FALSE, fig.cap = 'Network for the fifth bicluster identified in the *Escherichia coli* data.', fig.show = 'asis' }
 
 # construct the network for the 5th identified bicluster in Escherichia coli data
 net <- qunetwork(ecoli, res, number = 5, group = 5, method = "spearman")
@@ -291,7 +271,7 @@ if (requireNamespace("qgraph", quietly = TRUE))
 
 ```
 
-```{r ecoli network2, cache = TRUE ,message = FALSE, fig.cap = 'Network for the fourth and eighth biclusters identified in the *Escherichia coli* data.', fig.show = 'asis'}
+```{r ecoli-network2, cache = TRUE, message = FALSE, fig.cap = 'Network for the fourth and eighth biclusters identified in the *Escherichia coli* data.', fig.show = 'asis'}
 
 # construct the network for the 4th and 8th identified bicluster in Escherichia coli data
 net <- qunetwork(ecoli, res, number = c(4, 8), group = c(4, 8), method = "spearman")
@@ -299,6 +279,54 @@ if (requireNamespace("qgraph", quietly = TRUE))
     qgraph::qgraph(net[[1]], groups = net[[2]], legend.cex = 0.5, layout = "spring", 
         minimum = 0.6, color = c("red", "blue", "gold", "gray"), edge.label = FALSE)
 
+```
+
+## Query-based biclustering
+
+We can conduct a query-based biclustering by adding the weight parameter. In this example, the instance file "511145.protein.links.v10.txt" [@szklarczyk14] was downloaded from string (http://string-db.org/download/protein.links.v10/511145.protein.links.v10.txt.gz) and decompressed and saved in working directory. 
+
+```r
+# Here is an example to download and extract the weight
+library(igraph)
+url <- "http://string-db.org/download/protein.links.v10/511145.protein.links.v10.txt.gz"
+tmp <- tempfile()
+download.file(url, tmp)
+graph = read.graph(gzfile(tmp), format = "ncol")
+unlink(tmp)
+ecoli.weight <- get.adjacency(graph, attr = "weight")
+```
+
+
+```{r query-based-biclustering, cache = TRUE, message = FALSE}
+library(QUBIC)
+library(QUBICdata)
+data("ecoli", package = "QUBICdata")
+data("ecoli.weight", package = "QUBICdata")
+res0 <- biclust(ecoli, method = BCQU(), verbose = FALSE)
+res0
+res4 <- biclust(ecoli, method = BCQU(), weight = ecoli.weight, verbose = FALSE)
+res4
+```
+
+## Bicluster-expanding
+
+we can expand existing biclustering results to recruite more genes according to certain consistency level:
+
+```{r bicluster-expanding, cache = TRUE}
+res5 <- biclust(x = ecoli, method = BCQU(), seedbicluster = res, f = 0.25, verbose = FALSE)
+summary(res5)
+```
+
+## Biclusters comparison
+
+We can compare the biclustering results obtained from different algorithms, or from a same algorithm with different combinations of parameter.
+
+```{r biclusters-comparison, cache = TRUE}
+test <- ecoli[1:50,]
+res6 <- biclust(test, method = BCQU(), verbose = FALSE)
+res7 <- biclust (test, method = BCCC())
+res8 <- biclust(test, method = BCBimax())
+showinfo (test, c(res6, res7, res8))
 ```
 
 # References

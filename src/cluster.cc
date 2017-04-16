@@ -96,7 +96,6 @@ static int seed_current_modify(const DiscreteArray& s, std::list<std::size_t>& c
 static bool check_seed(const Edge* e, const std::vector<Block>& bb, std::size_t rows) {
   std::size_t block_id = bb.size();
   std::size_t b1, b2;
-  std::size_t b3;
   for (std::size_t i = 0; i < block_id; i++)
     if (bb[i].contains(e->gene_one) && bb[i].contains(e->gene_two))
       return false;
@@ -127,8 +126,7 @@ static bool check_seed(const Edge* e, const std::vector<Block>& bb, std::size_t 
     profiles[*it]++;
   for (std::size_t index = 0; index < rows; index++)
     if (profiles[index] > 1) return false;
-  b3 = std::max(bb[b1].block_cols(), bb[b2].block_cols());
-  return e->score - b3 >= 0;
+  return e->score >= static_cast<int>(std::max(bb[b1].block_cols(), bb[b2].block_cols()));
 }
 
 static long double get_pvalue(const continuous& a, const int& b) {
