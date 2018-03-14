@@ -26,6 +26,28 @@ qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
                                 res["info"]))
 }
 
+scqubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
+                        k = max(ncol(x)%/%20, 2), type = "default",
+                        P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL) {
+  MYCALL <- match.call()
+  S <- (type == "area")
+  if(!is.null(weight)) {
+    w <- Matrix::Matrix(data = 0, nrow = nrow(x), ncol = nrow(x), dimnames = list(rownames(x), rownames(x)))
+    weight[] <- rank(weight, ties.method = "average")
+    intersect_rows <- intersect(rownames(x), rownames(weight))
+    w[intersect_rows, intersect_rows] <- weight[intersect_rows, intersect_rows]
+    res <- .scqubic_dw(x, c, o, f, k, P, S, C, verbose, w)
+  } else if(!is.null(seedbicluster)) {
+    if (seedbicluster@Number >= 1)
+      res <- .scqubic_de(x, c, verbose, seedbicluster@RowxNumber, seedbicluster@NumberxCol)
+    else
+      return(seedbicluster)
+  } else res <- .scqubic_d(x, c, o, f, k, P, S, C, verbose)
+  rownames(res) <- colnames(x)
+  colnames(res) <- colnames(x)
+  return(res)
+}
+
 #' @describeIn QUBIC Performs a QUalitative BIClustering.
 #'
 #' @usage qubiclust(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
@@ -37,4 +59,22 @@ qubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
                        P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL) {
   x_d <- qudiscretize(x, r, q)
   return(qubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster))
+}
+
+scqubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
+                      k = max(ncol(x)%/%20, 2), type = "default",
+                      P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL) {
+  x_d <- qudiscretize(x, r, q)
+  return(scqubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster))
+}
+
+scgraph <- function(res) {
+  nc <- ncol(res@NumberxCol);
+  number <- nrow(res@NumberxCol);
+  matrix <- rep(FALSE, nc) %o% rep(FALSE, nc);
+  for (index in 1:number) {
+    col <- res@NumberxCol[index,];
+    matrix <- matrix + col %o% col;
+  }
+  return(matrix);
 }
