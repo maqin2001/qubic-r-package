@@ -68,7 +68,7 @@ scqubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
   return(scqubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster))
 }
 
-scgraph <- function(res) {
+scgraph <- function(res, cleardiagonal = FALSE, dimnames = NULL) {
   nc <- ncol(res@NumberxCol);
   number <- nrow(res@NumberxCol);
   matrix <- rep(FALSE, nc) %o% rep(FALSE, nc);
@@ -76,5 +76,9 @@ scgraph <- function(res) {
     col <- res@NumberxCol[index,];
     matrix <- matrix + col %o% col;
   }
+  if (!is.null(dimnames))
+    dimnames(x) <- dimnames;
+  if (cleardiagonal)
+    diag(x) <- 0;
   return(matrix);
 }
