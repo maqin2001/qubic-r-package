@@ -26,6 +26,7 @@ qubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
                                 res["info"]))
 }
 
+#' @describeIn Input scRNA expression data, do biclustering + dense graph, output dense graph.
 scqubiclust_d <- function(x, c = 0.95, o = 100, f = 1,
                         k = max(ncol(x)%/%20, 2), type = "default",
                         P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL) {
@@ -61,6 +62,7 @@ qubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
   return(qubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster))
 }
 
+#' @describeIn Input scRNA expression data, do discritization + biclustering + dense graph, output dense graph.
 scqubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
                       k = max(ncol(x)%/%20, 2), type = "default",
                       P = FALSE, C = FALSE, verbose = TRUE, weight = NULL, seedbicluster = NULL) {
@@ -68,6 +70,7 @@ scqubiclust <- function(x, r = 1L, q = 0.06, c = 0.95, o = 100, f = 1,
   return(scqubiclust_d(x_d, c, o, f, k, type, P, C, verbose, weight, seedbicluster))
 }
 
+#' @describeIn Input bicluster, do dense graph, output graph matrix (symmetric)
 scgraph <- function(res, cleardiagonal = FALSE, dimnames = NULL) {
   nc <- ncol(res@NumberxCol);
   number <- nrow(res@NumberxCol);
