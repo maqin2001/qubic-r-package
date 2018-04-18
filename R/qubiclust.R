@@ -85,3 +85,20 @@ scgraph <- function(res, cleardiagonal = FALSE, dimnames = NULL) {
     diag(matrix) <- 0;
   return(matrix);
 }
+
+scmgraph <- function(reslist, cleardiagonal = FALSE, dimnames = NULL) {
+  nc <- ncol(reslist[[1]]@NumberxCol);
+  matrix <- rep(FALSE, nc) %o% rep(FALSE, nc);
+  for (res in reslist) {
+    if (nc != ncol(res@NumberxCol)) stop("Different NumberxCol");
+    for (index in 1:number) {
+      col <- res@NumberxCol[index,];
+      matrix <- matrix + col %o% col;
+    }
+  }
+  if (!is.null(dimnames))
+    dimnames(matrix) <- dimnames;
+  if (cleardiagonal)
+    diag(matrix) <- 0;
+  return(matrix);
+}
