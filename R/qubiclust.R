@@ -80,8 +80,8 @@ scgraph <- function(res, cleardiagonal = FALSE, dimnames = NULL) {
     matrix <- matrix + col %o% col;
   }
   if (!is.null(dimnames))
-    dimnames(x) <- dimnames;
+    dimnames(matrix) <- dimnames;
   if (cleardiagonal)
-    diag(x) <- 0;
+    diag(matrix) <- 0;
   return(matrix);
 }
