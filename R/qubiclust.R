@@ -106,3 +106,9 @@ scmgraph <- function(reslist, cleardiagonal = FALSE, dimnames = NULL) {
     diag(matrix) <- 0
   return(matrix)
 }
+
+#' @describeIn Input dense graph, do MCL, output cell type classification (A table).
+sc_cell <- function(x) {
+  clust <- MCL::mcl(x, addLoops = TRUE, inflation = 100, max.iter = 100)  # MCL clustering
+  return(clust)
+}
