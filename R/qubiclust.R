@@ -94,6 +94,7 @@ scmgraph <- function(reslist, cleardiagonal = FALSE, dimnames = NULL) {
   for (res in reslist) {
     if (nc != ncol(res@NumberxCol))
       stop("Different NumberxCol")
+    number <- nrow(res@NumberxCol)
     for (index in 1:number) {
       col <- res@NumberxCol[index, ]
       matrix <- matrix + col %o% col
