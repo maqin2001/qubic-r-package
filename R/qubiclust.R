@@ -112,3 +112,20 @@ sc_cell <- function(x) {
   clust <- MCL::mcl(x, addLoops = TRUE, inflation = 100, max.iter = 100)  # MCL clustering
   return(clust)
 }
+
+#' @describeIn Input bicluster + cell subtype, do gene assignment and merging, output subtype-gene frequency matrix
+sc_gene <- function(m, res, dimnames = NULL) {
+  mc <- unique(m$Cluster)
+  matrix <- rep(FALSE, nrow(res@RowxNumber)) %o% rep(FALSE,
+    ncol(res@NumberxCol))
+  for (v in mc) {
+    for (i in c(1:res@Number)) {
+      x <- m$Cluster == v & res@NumberxCol[i, ]
+      y <- x * (sum(x) - 1)
+      matrix <- matrix + res@RowxNumber[, i] %o% y
+    }
+  }
+  if (!is.null(dimnames))
+    dimnames(matrix) <- dimnames
+  return(matrix)
+}
