@@ -108,9 +108,11 @@ scmgraph <- function(reslist, cleardiagonal = FALSE, dimnames = NULL) {
 }
 
 #' @describeIn Input dense graph, do MCL, output cell type classification (A table).
-sc_cell <- function(x) {
-  clust <- MCL::mcl(x, addLoops = TRUE, inflation = 100, max.iter = 100)  # MCL clustering
-  return(clust)
+sc_cell <- function(x, inflation = 100, zero.cell = NULL) {
+  clust <- MCL::mcl(x, addLoops = TRUE, inflation = inflation, max.iter = 100)  # MCL clustering
+  if (!is.null(zero.cell))
+    clust$Cluster[zero.cell] <- -1
+  return(clust$Cluster)
 }
 
 #' @describeIn Input bicluster + cell subtype, do gene assignment and merging, output subtype-gene frequency matrix
